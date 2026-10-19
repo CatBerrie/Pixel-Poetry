@@ -1,5 +1,9 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
-<title>Pixel Poetry</title>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pixel Poetry · Nature Photography</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Playfair+Display:ital,wght@0,600;1,500&family=Pacifico&display=swap" rel="stylesheet">
 
@@ -19,6 +23,7 @@
 }
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
+html{overflow-x:clip}                      /* nothing is ever allowed to push the page sideways */
 body{
   margin:0; color:var(--text);
   font-family:'Inter',system-ui,sans-serif;
@@ -36,7 +41,7 @@ body::before{
 #fireflies{position:fixed; inset:0; z-index:0; pointer-events:none}
 
 /* the forest background: fixed, so it stays with you while you scroll */
-#forest{position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden}
+#forest{position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden; contain:paint}
 #forest svg{position:absolute; left:-4%; bottom:0; width:108%; height:100%; will-change:transform; transition:transform .3s ease-out}
 #forest .mist{position:absolute; left:0; right:0; bottom:0; height:60%; background:linear-gradient(to top, rgba(150,215,180,.22), transparent)}
 #forest .rays{
@@ -46,7 +51,75 @@ body::before{
   animation:sway 14s ease-in-out infinite alternate;
 }
 @keyframes sway{from{transform:translateX(-30px)}to{transform:translateX(30px)}}
+/* PHONES / TOUCH SCREENS: some phone browsers (Android in-app browsers like Messenger's) draw broken colourful
+   garbage where a moving, masked layer sticks out past the screen edge. On touch devices we keep the light rays
+   exactly inside the screen and hold them still, so there is nothing that can glitch. */
+@media (max-width:900px), (pointer:coarse){
+  #forest .rays{inset:0 0 35% 0; will-change:auto; animation:none}
+}
+main{overflow-x:clip}                       /* cards that slide in from the side can't widen the page */
 header,main,footer,nav{position:relative; z-index:1}
+
+/* =====================================================
+   8) THEMES: Default (the look you know), Night, Day
+   Pick one with the 🌿/🌙/☀️ button in the top bar (or press T).
+   The tree colours live in the JS function buildForest().
+   ===================================================== */
+.themebtn{flex:none; display:inline-flex; align-items:center; gap:7px; height:36px; padding:0 11px; border-radius:999px; font:600 .8rem/1 'Inter',system-ui,sans-serif; border:1px solid rgba(255,255,255,.2); background:rgba(255,255,255,.09); color:#fff; cursor:pointer; transition:.25s}
+.themebtn .ti{font-size:1.05rem; line-height:1}
+.themebtn .tl{white-space:nowrap; color:#eafff1; letter-spacing:.4px; text-shadow:0 0 6px rgba(167,243,208,.95), 0 0 14px rgba(167,243,208,.7), 0 0 26px rgba(74,222,128,.5); animation:themeGlow 2.6s ease-in-out infinite alternate}
+@keyframes themeGlow{from{text-shadow:0 0 5px rgba(167,243,208,.7), 0 0 12px rgba(167,243,208,.45)}to{text-shadow:0 0 8px rgba(167,243,208,1), 0 0 18px rgba(167,243,208,.85), 0 0 30px rgba(74,222,128,.6)}}
+.themebtn{border-color:rgba(167,243,208,.45); box-shadow:0 0 14px rgba(167,243,208,.18)}
+@media (max-width:480px){ .themebtn .tl{display:none} .themebtn{padding:0; width:36px; justify-content:center} }
+.themebtn.hint{animation:themePulse 1.8s ease-out 3}
+@keyframes themePulse{0%{box-shadow:0 0 0 0 rgba(167,243,208,.7)}100%{box-shadow:0 0 0 14px rgba(167,243,208,0)}}
+.themebtn:hover{background:rgba(255,255,255,.2); transform:scale(1.05)}
+#skyfx{position:fixed; inset:0; z-index:0; pointer-events:none; display:none; overflow:hidden}
+#skyfx .star{position:absolute; border-radius:50%; background:#fff; animation:twinkle var(--d,3s) ease-in-out infinite alternate}
+@keyframes twinkle{from{opacity:.15}to{opacity:.95}}
+#skyfx .moon{position:absolute; top:11%; right:11%; width:78px; height:78px; border-radius:50%;
+  background:radial-gradient(circle at 36% 34%, #fffef2 0, #f1eed0 55%, #d3d3b4 100%); box-shadow:0 0 50px 16px rgba(255,255,225,.22), 0 0 140px 50px rgba(160,190,255,.12)}
+#skyfx .moon::after{content:""; position:absolute; inset:0; border-radius:50%; background:radial-gradient(circle at 30% 40%, rgba(120,120,100,.18) 0 9%, transparent 10%), radial-gradient(circle at 64% 62%, rgba(120,120,100,.16) 0 12%, transparent 13%), radial-gradient(circle at 58% 24%, rgba(120,120,100,.14) 0 6%, transparent 7%)}
+
+/* NIGHT: darker, bluer forest, stars and a moon */
+:root[data-theme="night"]{--text:#dcebe3; --muted:#9db8a9; --card:#0e281e; --glow:#e7fca8}
+:root[data-theme="night"] body{background:#07130f}
+:root[data-theme="night"] body::before{background:
+  radial-gradient(900px 600px at 82% 6%, rgba(130,170,255,.16), transparent 65%),
+  linear-gradient(180deg,#040d0a 0%,#08170f 45%,#06120d 100%)}
+:root[data-theme="night"] #skyfx{display:block}
+:root[data-theme="night"] #forest .rays{background:repeating-linear-gradient(105deg, transparent 0 70px, rgba(170,200,255,.05) 70px 120px, transparent 120px 230px)}
+:root[data-theme="night"] #forest .mist{background:linear-gradient(to top, rgba(90,140,150,.16), transparent)}
+
+/* DAY: bright yellow-green meadow light */
+:root[data-theme="day"]{--text:#123520; --muted:#2c5a37; --mint:#1d6b3a; --glow:#46801a; --moss:#2f9140; --card:#eef6cc}
+:root[data-theme="day"] body{background:#b9dc72}
+:root[data-theme="day"] body::before{background:
+  radial-gradient(900px 640px at 14% 0%, rgba(255,250,170,.85), transparent 62%),
+  radial-gradient(800px 500px at 90% 30%, rgba(255,235,140,.35), transparent 65%),
+  linear-gradient(180deg,#ecf6a6 0%,#bfe075 45%,#86c24d 100%)}
+:root[data-theme="day"] #fireflies{opacity:0}
+:root[data-theme="day"] #forest .rays{opacity:.7; background:repeating-linear-gradient(105deg, transparent 0 70px, rgba(255,252,200,.28) 70px 120px, transparent 120px 230px)}
+:root[data-theme="day"] #forest .mist{background:linear-gradient(to top, rgba(255,255,200,.38), transparent)}
+:root[data-theme="day"] .hero h1 .ch{text-shadow:0 2px 0 rgba(255,255,255,.55), 0 0 24px rgba(255,255,200,.6)}
+:root[data-theme="day"] .section-title{text-shadow:0 1px 0 rgba(255,255,255,.5)}
+:root[data-theme="day"] .filters button{background:rgba(255,255,255,.35); border-color:rgba(35,95,30,.35); color:#1d4d2a}
+:root[data-theme="day"] .filters button:hover{color:#0f3b1c; border-color:#2f9140}
+:root[data-theme="day"] .filters button.active{background:#2f9140; color:#fff; border-color:#2f9140; box-shadow:0 4px 14px rgba(47,145,64,.35)}
+:root[data-theme="day"] .tool{background:rgba(255,255,255,.4); border-color:rgba(35,95,30,.45); color:#1d4d2a}
+:root[data-theme="day"] .tool:hover{color:#0f3b1c; border-color:#2f9140}
+:root[data-theme="day"] .btn{background:linear-gradient(120deg,#2f9140,#8cc63f); color:#fff; box-shadow:0 6px 20px rgba(47,145,64,.4)}
+:root[data-theme="day"] nav{background:rgba(12,26,16,.9)}
+:root[data-theme="day"] #toast{color:#f2fbe8}
+:root[data-theme="day"] .hero p{color:#0f3b1c; font-weight:500; text-shadow:0 0 12px rgba(255,255,210,.9), 0 0 3px rgba(255,255,230,.9)}
+:root[data-theme="day"] footer{color:#25502f}
+:root[data-theme="day"] .swatch.on{box-shadow:0 0 0 3px #fff, 0 0 0 5px #2f9140}
+
+/* find-by-colour dots */
+.swatches{display:flex; gap:10px; justify-content:center; align-items:center; flex-wrap:wrap; margin:-18px 0 34px; color:var(--muted); font-size:.85rem}
+.swatch{width:26px; height:26px; border-radius:50%; border:2px solid rgba(255,255,255,.55); background:var(--c); cursor:pointer; padding:0; transition:.2s}
+.swatch:hover{transform:scale(1.18)}
+.swatch.on{box-shadow:0 0 0 3px rgba(255,255,255,.9), 0 0 0 5px rgba(74,222,128,.7); transform:scale(1.12)}
 
 /* =====================================================
    2) NAVBAR
@@ -210,6 +283,7 @@ section{padding:90px clamp(18px,5vw,56px)}
   border:1px solid rgba(190,230,240,.28); box-shadow:0 24px 60px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.12);
 }
 .about-card .section-title{margin-top:0}
+.about-hi strong{font-family:'Playfair Display',Georgia,serif; font-weight:600; letter-spacing:.5px; text-transform:none}
 .about-hi{font-family:'Pacifico','Playfair Display',cursive; font-size:clamp(1.5rem,4vw,2.1rem); margin:6px 0 18px; color:#ffe1f0}
 .about-tags{display:flex; flex-wrap:wrap; gap:9px; justify-content:center; margin-top:24px}
 .about-tags span{padding:7px 14px; border-radius:30px; font-size:.84rem; color:#eaf6fb; background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.2)}
@@ -356,7 +430,11 @@ footer{text-align:center; padding:40px 20px 60px; color:var(--muted); font-size:
   .fl{opacity:1; transform:none}
 }
 </style>
+<script>try{var t=localStorage.getItem('pp_theme');if(t==='night'||t==='day')document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
+</head>
 
+<body>
+<div id="skyfx" aria-hidden="true"><div class="moon"></div></div>
 <div id="forest"></div>
 <canvas id="fireflies"></canvas>
 
@@ -422,8 +500,9 @@ footer{text-align:center; padding:40px 20px 60px; color:var(--muted); font-size:
         <path d="M-5 0 l-2 .6" stroke="#2a1b05" stroke-width="1.2" stroke-linecap="round"/>
       </g>
     </svg><b>Pixel Poetry</b></a>
+  <button class="themebtn" id="themeBtn" type="button" aria-label="Switch look: default, night or day" title="Switch theme (T)"><span class="ti">🌿</span><span class="tl">Theme</span></button>
   <label class="search" for="searchBox"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg><input id="searchBox" type="search" placeholder="Search photos…" autocomplete="off" aria-label="Search photos"><kbd>/</kbd></label>
-  <div class="links"><a href="#gallery">Gallery</a><a href="#about">About</a></div>
+  <div class="links"><a href="#gallery">Gallery</a><a href="#about">About</a><a id="feedbackLink" href="#" target="_blank" rel="noopener" hidden>💌 Feedback</a></div>
 </nav>
 
 <header class="hero" id="top">
@@ -498,6 +577,7 @@ footer{text-align:center; padding:40px 20px 60px; color:var(--muted); font-size:
     <h2 class="section-title">The Gallery</h2>
     <p class="section-sub" id="gallerySub">Hover to feel the light. Click to step inside. 🌿</p>
     <div class="filters" id="filters"></div>
+    <div class="swatches" id="swatches" aria-label="Find photos by colour"><span>🎨 Find by colour</span></div>
     <div class="tools">
       <button class="tool" id="surpriseBtn">🎲 Surprise me</button>
       <button class="tool" id="slideBtn">▶ Forest walk (slideshow)</button>
@@ -508,7 +588,7 @@ footer{text-align:center; padding:40px 20px 60px; color:var(--muted); font-size:
   <section id="about">
     <div class="about-card">
       <h2 class="section-title">About</h2>
-      <p class="about-hi">Hi, I'm <strong>Arpita Firoz</strong> 🐾</p>
+      <p class="about-hi">Hi, I'm <strong id="aboutName"></strong></p>
       <p class="about">
         I'm a Computer Science &amp; Engineering student at Daffodil International University, Bangladesh.
         By day I'm busy with code, algorithms and big questions in AI/ML and cybersecurity.
@@ -519,13 +599,13 @@ footer{text-align:center; padding:40px 20px 60px; color:var(--muted); font-size:
         Everything here is photographed by me under the name <strong>Cat_Berrie</strong>.
       </p>
       <div class="about-tags" aria-label="A few things about me">
-        <span>📸 Phone photographer</span><span>💻 CSE student</span><span>🤖 AI/ML curious</span><span>🔐 Cybersecurity explorer</span><span>🌸 Flower collector</span><span>🐱 Cat energy</span>
+        <span>📸 Phone photographer</span><span>💻 CSE student</span><span>🤖 AI/ML curious</span><span>🔐 Cybersecurity explorer</span><span>🌸 Flower collector</span>
       </div>
     </div>
   </section>
 </main>
 
-<footer>© <span id="year"></span> Pixel Poetry · Photos &amp; website by Arpita Firoz (<span id="credit"></span>)<br>Fueled by curiosity, cat energy and an ever-growing camera roll 🐾📸</footer>
+<footer>© <span id="year"></span> Pixel Poetry · Photos &amp; website by <span id="owner"></span> (<span id="credit"></span>)<br>Made with curiosity, code and an ever-growing camera roll 📸</footer>
 
 <!-- LIGHTBOX -->
 <div id="lightbox" aria-modal="true" role="dialog" aria-label="Photo viewer">
@@ -584,7 +664,11 @@ footer{text-align:center; padding:40px 20px 60px; color:var(--muted); font-size:
 /* =====================================================
    A) SITE SETTINGS + COLLECTIONS  ← easy things to rename
    ===================================================== */
-const SITE = { credit:"Cat_Berrie" };       // shown in the footer and in the download panel
+const SITE = {
+  name:"Arpita Firoz",                    // exact spelling of the name, used everywhere
+  credit:"Cat_Berrie",
+  feedbackUrl:""      // paste a Google Form (or any) link here and a "💌 Feedback" button appears in the top bar
+};       // shown in the footer and in the download panel
 
 // The filter buttons. The word on the left (blooms, canopy...) is what a photo writes in  category:"..."
 const collections = {
@@ -665,13 +749,14 @@ const skipFrame = () => scrolling && (++skipTick & 1);
 })();
 // true when you double-click index.html (the page comes from a folder, not a web server).
 // Browsers refuse to "save" files that way, so the download button behaves a bit differently then.
-const FILE_MODE = true; // hosted preview: photo opens in a new tab
+const FILE_MODE = location.protocol === 'file:';
 
 // work out each photo's file paths once
 photos.forEach((ph, i) => {
   ph.id   = i;
   ph.slug = ph.file.replace(/\.[^.]+$/, '');                        // "a-shower-of-gold.jpg" -> "a-shower-of-gold"
-  ph.src  = 'photos/' + ph.file;                                     // the picture people see
+  ph.src  = 'photos/' + ph.file;                                     // the big picture (lightbox)
+  ph.thumb = 'photos/thumb/' + ph.file;                              // small copy for the grid, so scrolling stays smooth
   ph.dl   = 'photos/download/' + ph.slug + '-pixelpoetry.jpg';         // the watermarked copy they can download
 });
 
@@ -726,7 +811,7 @@ const cards = photos.map(ph => {
   const tilt = document.createElement('div');
   tilt.className = 'tilt';
   const img = document.createElement('img');
-  img.src = ph.src;
+  img.src = ph.thumb; img.onerror = () => { img.onerror = null; img.src = ph.src; };   // falls back to the big one if a thumb is missing
   img.alt = ph.title + '. ' + ph.caption;
   img.loading = 'lazy'; img.decoding = 'async';
   if(ph.w && ph.h){ img.width = ph.w; img.height = ph.h; }
@@ -801,18 +886,43 @@ document.querySelectorAll('#gallery .section-title, .about-card .section-title')
   const kinds = box.children.length - 1;
   $('gallerySub').textContent = photos.length + ' photographs in ' + kinds + ' collections. Hover to feel the light, click to step inside. 🌿';
 })();
-let curFilter = 'all', query = '';
+let curFilter = 'all', query = '', curColor = '';
 const noMatch = document.createElement('p'); noMatch.className = 'nomatch';
 $('filters').after(noMatch);
+// FIND BY COLOUR: turn each photo's 4-5 main colours into a few "colour families"
+function hueFamily(hex){
+  const n = parseInt(hex.slice(1), 16), r = (n>>16)/255, g = ((n>>8)&255)/255, b = (n&255)/255;
+  const mx = Math.max(r,g,b), mn = Math.min(r,g,b), l = (mx+mn)/2, d = mx-mn;
+  if(l < .17) return 'dark';
+  if(l > .82) return 'pale';
+  if(d < .12) return null;                                   // grey: not interesting
+  let h = mx===r ? ((g-b)/d)%6 : mx===g ? (b-r)/d + 2 : (r-g)/d + 4; h = (h*60 + 360) % 360;
+  return h < 20 || h >= 340 ? 'red' : h < 45 ? 'orange' : h < 70 ? 'yellow' : h < 170 ? 'green' : h < 260 ? 'blue' : 'pink';
+}
+const photoHues = photos.map(p => [...new Set((p.colors||[]).map(hueFamily).filter(Boolean))]);
+const SWATCHES = [['red','#e0483f'],['orange','#f08a2c'],['yellow','#f3d44a'],['green','#4fae5a'],['blue','#4b86d6'],['pink','#e98ec0'],['pale','#f4efe3'],['dark','#1d2321']];
+SWATCHES.forEach(([k,c]) => {
+  if(!photoHues.some(h => h.includes(k))) return;           // only show colours that really exist in the gallery
+  const b = document.createElement('button'); b.className = 'swatch'; b.type = 'button'; b.dataset.k = k;
+  b.style.setProperty('--c', c); b.title = 'Photos with ' + k; b.setAttribute('aria-label', 'Show photos with ' + k);
+  $('swatches').appendChild(b);
+});
+$('swatches').addEventListener('click', e => {
+  const b = e.target.closest('.swatch'); if(!b) return;
+  curColor = curColor === b.dataset.k ? '' : b.dataset.k;
+  document.querySelectorAll('.swatch').forEach(x => x.classList.toggle('on', x.dataset.k === curColor));
+  applyFilters();
+});
 const haystack = photos.map(p => [p.title, p.caption, p.category, (collections[p.category]||{}).name, p.date].join(' ').toLowerCase());
 function applyFilters(){
   let shown = 0;
   cards.forEach(c => {
     const okCat = curFilter === 'all' || c.dataset.cat === curFilter;
     const okQ = !query || query.split(/\s+/).every(w => haystack[+c.dataset.id].includes(w));
-    const ok = okCat && okQ; c.classList.toggle('hide', !ok); if(ok) shown++;
+    const okC = !curColor || (photoHues[+c.dataset.id] || []).includes(curColor);
+    const ok = okCat && okQ && okC; c.classList.toggle('hide', !ok); if(ok) shown++;
   });
-  noMatch.textContent = shown ? '' : 'No photos match "' + query + '" 🌱 Try a flower, a color or a month.';
+  noMatch.textContent = shown ? '' : 'No photos match that 🌱 Try a flower, a colour or a month.';
   noMatch.classList.toggle('show', !shown);
 }
 $('filters').addEventListener('click', e => {
@@ -830,6 +940,8 @@ addEventListener('keydown', e => {
   if(e.key === '/' && document.activeElement !== searchBox && !lb.classList.contains('open') && !['INPUT','TEXTAREA'].includes(document.activeElement.tagName)){ e.preventDefault(); searchBox.focus(); }
 });
 $('credit').textContent = SITE.credit;
+$('owner').textContent = SITE.name; $('aboutName').textContent = SITE.name;
+if(SITE.feedbackUrl){ const fb = $('feedbackLink'); fb.href = SITE.feedbackUrl; fb.hidden = false; }
 $('dlCredit').textContent = SITE.credit + ' · Pixel Poetry';
 
 /* =====================================================
@@ -899,7 +1011,7 @@ function vote(type){
 }
 
 /* ---- download panel: shows the REAL watermarked file, then downloads it ---- */
-const FILE_TIP = 'The photo opens in a new tab. On a phone, press and hold it, then Save Image. On a computer, right-click → Save Image As 🌿';
+const FILE_TIP = 'Opened straight from a folder? Your browser will show the photo in a new tab: press ⌘S (or right-click → Save Image As). Run the site with Live Server for a one-click download 🌿';
 function openDownload(){
   const ph = photos[cur], thumb = $('dlThumb'), go = $('dlGo'), note = $('dlNote');
   go.classList.add('off');
@@ -920,7 +1032,7 @@ $('dlGo').addEventListener('click', e => {
   if(e.currentTarget.classList.contains('off')){ e.preventDefault(); return; }
   const s = stat(photos[cur].slug); s.downloads++; save(); paint();
   burstFrom($('dlGo'), ['🌿','🍃','✨','💚','🌸']);
-  toast(FILE_MODE ? 'Opened in a new tab. Press and hold (or right-click) to save it 🌿' : 'Saved! Thank you for carrying a piece of the forest 🌿');
+  toast(FILE_MODE ? 'Opened in a new tab. Press ⌘S to save it 🌿' : 'Saved! Thank you for carrying a piece of the forest 🌿');
   setTimeout(closeDownload, 1100);                                   // the download itself starts right away
 });
 
@@ -980,7 +1092,13 @@ document.addEventListener('keydown', e => {
    ===================================================== */
 const title = $('title');
 // each letter gets its own colour on the same pink -> lime fade as the top-bar logo (plain text colour: nothing gets cropped, even the swirly Pacifico tails)
-const titleStops = [[255,194,226],[236,221.5,191.5],[217,249,157]];   // same pink -> lime fade as the name in the top bar (#ffc2e2 -> #d9f99d)
+const currentTheme = () => document.documentElement.getAttribute('data-theme') || 'default';
+const TITLE_STOPS = {
+  default:[[255,194,226],[236,221.5,191.5],[217,249,157]],
+  night:  [[255,194,226],[236,221.5,191.5],[217,249,157]],
+  day:    [[196,44,112],[128,140,20],[36,112,48]]
+};
+let titleStops = TITLE_STOPS[currentTheme()] || TITLE_STOPS.default;   // same pink -> lime fade as the name in the top bar (#ffc2e2 -> #d9f99d)
 function titleColor(t){ const k = t < .5 ? 0 : 1, u = (t < .5 ? t : t - .5)*2, A = titleStops[k], B = titleStops[k+1];
   return `rgb(${A.map((v,n) => Math.round(v + (B[n]-v)*u)).join(',')})`; }
 const titleChars = [...title.textContent];
@@ -988,7 +1106,7 @@ let wordNo = 0, inWord = 0;                                    // "Pixel" appear
 title.innerHTML = titleChars.map((c,i) => {
   if(c === ' '){ wordNo++; inWord = 0; return '<span class="ch" style="animation-delay:0ms">&nbsp;</span>'; }
   const delay = 120 + wordNo*260 + (inWord++)*38;
-  return `<span class="ch" style="animation-delay:${delay}ms; color:${titleColor(i/(titleChars.length-1))}">${c}</span>`;
+  return `<span class="ch" data-t="${(i/(titleChars.length-1)).toFixed(3)}" style="animation-delay:${delay}ms; color:${titleColor(i/(titleChars.length-1))}">${c}</span>`;
 }).join('');
 $('year').textContent = new Date().getFullYear();
 
@@ -1042,12 +1160,25 @@ function forestLayer(seed, count, hMin, hMax, col, col2, opacity, oakChance, bas
 }
 
 const forest = $('forest');
-forest.innerHTML = '<div class="rays"></div>'
-  + forestLayer(21, 16, 170, 250, '#2f6a50', '#3a7a5c', .75, .20, 800)  // far: small + hazy
-  + '<div class="mist"></div>'
-  + forestLayer(33, 10, 270, 380, '#1c4a37', '#255a43', .95, .30, 880)  // middle
-  + forestLayer(47,  6, 420, 560, '#0f2f22', '#16402f', 1,   .25, 930); // near: big + dark
-const forestLayers = [...forest.querySelectorAll('svg')];
+// tree colours for each look: [far trunk, far leaves, mid, mid, near, near, mist-free sky is in CSS]
+const FOREST_THEMES = {
+  default:{ far:['#2f6a50','#3a7a5c'], mid:['#1c4a37','#255a43'], near:['#0f2f22','#16402f'] },
+  night:  { far:['#173b3d','#1e4a4a'], mid:['#0e2a2b','#14363a'], near:['#051419','#0a2024'] },
+  day:    { far:['#9ccc57','#aedb69'], mid:['#6db43c','#7cc54a'], near:['#3d8d2c','#4aa036'] }
+};
+function buildForest(theme){
+  const c = FOREST_THEMES[theme] || FOREST_THEMES.default;
+  forest.innerHTML = '<div class="rays"></div>'
+    + forestLayer(21, 16, 170, 250, c.far[0],  c.far[1],  .75, .20, 800)  // far: small + hazy
+    + '<div class="mist"></div>'
+    + forestLayer(33, 10, 270, 380, c.mid[0],  c.mid[1],  .95, .30, 880)  // middle
+    + forestLayer(47,  6, 420, 560, c.near[0], c.near[1], 1,   .25, 930); // near: big + dark
+  forestLayers = [...forest.querySelectorAll('svg')];
+  if(window.ppReady) parallax();                 // (not on the very first build: parallax() isn't defined yet)
+}
+let forestLayers = [];
+buildForest(currentTheme());
+
 let mxp = 0, scy = 0;
 let parallaxQueued = false;
 function parallax(){ if(parallaxQueued) return; parallaxQueued = true; requestAnimationFrame(doParallax); }
@@ -1058,6 +1189,7 @@ function doParallax(){
     el.style.transform = `translate(${mxp*-34*f}px, ${Math.min(scy,1600)*.035*f}px)`;
   });
 }
+window.ppReady = true;
 addEventListener('mousemove', e => { mxp = e.clientX/innerWidth - .5; parallax(); });
 addEventListener('scroll', () => { scy = scrollY; parallax(); }, { passive:true });
 
@@ -1488,6 +1620,42 @@ function critterLoop(t){
 }
 if(calm){ cc.remove(); } else { requestAnimationFrame(critterLoop); }
 
-</script>
 
-</body></html>
+/* =====================================================
+   G) THEMES: default / night / day  🌿🌙☀️
+   data-theme on <html> flips the CSS colours; here we also
+   rebuild the trees, recolour the title and remember the choice.
+   ===================================================== */
+(function(){
+  const sky = $('skyfx'), btn = $('themeBtn'), order = ['default','night','day'];
+  const icons = { default:'🌿', night:'🌙', day:'☀️' }, names = { default:'Forest', night:'Night', day:'Day' };
+  // stars for the night sky (made once, only visible in night mode)
+  const sr = rng(7);
+  for(let i=0;i<70;i++){
+    const d = document.createElement('i'); d.className = "star"; const z = 1 + sr()*1.8;
+    d.style.cssText = `left:${(sr()*100).toFixed(1)}%;top:${(sr()*62).toFixed(1)}%;width:${z.toFixed(1)}px;height:${z.toFixed(1)}px;--d:${(2+sr()*4).toFixed(1)}s;animation-delay:-${(sr()*5).toFixed(1)}s`;
+    sky.appendChild(d);
+  }
+  if(reduceMotion) sky.querySelectorAll('.star').forEach(x => x.style.animation = 'none');
+  function label(t){ btn.querySelector('.ti').textContent = icons[t]; btn.querySelector('.tl').textContent = 'Theme'; btn.title = 'Theme: ' + names[t] + ' (press T to switch)'; }
+  function apply(t, say){
+    if(t === 'default') document.documentElement.removeAttribute('data-theme'); else document.documentElement.setAttribute('data-theme', t);
+    label(t); btn.classList.remove('hint');
+    titleStops = TITLE_STOPS[t];
+    document.querySelectorAll('#title .ch[data-t]').forEach(c => c.style.color = titleColor(+c.dataset.t));
+    buildForest(t);
+    try{ localStorage.setItem('pp_theme', t); }catch(e){}
+    if(say) toast(icons[t] + ' ' + names[t] + ' theme');
+  }
+  const next = () => order[(order.indexOf(currentTheme()) + 1) % 3];
+  btn.addEventListener('click', () => apply(next(), true));
+  addEventListener('keydown', e => {
+    if((e.key === 't' || e.key === 'T') && !e.metaKey && !e.ctrlKey && !e.altKey && !/INPUT|TEXTAREA/.test((document.activeElement||{}).tagName||'')) apply(next(), true);
+  });
+  label(currentTheme());
+  let seen = false; try{ seen = !!localStorage.getItem('pp_theme'); }catch(e){}
+  if(!seen) btn.classList.add('hint');                  // first visit: a soft pulse so people notice the theme button
+})();
+</script>
+</body>
+</html>
