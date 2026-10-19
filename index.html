@@ -1,0 +1,1493 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Pixel Poetry</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Playfair+Display:ital,wght@0,600;1,500&family=Pacifico&display=swap" rel="stylesheet">
+
+<style>
+/* =====================================================
+   1) COLORS & BASICS  (change these to restyle the site!)
+   ===================================================== */
+:root{
+  --bg:#123626;          /* page background: forest green */
+  --bg2:#0b1a12;
+  --moss:#4ade80;        /* main accent */
+  --mint:#a7f3d0;
+  --glow:#d9f99d;        /* firefly / highlight color */
+  --text:#e8f5ec;
+  --muted:#b4d1bf;
+  --card:#163a29;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0; color:var(--text);
+  font-family:'Inter',system-ui,sans-serif;
+  background:#1a4a35;
+  overflow-x:hidden;
+}
+/* the forest-green sky is a fixed layer of its own (much smoother than background-attachment:fixed while scrolling) */
+body::before{
+  content:""; position:fixed; inset:0; z-index:-1; pointer-events:none;
+  background:
+    radial-gradient(1000px 600px at 20% 0%, rgba(167,243,208,.16), transparent 65%),
+    radial-gradient(900px 600px at 85% 30%, rgba(217,249,157,.08), transparent 65%),
+    linear-gradient(180deg,#246048 0%,#1a4a35 45%,#123626 100%);
+}
+#fireflies{position:fixed; inset:0; z-index:0; pointer-events:none}
+
+/* the forest background: fixed, so it stays with you while you scroll */
+#forest{position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden}
+#forest svg{position:absolute; left:-4%; bottom:0; width:108%; height:100%; will-change:transform; transition:transform .3s ease-out}
+#forest .mist{position:absolute; left:0; right:0; bottom:0; height:60%; background:linear-gradient(to top, rgba(150,215,180,.22), transparent)}
+#forest .rays{
+  position:absolute; inset:-10% -10% 35% -10%; opacity:.4; will-change:transform;
+  background:repeating-linear-gradient(105deg, transparent 0 70px, rgba(217,249,157,.06) 70px 120px, transparent 120px 230px);
+  -webkit-mask-image:linear-gradient(to bottom,#000,transparent); mask-image:linear-gradient(to bottom,#000,transparent);
+  animation:sway 14s ease-in-out infinite alternate;
+}
+@keyframes sway{from{transform:translateX(-30px)}to{transform:translateX(30px)}}
+header,main,footer,nav{position:relative; z-index:1}
+
+/* =====================================================
+   2) NAVBAR
+   ===================================================== */
+nav{
+  position:fixed; top:0; left:0; right:0; z-index:50;
+  display:flex; justify-content:space-between; align-items:center; gap:18px;
+  padding:8px clamp(14px,4vw,48px); border-radius:0;          /* plain full rectangle, no rounded corners */
+  background:rgba(6,6,8,.72);                                   /* black, slightly see-through */
+  border-bottom:1px solid rgba(255,255,255,.1);
+  box-shadow:0 6px 24px rgba(0,0,0,.35);
+}
+.logo{display:flex; align-items:center; gap:7px; font-family:'Pacifico','Playfair Display',cursive; font-size:1.1rem; color:var(--mint); text-decoration:none}
+.logo b{font-weight:400; background:linear-gradient(110deg,#ffc2e2,var(--glow)); -webkit-background-clip:text; background-clip:text; color:transparent}
+.plogo{width:52px; height:auto; overflow:visible; cursor:pointer; filter:drop-shadow(0 4px 8px rgba(0,0,0,.45))}
+.logo .plogo{width:50px}
+.hero-logo{width:clamp(170px,26vw,270px); margin-bottom:4px; cursor:pointer; outline:none}
+.hero-logo .plogo{width:100%; height:auto; filter:drop-shadow(0 12px 22px rgba(0,0,0,.5))}
+.pp-flora{transform-origin:50px 32px; animation:pp-sway 6s ease-in-out infinite alternate}
+@keyframes pp-sway{from{transform:rotate(-2.2deg)}to{transform:rotate(2.2deg)}}
+.pp-bloom{transform-box:fill-box; transform-origin:50% 60%}
+.plogo:hover .pp-bloom{animation:pp-bob 1.1s ease-in-out infinite alternate}
+@keyframes pp-bob{from{transform:rotate(-5deg) scale(1)}to{transform:rotate(5deg) scale(1.08)}}
+.pp-wings{animation:pp-buzz .08s linear infinite alternate; transform-origin:0 -2px}
+@keyframes pp-buzz{from{transform:scaleY(1)}to{transform:scaleY(.35)}}
+.pp-bee{will-change:transform}
+.pp-flash{opacity:0}
+.plogo.snap{animation:pp-squish .5s ease-out}
+.plogo.snap .pp-flash{animation:pp-flash .55s ease-out}
+.plogo.snap .pp-flora{animation:pp-pop .6s cubic-bezier(.2,1.6,.4,1)}
+@keyframes pp-squish{0%{transform:scale(1)}18%{transform:scale(.93)}100%{transform:scale(1)}}
+@keyframes pp-flash{0%{opacity:1; transform:scale(.4)}35%{opacity:1; transform:scale(1.5)}100%{opacity:0; transform:scale(2.2)}}
+@keyframes pp-pop{0%{transform:translateY(8px) scale(.85)}60%{transform:translateY(-3px) scale(1.06)}100%{transform:none}}
+#shutterFlash{position:fixed; inset:0; z-index:900; pointer-events:none; background:#fff; opacity:0}
+#shutterFlash.go{animation:shot .5s ease-out}
+@keyframes shot{0%{opacity:.85}100%{opacity:0}}
+.polaroid{position:fixed; z-index:901; pointer-events:none; width:84px; padding:6px 6px 20px; background:#f7f3e8; box-shadow:0 12px 28px rgba(0,0,0,.5); transform:translate(-50%,-50%) rotate(-6deg); animation:polaroid 1.9s cubic-bezier(.3,.8,.3,1) forwards}
+.polaroid i{display:block; height:68px; background:var(--img) center/cover, #234}
+@keyframes polaroid{0%{opacity:0; transform:translate(-50%,-90%) rotate(-3deg) scale(.7)}18%{opacity:1; transform:translate(-50%,-30%) rotate(-5deg) scale(1)}80%{opacity:1; transform:translate(-50%,40px) rotate(-8deg)}100%{opacity:0; transform:translate(-50%,90px) rotate(-9deg)}}
+nav .search{flex:1; min-width:0; max-width:420px; margin:0 auto; display:flex; align-items:center; gap:7px; padding:0 12px; height:34px; border-radius:30px; background:rgba(255,255,255,.09); border:1px solid rgba(255,255,255,.16); transition:.25s}
+nav .search:focus-within{background:rgba(255,255,255,.14); border-color:#b9b9c0; box-shadow:0 0 0 3px rgba(255,255,255,.08); max-width:480px}
+nav .search svg{flex:none; width:15px; height:15px; stroke:#a3a3ab; fill:none; stroke-width:2; stroke-linecap:round}
+nav .search input{flex:1; min-width:0; width:100%; background:none; border:none; outline:none; color:#e4e4e8; font:inherit; font-size:.86rem}
+nav .search input::placeholder{color:#9b9ba3}
+nav .search kbd{font:600 .66rem Inter,sans-serif; color:#9b9ba3; border:1px solid rgba(155,155,163,.45); border-radius:5px; padding:1px 5px}
+nav .search:focus-within kbd{display:none}
+.nomatch{text-align:center; color:var(--muted); margin:10px 0 26px; display:none}
+.nomatch.show{display:block}
+@media (max-width:620px){ .logo b{display:none} nav .links a{padding:7px 10px} nav .search kbd{display:none} nav{gap:8px} }
+nav .links{display:flex; gap:4px}
+nav .links a{color:#d6d6dc; text-decoration:none; padding:7px 16px; border-radius:30px; font-size:.88rem; transition:.2s}
+nav .links a:hover{color:#06150d; background:var(--glow)}
+
+/* =====================================================
+   3) HERO (the first big screen)
+   ===================================================== */
+.hero{
+  min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center;
+  text-align:center; padding:0 20px; overflow:hidden; position:relative;
+}
+.hero h1{
+  font-family:'Pacifico','Playfair Display',cursive; font-weight:400;
+  font-size:clamp(2.6rem,10.5vw,8rem); margin:0; line-height:1.4; padding:.1em .25em .25em;
+  filter:drop-shadow(0 0 28px rgba(74,222,128,.35));
+}
+.hero h1 .ch{text-shadow:0 0 26px rgba(74,222,128,.35), 0 3px 0 rgba(6,30,18,.25)}
+.hero h1 .ch{display:inline-block; opacity:0; transform:translateY(26px) scale(.92); filter:blur(6px); animation:rise .55s cubic-bezier(.2,.8,.2,1) forwards}
+@keyframes rise{to{opacity:1; transform:none; filter:blur(0)}}
+/* the intro only starts once the page is actually on screen (body gets .go), so it plays every time you open it */
+body:not(.go) .hero h1 .ch, body:not(.go) .hero-logo, body:not(.go) .hero p, body:not(.go) .hero .btn{animation-play-state:paused}
+/* the rest of the first screen floats up right after the title: quick and smooth */
+@keyframes floatUp{from{opacity:0; transform:translateY(22px)}to{opacity:1; transform:none}}
+.hero-logo{animation:floatUp .55s cubic-bezier(.2,.8,.2,1) backwards}
+.hero p{animation:floatUp .65s cubic-bezier(.2,.8,.2,1) .75s backwards}
+.hero .btn{animation:floatUp .65s cubic-bezier(.2,.8,.2,1) .95s backwards}
+/* thin glowing bar that fills as you scroll down the page */
+#progress{position:fixed; top:0; left:0; right:0; height:3px; z-index:70; transform-origin:0 50%; transform:scaleX(0); background:linear-gradient(90deg,#ffc2e2,#d9f99d); box-shadow:0 0 12px rgba(217,249,157,.7); pointer-events:none}
+/* section headings: each word slides up out of a mask */
+.wr{display:inline-block; overflow:hidden; vertical-align:bottom; padding-bottom:.12em}
+.wr > span{display:inline-block; transform:translateY(110%); transition:transform .6s cubic-bezier(.2,.8,.2,1)}
+.fl.in .wr > span, .in .wr > span{transform:none}
+/* sections float in as you scroll to them */
+.fl{opacity:0; transform:translateY(22px); transition:opacity .55s ease, transform .55s cubic-bezier(.2,.8,.2,1)}
+.fl.in{opacity:1; transform:none}
+.hero p{max-width:520px; color:var(--muted); font-size:clamp(1rem,2.2vw,1.2rem); line-height:1.7; margin:22px 0 34px}
+.btn{
+  display:inline-block; padding:13px 30px; border-radius:40px; text-decoration:none; font-weight:600;
+  color:#06150d; background:linear-gradient(120deg,var(--moss),var(--glow));
+  box-shadow:0 0 24px rgba(74,222,128,.4); transition:transform .25s, box-shadow .25s;
+}
+.btn:hover{transform:translateY(-3px) scale(1.04); box-shadow:0 0 38px rgba(217,249,157,.6)}
+
+/* =====================================================
+   4) FILTER BUTTONS + GALLERY
+   ===================================================== */
+section{padding:90px clamp(18px,5vw,56px)}
+.section-title{font-family:'Playfair Display',serif; font-size:clamp(2rem,5vw,3.2rem); margin:0 0 8px; text-align:center}
+.section-sub{color:var(--muted); text-align:center; margin:0 0 30px}
+.filters{display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-bottom:40px}
+.filters button{
+  background:transparent; color:var(--muted); border:1px solid rgba(167,243,208,.25);
+  padding:9px 22px; border-radius:30px; cursor:pointer; font:inherit; transition:.25s;
+}
+.filters button:hover{color:var(--glow); border-color:var(--glow)}
+.filters button.active{background:rgba(74,222,128,.15); color:var(--glow); border-color:var(--moss); box-shadow:0 0 16px rgba(74,222,128,.25)}
+
+/* masonry layout: photos flow in columns */
+.gallery{column-count:3; column-gap:22px; max-width:1250px; margin:auto}
+@media (max-width:900px){.gallery{column-count:2}}
+@media (max-width:540px){.gallery{column-count:1}}
+
+.card{
+  break-inside:avoid; margin-bottom:22px; display:block;
+  opacity:0; transform:translateY(30px); transition:opacity .55s ease, transform .55s cubic-bezier(.2,.8,.2,1), filter .4s ease;
+}
+.card[data-d="l"]{transform:translate(-56px,26px) rotate(-2deg) scale(.95)}
+.card[data-d="r"]{transform:translate(56px,26px) rotate(2deg) scale(.95)}
+.card[data-d="c"]{transform:translateY(60px) scale(.93)}
+.card.in{opacity:1; transform:none}
+.card.hovered .tilt{will-change:transform}
+.card.hide{display:none}
+/* when you hover ONE photo, all the others dim + blur a little */
+.gallery.focus .card:not(.hovered){filter:blur(2.5px) brightness(.5) saturate(.7)}
+
+.tilt{
+  position:relative; border-radius:18px; overflow:hidden; cursor:pointer;
+  transform-style:preserve-3d;
+  transition:transform .15s ease-out, box-shadow .3s;
+  box-shadow:0 12px 30px rgba(0,0,0,.45);
+  background:var(--card);
+}
+.card.hovered .tilt{box-shadow:0 25px 60px rgba(0,0,0,.65), 0 0 40px rgba(74,222,128,.25)}
+.tilt img{width:100%; display:block; transition:transform .6s}
+.card.hovered .tilt img{transform:scale(1.08)}
+/* light that follows the mouse across the photo */
+.shine{
+  position:absolute; inset:0; pointer-events:none; opacity:0; transition:opacity .3s;
+  background:radial-gradient(circle at var(--mx,50%) var(--my,50%), rgba(217,249,157,.30), transparent 55%);
+}
+.card.hovered .shine{opacity:1}
+.meta{
+  position:absolute; left:0; right:0; bottom:0; padding:60px 18px 16px;
+  background:linear-gradient(to top, rgba(3,10,6,.92), transparent);
+  transform:translateY(40%); opacity:0; transition:.4s;
+}
+.card.hovered .meta{transform:none; opacity:1}
+.meta h3{margin:0 0 4px; font-family:'Playfair Display',serif; font-size:1.25rem}
+.meta span{font-size:.78rem; color:var(--glow); text-transform:uppercase; letter-spacing:1.5px}
+
+/* =====================================================
+   5) ABOUT + FOOTER
+   ===================================================== */
+.about{max-width:700px; margin:0 auto 14px; text-align:center; color:#d4e6e9; line-height:1.9}
+#about{padding-top:30px}
+.about-card{
+  max-width:860px; margin:0 auto; padding:46px clamp(20px,5vw,56px) 40px; border-radius:30px; text-align:center;
+  background:
+    radial-gradient(120% 90% at 0% 0%, rgba(167,139,250,.30), transparent 60%),
+    radial-gradient(110% 90% at 100% 100%, rgba(251,182,206,.22), transparent 62%),
+    linear-gradient(160deg,#16486a 0%,#1c5a66 45%,#235f55 100%);
+  border:1px solid rgba(190,230,240,.28); box-shadow:0 24px 60px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.12);
+}
+.about-card .section-title{margin-top:0}
+.about-hi{font-family:'Pacifico','Playfair Display',cursive; font-size:clamp(1.5rem,4vw,2.1rem); margin:6px 0 18px; color:#ffe1f0}
+.about-tags{display:flex; flex-wrap:wrap; gap:9px; justify-content:center; margin-top:24px}
+.about-tags span{padding:7px 14px; border-radius:30px; font-size:.84rem; color:#eaf6fb; background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.2)}
+.about strong{color:#ffe1f0}
+footer{text-align:center; padding:40px 20px 60px; color:var(--muted); font-size:.88rem; line-height:1.9}
+
+/* =====================================================
+   5b) GALLERY TOOLS (surprise me + slideshow) and small bits
+   ===================================================== */
+.filters button small{opacity:.65; margin-left:3px; font-size:.78em}
+.tools{display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin:-14px 0 38px}
+.tool{
+  background:rgba(255,255,255,.06); color:var(--text); border:1px dashed rgba(217,249,157,.5);
+  padding:9px 20px; border-radius:30px; cursor:pointer; font:inherit; font-size:.92rem; transition:.25s;
+}
+.tool:hover{border-style:solid; border-color:var(--glow); color:var(--glow); transform:translateY(-2px)}
+.tilt img{height:auto}
+.liked-badge{
+  position:absolute; top:10px; right:12px; font-size:1.15rem; pointer-events:none;
+  opacity:0; transform:scale(.4); transition:.3s; text-shadow:0 0 12px rgba(255,90,130,.95);
+}
+.card.is-liked .liked-badge{opacity:1; transform:none}
+.card:focus-visible .tilt{outline:2px solid var(--glow); outline-offset:3px}
+
+/* little message at the bottom + bursts of petals when you like or download */
+#toast{
+  position:fixed; left:50%; bottom:28px; z-index:600; max-width:calc(100% - 32px);
+  transform:translate(-50%,30px); opacity:0; pointer-events:none; transition:.35s;
+  padding:11px 20px; border-radius:30px; font-size:.92rem; text-align:center;
+  background:rgba(10,36,24,.96); border:1px solid rgba(167,243,208,.4);
+  box-shadow:0 10px 40px rgba(0,0,0,.5), 0 0 24px rgba(74,222,128,.25);
+}
+#toast.show{opacity:1; transform:translate(-50%,0)}
+.burst{position:fixed; z-index:500; pointer-events:none; transform:translate(-50%,-50%); animation:burst-out 1s ease-out forwards}
+@keyframes burst-out{to{transform:translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) rotate(var(--rot)) scale(.4); opacity:0}}
+
+/* =====================================================
+   6) LIGHTBOX (the pop-up when you click a photo)
+   ===================================================== */
+#lightbox{
+  position:fixed; inset:0; z-index:200; display:none;
+  background:rgba(2,10,6,.93); backdrop-filter:blur(14px);
+  align-items:center; justify-content:center; padding:20px;
+}
+#lightbox.open{display:flex; animation:fade .3s}
+@keyframes fade{from{opacity:0}}
+.lb-box{
+  display:grid; grid-template-columns:minmax(0,1.6fr) minmax(280px,1fr); gap:34px;
+  width:min(1120px,100%); max-height:92vh; align-items:center;
+  animation:pop .45s cubic-bezier(.2,.9,.3,1.2);
+}
+@keyframes pop{from{transform:scale(.8) rotateX(20deg); opacity:0}}
+.lb-imgwrap{position:relative; justify-self:center; display:flex; justify-content:center; align-items:center; border-radius:16px; overflow:hidden; box-shadow:0 0 70px rgba(74,222,128,.2)}
+.lb-img{display:block; max-width:100%; max-height:86vh; object-fit:contain}
+.lb-progress{position:absolute; left:0; bottom:0; height:3px; width:0; background:linear-gradient(90deg,var(--moss),var(--glow))}
+.lb-progress.run{animation:prog 5s linear forwards}
+@keyframes prog{to{width:100%}}
+.lb-count{font-size:.78rem; letter-spacing:3px; color:var(--muted)}
+.lb-info .cat{color:var(--glow); text-transform:uppercase; letter-spacing:2px; font-size:.78rem; margin-top:6px}
+.lb-info h2{font-family:'Playfair Display',serif; font-size:clamp(1.6rem,3vw,2.2rem); line-height:1.15; margin:6px 0 10px}
+.lb-info p{color:var(--muted); line-height:1.8; margin:0 0 8px}
+.lb-date{font-size:.84rem; color:var(--mint); opacity:.9; min-height:1.2em}
+.palette{margin-top:14px}
+.palette-label{font-size:.74rem; color:var(--muted); margin-bottom:8px}
+.palette-row{display:flex; gap:8px; flex-wrap:wrap}
+.chip{
+  display:inline-flex; align-items:center; gap:7px; padding:5px 11px 5px 6px; border-radius:20px;
+  border:1px solid rgba(167,243,208,.25); background:rgba(255,255,255,.05); color:var(--muted);
+  font:500 .74rem/1 'Inter',monospace; cursor:pointer; transition:.2s;
+}
+.chip i{width:16px; height:16px; border-radius:50%; background:var(--c); box-shadow:0 0 0 2px rgba(255,255,255,.2)}
+.chip:hover{color:var(--text); border-color:var(--glow); transform:translateY(-2px)}
+.actions{display:flex; gap:10px; flex-wrap:wrap; margin-top:20px}
+.act{
+  background:rgba(255,255,255,.05); border:1px solid rgba(167,243,208,.25); color:var(--text);
+  padding:10px 18px; border-radius:30px; cursor:pointer; font:inherit; text-decoration:none; transition:.25s;
+}
+.act:hover{border-color:var(--glow); transform:translateY(-2px)}
+.act.on{background:rgba(74,222,128,.2); border-color:var(--moss); box-shadow:0 0 18px rgba(74,222,128,.35)}
+.act.dl{background:linear-gradient(120deg,var(--moss),var(--glow)); color:#06150d; font-weight:600; border:none}
+.views{margin-top:16px; font-size:.85rem; color:var(--muted)}
+.hint{margin-top:8px; font-size:.74rem; color:var(--muted); opacity:.7}
+.nav-btn{
+  position:fixed; top:50%; transform:translateY(-50%); width:48px; height:48px; border-radius:50%;
+  border:1px solid rgba(167,243,208,.3); background:rgba(0,0,0,.4); color:var(--text); font-size:1.4rem; cursor:pointer; transition:.25s; z-index:2;
+}
+.nav-btn:hover{border-color:var(--glow); color:var(--glow)}
+#prev{left:14px} #next{right:14px}
+#close{position:fixed; top:16px; right:18px; z-index:2; background:none; border:none; color:var(--text); font-size:2rem; cursor:pointer}
+#close:hover{color:var(--glow)}
+@media (max-width:800px){
+  .lb-box{grid-template-columns:1fr; gap:18px; overflow:auto; max-height:94vh}
+  .lb-img{max-height:52vh}
+  .hint{display:none}
+}
+
+/* =====================================================
+   7) DOWNLOAD PANEL (cute + foresty) 🌿
+   ===================================================== */
+.dl-panel{
+  position:fixed; inset:0; z-index:300; display:none; align-items:center; justify-content:center;
+  padding:20px; background:rgba(2,10,6,.72); backdrop-filter:blur(6px);
+}
+.dl-panel.open{display:flex; animation:fade .25s}
+.dl-card{
+  position:relative; width:min(410px,100%); max-height:92vh; overflow:auto; text-align:center; padding:46px 26px 22px;
+  border-radius:28px; border:1px solid rgba(167,243,208,.38);
+  background:radial-gradient(120% 70% at 50% 0%, #236649 0%, #143c2a 55%, #0d281c 100%);
+  box-shadow:0 30px 80px rgba(0,0,0,.65), 0 0 60px rgba(74,222,128,.2);
+  animation:pop .45s cubic-bezier(.2,.9,.3,1.2);
+}
+.dl-vines{position:absolute; top:8px; left:0; right:0; text-align:center; font-size:1.5rem; letter-spacing:.35em; pointer-events:none}
+.dl-vines span{display:inline-block; animation:sway-leaf 3.2s ease-in-out infinite alternate; transform-origin:50% 0}
+.dl-vines span:nth-child(even){animation-delay:-1.4s}
+@keyframes sway-leaf{from{transform:rotate(-12deg)}to{transform:rotate(12deg)}}
+.dl-x{position:absolute; top:10px; right:14px; background:none; border:none; color:var(--text); font-size:1.7rem; cursor:pointer}
+.dl-x:hover{color:var(--glow)}
+.dl-thumb{
+  display:block; margin:0 auto 16px; max-width:76%; max-height:210px; object-fit:contain;
+  background:#f7f3e8; padding:8px; border-radius:6px; box-shadow:0 10px 26px rgba(0,0,0,.5); transform:rotate(-2.5deg);
+}
+.dl-card h3{font-family:'Playfair Display',serif; font-size:1.5rem; margin:4px 0 2px}
+.dl-name{color:var(--glow); font-style:italic; font-family:'Playfair Display',serif; margin:0 0 4px}
+.dl-list{list-style:none; padding:0; margin:14px 4px 18px; display:grid; gap:7px; text-align:left; color:var(--muted); font-size:.9rem}
+.dl-list b{color:var(--mint)}
+.dl-go{
+  display:block; padding:14px 18px; border-radius:40px; text-decoration:none; font-weight:700; color:#06150d;
+  background:linear-gradient(120deg,var(--moss),var(--glow)); box-shadow:0 0 26px rgba(74,222,128,.45); transition:.25s;
+}
+.dl-go:hover{transform:translateY(-2px) scale(1.03); box-shadow:0 0 40px rgba(217,249,157,.6)}
+.dl-go.off{opacity:.4; pointer-events:none; filter:grayscale(.7)}
+.dl-note{min-height:1.2em; margin:8px 0 0; font-size:.8rem; color:#fca5a5}
+.dl-note.info{color:var(--mint); line-height:1.55}
+.dl-soon{margin-top:10px; padding:10px 14px; border:1px dashed rgba(167,243,208,.35); border-radius:16px; font-size:.84rem; color:var(--muted)}
+.dl-soon em{color:var(--glow); font-style:normal}
+.dl-credit{margin:14px 0 0; font-size:.78rem; color:var(--muted)}
+.dl-credit b{color:var(--mint); font-weight:600}
+
+@media (prefers-reduced-motion:reduce){
+  *{animation:none !important; transition:none !important}
+  .card{opacity:1; transform:none; filter:none}
+  #progress{display:none}
+  .hero h1 .ch{opacity:1; transform:none; filter:none}
+  .fl{opacity:1; transform:none}
+}
+</style>
+
+<div id="forest"></div>
+<canvas id="fireflies"></canvas>
+
+<nav>
+  <a class="logo" href="#top" aria-label="Pixel Poetry home"><svg class="plogo" viewBox="0 0 100 84" role="img" aria-label="Pixel Poetry logo: a navy camera with wildflowers growing from its top and a bee flying around">
+      <defs>
+        <linearGradient id="ppba" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2a3a63"/><stop offset=".18" stop-color="#16213f"/><stop offset="1" stop-color="#070b17"/></linearGradient>
+        <linearGradient id="ppta" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3a4b78"/><stop offset="1" stop-color="#121b34"/></linearGradient>
+        <linearGradient id="ppea" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#6f86c7"/><stop offset=".5" stop-color="#e6edff"/><stop offset="1" stop-color="#6f86c7"/></linearGradient>
+        <radialGradient id="ppla" cx="50%" cy="40%" r="65%"><stop offset="0" stop-color="#242c4a"/><stop offset="1" stop-color="#05070f"/></radialGradient>
+        <radialGradient id="ppga" cx="38%" cy="32%" r="75%"><stop offset="0" stop-color="#5d6fe0"/><stop offset=".35" stop-color="#1c2a78"/><stop offset=".75" stop-color="#0a0f33"/><stop offset="1" stop-color="#020310"/></radialGradient>
+        <linearGradient id="ppra" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e8eefc"/><stop offset=".45" stop-color="#8c97b8"/><stop offset="1" stop-color="#3b4468"/></linearGradient>
+        <linearGradient id="ppleafa" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7be08f"/><stop offset="1" stop-color="#1f7a43"/></linearGradient>
+        <radialGradient id="ppca" cx="50%" cy="100%" r="110%"><stop offset="0" stop-color="#ffe0ef"/><stop offset=".5" stop-color="#ff7fb8"/><stop offset="1" stop-color="#c91f68"/></radialGradient>
+        <radialGradient id="ppya" cx="40%" cy="35%" r="70%"><stop offset="0" stop-color="#fff08a"/><stop offset="1" stop-color="#e79a07"/></radialGradient>
+        <pattern id="ppgripa" width="3" height="3" patternUnits="userSpaceOnUse"><circle cx="1.5" cy="1.5" r=".55" fill="#000" opacity=".55"/></pattern>
+      </defs>
+      <g class="pp-flora">
+        <path d="M34 32 C33 24 30 19 28 14" stroke="#2f9d57" stroke-width="1.3" fill="none" stroke-linecap="round"/>
+        <path d="M52 32 C53 24 55 16 56 8" stroke="#3aa862" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+        <path d="M66 32 C68 26 72 21 74 16" stroke="#2f9d57" stroke-width="1.3" fill="none" stroke-linecap="round"/>
+        <path d="M43 32 C43 26 41 22 38 19" stroke="#2f9d57" stroke-width="1" fill="none" stroke-linecap="round"/>
+        <path d="M33 27 C24 27 18 23 15 17 C24 16 31 20 33 27Z" fill="url(#ppleafa)"/>
+        <path d="M33 27 C27 23 21 21 15 17" stroke="#175c30" stroke-width=".4" fill="none"/>
+        <path d="M43 28 C40 22 40 16 44 11 C48 17 47 23 43 28Z" fill="url(#ppleafa)"/>
+        <path d="M67 28 C73 29 80 26 84 20 C76 18 69 21 67 28Z" fill="url(#ppleafa)"/>
+        <path d="M67 28 C73 25 78 22 84 20" stroke="#175c30" stroke-width=".4" fill="none"/>
+        <path d="M54 29 C50 27 47 24 46 20 C51 20 54 24 54 29Z" fill="#4cc474"/>
+        <g class="pp-bloom"><ellipse cx="56.0" cy="22.0" rx="1.6" ry="1.1" fill="#8d6bd6" transform="rotate(30 56 22.0)"/><ellipse cx="57.0" cy="19.4" rx="1.6" ry="1.1" fill="#a285e6" transform="rotate(-30 56 19.4)"/><ellipse cx="57.1" cy="16.8" rx="1.6" ry="1.1" fill="#7a58c8" transform="rotate(30 56 16.8)"/><ellipse cx="56.2" cy="14.2" rx="1.6" ry="1.1" fill="#8d6bd6" transform="rotate(-30 56 14.2)"/><ellipse cx="55.1" cy="11.6" rx="1.6" ry="1.1" fill="#a285e6" transform="rotate(30 56 11.6)"/><ellipse cx="54.8" cy="9.0" rx="1.6" ry="1.1" fill="#7a58c8" transform="rotate(-30 56 9.0)"/><ellipse cx="55.7" cy="6.4" rx="1.6" ry="1.1" fill="#8d6bd6" transform="rotate(30 56 6.4)"/></g>
+        <g class="pp-bloom"><ellipse cx="27" cy="9.90" rx="1.7" ry="3.10" fill="#fdfdf6" stroke="#d9dccb" stroke-width=".25" transform="rotate(0.0 27 13)"/><ellipse cx="27" cy="9.90" rx="1.7" ry="3.10" fill="#fdfdf6" stroke="#d9dccb" stroke-width=".25" transform="rotate(30.0 27 13)"/><ellipse cx="27" cy="9.90" rx="1.7" ry="3.10" fill="#fdfdf6" stroke="#d9dccb" stroke-width=".25" transform="rotate(60.0 27 13)"/><ellipse cx="27" cy="9.90" rx="1.7" ry="3.10" fill="#fdfdf6" stroke="#d9dccb" stroke-width=".25" transform="rotate(90.0 27 13)"/><ellipse cx="27" cy="9.90" rx="1.7" ry="3.10" fill="#fdfdf6" stroke="#d9dccb" stroke-width=".25" transform="rotate(120.0 27 13)"/><ellipse cx="27" cy="9.90" rx="1.7" ry="3.10" fill="#fdfdf6" stroke="#d9dccb" stroke-width=".25" transform="rotate(150.0 27 13)"/><ellipse cx="27" cy="9.90" rx="1.7" ry="3.10" fill="#fdfdf6" stroke="#d9dccb" stroke-width=".25" transform="rotate(180.0 27 13)"/><ellipse cx="27" cy="9.90" rx="1.7" ry="3.10" fill="#fdfdf6" stroke="#d9dccb" stroke-width=".25" transform="rotate(210.0 27 13)"/><ellipse cx="27" cy="9.90" rx="1.7" ry="3.10" fill="#fdfdf6" stroke="#d9dccb" stroke-width=".25" transform="rotate(240.0 27 13)"/><ellipse cx="27" cy="9.90" rx="1.7" ry="3.10" fill="#fdfdf6" stroke="#d9dccb" stroke-width=".25" transform="rotate(270.0 27 13)"/><ellipse cx="27" cy="9.90" rx="1.7" ry="3.10" fill="#fdfdf6" stroke="#d9dccb" stroke-width=".25" transform="rotate(300.0 27 13)"/><ellipse cx="27" cy="9.90" rx="1.7" ry="3.10" fill="#fdfdf6" stroke="#d9dccb" stroke-width=".25" transform="rotate(330.0 27 13)"/><circle cx="27" cy="13" r="2.5" fill="url(#ppya)"/><circle cx="26.2" cy="12.4" r=".5" fill="#fff6" /></g>
+        <g class="pp-bloom"><ellipse cx="74" cy="11.30" rx="2.9" ry="3.70" fill="url(#ppca)"  transform="rotate(0.0 74 15)"/><ellipse cx="74" cy="11.30" rx="2.9" ry="3.70" fill="url(#ppca)"  transform="rotate(45.0 74 15)"/><ellipse cx="74" cy="11.30" rx="2.9" ry="3.70" fill="url(#ppca)"  transform="rotate(90.0 74 15)"/><ellipse cx="74" cy="11.30" rx="2.9" ry="3.70" fill="url(#ppca)"  transform="rotate(135.0 74 15)"/><ellipse cx="74" cy="11.30" rx="2.9" ry="3.70" fill="url(#ppca)"  transform="rotate(180.0 74 15)"/><ellipse cx="74" cy="11.30" rx="2.9" ry="3.70" fill="url(#ppca)"  transform="rotate(225.0 74 15)"/><ellipse cx="74" cy="11.30" rx="2.9" ry="3.70" fill="url(#ppca)"  transform="rotate(270.0 74 15)"/><ellipse cx="74" cy="11.30" rx="2.9" ry="3.70" fill="url(#ppca)"  transform="rotate(315.0 74 15)"/><ellipse cx="74" cy="12.70" rx="1.8" ry="2.30" fill="#ffc3de"  transform="rotate(22.5 74 15)"/><ellipse cx="74" cy="12.70" rx="1.8" ry="2.30" fill="#ffc3de"  transform="rotate(67.5 74 15)"/><ellipse cx="74" cy="12.70" rx="1.8" ry="2.30" fill="#ffc3de"  transform="rotate(112.5 74 15)"/><ellipse cx="74" cy="12.70" rx="1.8" ry="2.30" fill="#ffc3de"  transform="rotate(157.5 74 15)"/><ellipse cx="74" cy="12.70" rx="1.8" ry="2.30" fill="#ffc3de"  transform="rotate(202.5 74 15)"/><ellipse cx="74" cy="12.70" rx="1.8" ry="2.30" fill="#ffc3de"  transform="rotate(247.5 74 15)"/><ellipse cx="74" cy="12.70" rx="1.8" ry="2.30" fill="#ffc3de"  transform="rotate(292.5 74 15)"/><ellipse cx="74" cy="12.70" rx="1.8" ry="2.30" fill="#ffc3de"  transform="rotate(337.5 74 15)"/><circle cx="74" cy="15" r="2.2" fill="url(#ppya)"/></g>
+        <circle cx="38" cy="18" r="1.6" fill="#7fb4ff"/><circle cx="38" cy="18" r=".6" fill="#ffe98a"/>
+        <circle cx="44.5" cy="10.5" r="1.4" fill="#ffd6e8"/><circle cx="44.5" cy="10.5" r=".5" fill="#e79a07"/>
+      </g>
+      <path d="M36 24 L40 19 H62 L66 24 Z" fill="url(#ppta)" stroke="#4b5c8d" stroke-width=".6"/>
+      <rect x="46" y="16.5" width="8" height="3" rx=".8" fill="#9aa6c8"/><rect x="48" y="15.5" width="4" height="1.4" rx=".6" fill="#cfd8f2"/>
+      <rect x="8" y="24" width="84" height="48" rx="8" fill="url(#ppba)" stroke="url(#ppea)" stroke-width=".9"/>
+      <rect x="9" y="25" width="82" height="9" rx="6" fill="#fff" opacity=".07"/>
+      <rect x="9" y="38" width="17" height="32" rx="6" fill="url(#ppgripa)"/>
+      <rect x="74" y="38" width="17" height="32" rx="6" fill="url(#ppgripa)"/>
+      <g><circle cx="22" cy="23.4" r="5.4" fill="#222c4b" stroke="#6a7cb4" stroke-width=".7"/><circle cx="22" cy="23.4" r="3.6" fill="none" stroke="#b9c5ea" stroke-width=".5" stroke-dasharray=".8 .9"/><circle cx="22" cy="23.4" r="1.2" fill="#c9d4f5"/></g>
+      <g class="pp-shutter"><ellipse cx="80" cy="23.4" rx="4.3" ry="1.9" fill="#d94457"/><ellipse cx="80" cy="22.8" rx="3.2" ry="1" fill="#ff8a98" opacity=".7"/></g>
+      <rect x="82" y="29" width="5.5" height="3" rx="1" fill="#101830" stroke="#3f4e7d" stroke-width=".4"/>
+      <circle cx="14" cy="31" r="1.5" fill="#ff5a5a"/><circle cx="14" cy="31" r=".6" fill="#ffd0d0"/>
+      <text x="57" y="31.6" font-family="Inter,Arial,sans-serif" font-size="3.1" font-weight="700" fill="#8fa0d4" letter-spacing=".5">PIXEL POETRY</text>
+      <circle cx="50" cy="52" r="22" fill="#05070f" stroke="url(#ppra)" stroke-width="1.2"/>
+      <circle cx="50" cy="52" r="19.6" fill="none" stroke="#1a2240" stroke-width="3" />
+      <circle cx="50" cy="52" r="19.6" fill="none" stroke="#3c4a7c" stroke-width="3" stroke-dasharray="1 1.15" opacity=".8"/>
+      <circle cx="50" cy="52" r="16.6" fill="url(#ppla)" stroke="#8c97b8" stroke-width=".9"/>
+      <circle cx="50" cy="52" r="14" fill="url(#ppga)"/>
+      <circle cx="50" cy="52" r="10.4" fill="none" stroke="#7a86ff" stroke-width=".5" opacity=".45"/>
+      <circle cx="50" cy="52" r="7" fill="none" stroke="#c76bff" stroke-width=".45" opacity=".4"/>
+      <circle cx="50" cy="52" r="4.2" fill="#02030a"/>
+      <ellipse cx="44.2" cy="45.8" rx="5.6" ry="3.1" fill="#fff" opacity=".42" transform="rotate(-38 44.2 45.8)"/>
+      <circle cx="55.6" cy="58.2" r="1.6" fill="#ff9cc9" opacity=".55"/>
+      <path d="M58 44 A11 11 0 0 1 61 52" stroke="#9fb0ff" stroke-width=".7" fill="none" opacity=".5" stroke-linecap="round"/>
+      <g class="pp-flash" style="transform-origin:50px 52px"><path d="M50 30 L52.4 49.6 L72 52 L52.4 54.4 L50 74 L47.6 54.4 L28 52 L47.6 49.6Z" fill="#fff"/><circle cx="50" cy="52" r="9" fill="#fff"/></g>
+      <g class="pp-bee">
+        <g class="pp-wings"><ellipse cx="-3" cy="-4.6" rx="3.4" ry="2" fill="#fff" fill-opacity=".85" transform="rotate(-25 -3 -4.6)"/><ellipse cx="3" cy="-4.6" rx="3.4" ry="2" fill="#fff" fill-opacity=".85" transform="rotate(25 3 -4.6)"/></g>
+        <ellipse cx="0" cy="0" rx="5" ry="3.7" fill="#ffd23f"/>
+        <path d="M-1.6 -3.5 V3.5 M1.8 -3.6 V3.6" stroke="#2a1b05" stroke-width="1.5"/>
+        <circle cx="4.6" cy="-.4" r="2.1" fill="#2a1b05"/><circle cx="5.3" cy="-1" r=".55" fill="#fff"/>
+        <path d="M-5 0 l-2 .6" stroke="#2a1b05" stroke-width="1.2" stroke-linecap="round"/>
+      </g>
+    </svg><b>Pixel Poetry</b></a>
+  <label class="search" for="searchBox"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg><input id="searchBox" type="search" placeholder="Search photos…" autocomplete="off" aria-label="Search photos"><kbd>/</kbd></label>
+  <div class="links"><a href="#gallery">Gallery</a><a href="#about">About</a></div>
+</nav>
+
+<header class="hero" id="top">
+  <div class="hero-logo" id="heroLogo" role="button" tabindex="0" aria-label="Tap the camera"><svg class="plogo" viewBox="0 0 100 84" role="img" aria-label="Pixel Poetry logo: a navy camera with wildflowers growing from its top and a bee flying around">
+      <defs>
+        <linearGradient id="ppbb" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2a3a63"/><stop offset=".18" stop-color="#16213f"/><stop offset="1" stop-color="#070b17"/></linearGradient>
+        <linearGradient id="pptb" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3a4b78"/><stop offset="1" stop-color="#121b34"/></linearGradient>
+        <linearGradient id="ppeb" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#6f86c7"/><stop offset=".5" stop-color="#e6edff"/><stop offset="1" stop-color="#6f86c7"/></linearGradient>
+        <radialGradient id="pplb" cx="50%" cy="40%" r="65%"><stop offset="0" stop-color="#242c4a"/><stop offset="1" stop-color="#05070f"/></radialGradient>
+        <radialGradient id="ppgb" cx="38%" cy="32%" r="75%"><stop offset="0" stop-color="#5d6fe0"/><stop offset=".35" stop-color="#1c2a78"/><stop offset=".75" stop-color="#0a0f33"/><stop offset="1" stop-color="#020310"/></radialGradient>
+        <linearGradient id="pprb" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e8eefc"/><stop offset=".45" stop-color="#8c97b8"/><stop offset="1" stop-color="#3b4468"/></linearGradient>
+        <linearGradient id="ppleafb" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7be08f"/><stop offset="1" stop-color="#1f7a43"/></linearGradient>
+        <radialGradient id="ppcb" cx="50%" cy="100%" r="110%"><stop offset="0" stop-color="#ffe0ef"/><stop offset=".5" stop-color="#ff7fb8"/><stop offset="1" stop-color="#c91f68"/></radialGradient>
+        <radialGradient id="ppyb" cx="40%" cy="35%" r="70%"><stop offset="0" stop-color="#fff08a"/><stop offset="1" stop-color="#e79a07"/></radialGradient>
+        <pattern id="ppgripb" width="3" height="3" patternUnits="userSpaceOnUse"><circle cx="1.5" cy="1.5" r=".55" fill="#000" opacity=".55"/></pattern>
+      </defs>
+      <g class="pp-flora">
+        <path d="M34 32 C33 24 30 19 28 14" stroke="#2f9d57" stroke-width="1.3" fill="none" stroke-linecap="round"/>
+        <path d="M52 32 C53 24 55 16 56 8" stroke="#3aa862" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+        <path d="M66 32 C68 26 72 21 74 16" stroke="#2f9d57" stroke-width="1.3" fill="none" stroke-linecap="round"/>
+        <path d="M43 32 C43 26 41 22 38 19" stroke="#2f9d57" stroke-width="1" fill="none" stroke-linecap="round"/>
+        <path d="M33 27 C24 27 18 23 15 17 C24 16 31 20 33 27Z" fill="url(#ppleafb)"/>
+        <path d="M33 27 C27 23 21 21 15 17" stroke="#175c30" stroke-width=".4" fill="none"/>
+        <path d="M43 28 C40 22 40 16 44 11 C48 17 47 23 43 28Z" fill="url(#ppleafb)"/>
+        <path d="M67 28 C73 29 80 26 84 20 C76 18 69 21 67 28Z" fill="url(#ppleafb)"/>
+        <path d="M67 28 C73 25 78 22 84 20" stroke="#175c30" stroke-width=".4" fill="none"/>
+        <path d="M54 29 C50 27 47 24 46 20 C51 20 54 24 54 29Z" fill="#4cc474"/>
+        <g class="pp-bloom"><ellipse cx="56.0" cy="22.0" rx="1.6" ry="1.1" fill="#8d6bd6" transform="rotate(30 56 22.0)"/><ellipse cx="57.0" cy="19.4" rx="1.6" ry="1.1" fill="#a285e6" transform="rotate(-30 56 19.4)"/><ellipse cx="57.1" cy="16.8" rx="1.6" ry="1.1" fill="#7a58c8" transform="rotate(30 56 16.8)"/><ellipse cx="56.2" cy="14.2" rx="1.6" ry="1.1" fill="#8d6bd6" transform="rotate(-30 56 14.2)"/><ellipse cx="55.1" cy="11.6" rx="1.6" ry="1.1" fill="#a285e6" transform="rotate(30 56 11.6)"/><ellipse cx="54.8" cy="9.0" rx="1.6" ry="1.1" fill="#7a58c8" transform="rotate(-30 56 9.0)"/><ellipse cx="55.7" cy="6.4" rx="1.6" ry="1.1" fill="#8d6bd6" transform="rotate(30 56 6.4)"/></g>
+        <g class="pp-bloom"><ellipse cx="27" cy="9.90" rx="1.7" ry="3.10" fill="#fdfdf6" stroke="#d9dccb" stroke-width=".25" transform="rotate(0.0 27 13)"/><ellipse cx="27" cy="9.90" rx="1.7" ry="3.10" fill="#fdfdf6" stroke="#d9dccb" stroke-width=".25" transform="rotate(30.0 27 13)"/><ellipse cx="27" cy="9.90" rx="1.7" ry="3.10" fill="#fdfdf6" stroke="#d9dccb" stroke-width=".25" transform="rotate(60.0 27 13)"/><ellipse cx="27" cy="9.90" rx="1.7" ry="3.10" fill="#fdfdf6" stroke="#d9dccb" stroke-width=".25" transform="rotate(90.0 27 13)"/><ellipse cx="27" cy="9.90" rx="1.7" ry="3.10" fill="#fdfdf6" stroke="#d9dccb" stroke-width=".25" transform="rotate(120.0 27 13)"/><ellipse cx="27" cy="9.90" rx="1.7" ry="3.10" fill="#fdfdf6" stroke="#d9dccb" stroke-width=".25" transform="rotate(150.0 27 13)"/><ellipse cx="27" cy="9.90" rx="1.7" ry="3.10" fill="#fdfdf6" stroke="#d9dccb" stroke-width=".25" transform="rotate(180.0 27 13)"/><ellipse cx="27" cy="9.90" rx="1.7" ry="3.10" fill="#fdfdf6" stroke="#d9dccb" stroke-width=".25" transform="rotate(210.0 27 13)"/><ellipse cx="27" cy="9.90" rx="1.7" ry="3.10" fill="#fdfdf6" stroke="#d9dccb" stroke-width=".25" transform="rotate(240.0 27 13)"/><ellipse cx="27" cy="9.90" rx="1.7" ry="3.10" fill="#fdfdf6" stroke="#d9dccb" stroke-width=".25" transform="rotate(270.0 27 13)"/><ellipse cx="27" cy="9.90" rx="1.7" ry="3.10" fill="#fdfdf6" stroke="#d9dccb" stroke-width=".25" transform="rotate(300.0 27 13)"/><ellipse cx="27" cy="9.90" rx="1.7" ry="3.10" fill="#fdfdf6" stroke="#d9dccb" stroke-width=".25" transform="rotate(330.0 27 13)"/><circle cx="27" cy="13" r="2.5" fill="url(#ppyb)"/><circle cx="26.2" cy="12.4" r=".5" fill="#fff6" /></g>
+        <g class="pp-bloom"><ellipse cx="74" cy="11.30" rx="2.9" ry="3.70" fill="url(#ppcb)"  transform="rotate(0.0 74 15)"/><ellipse cx="74" cy="11.30" rx="2.9" ry="3.70" fill="url(#ppcb)"  transform="rotate(45.0 74 15)"/><ellipse cx="74" cy="11.30" rx="2.9" ry="3.70" fill="url(#ppcb)"  transform="rotate(90.0 74 15)"/><ellipse cx="74" cy="11.30" rx="2.9" ry="3.70" fill="url(#ppcb)"  transform="rotate(135.0 74 15)"/><ellipse cx="74" cy="11.30" rx="2.9" ry="3.70" fill="url(#ppcb)"  transform="rotate(180.0 74 15)"/><ellipse cx="74" cy="11.30" rx="2.9" ry="3.70" fill="url(#ppcb)"  transform="rotate(225.0 74 15)"/><ellipse cx="74" cy="11.30" rx="2.9" ry="3.70" fill="url(#ppcb)"  transform="rotate(270.0 74 15)"/><ellipse cx="74" cy="11.30" rx="2.9" ry="3.70" fill="url(#ppcb)"  transform="rotate(315.0 74 15)"/><ellipse cx="74" cy="12.70" rx="1.8" ry="2.30" fill="#ffc3de"  transform="rotate(22.5 74 15)"/><ellipse cx="74" cy="12.70" rx="1.8" ry="2.30" fill="#ffc3de"  transform="rotate(67.5 74 15)"/><ellipse cx="74" cy="12.70" rx="1.8" ry="2.30" fill="#ffc3de"  transform="rotate(112.5 74 15)"/><ellipse cx="74" cy="12.70" rx="1.8" ry="2.30" fill="#ffc3de"  transform="rotate(157.5 74 15)"/><ellipse cx="74" cy="12.70" rx="1.8" ry="2.30" fill="#ffc3de"  transform="rotate(202.5 74 15)"/><ellipse cx="74" cy="12.70" rx="1.8" ry="2.30" fill="#ffc3de"  transform="rotate(247.5 74 15)"/><ellipse cx="74" cy="12.70" rx="1.8" ry="2.30" fill="#ffc3de"  transform="rotate(292.5 74 15)"/><ellipse cx="74" cy="12.70" rx="1.8" ry="2.30" fill="#ffc3de"  transform="rotate(337.5 74 15)"/><circle cx="74" cy="15" r="2.2" fill="url(#ppyb)"/></g>
+        <circle cx="38" cy="18" r="1.6" fill="#7fb4ff"/><circle cx="38" cy="18" r=".6" fill="#ffe98a"/>
+        <circle cx="44.5" cy="10.5" r="1.4" fill="#ffd6e8"/><circle cx="44.5" cy="10.5" r=".5" fill="#e79a07"/>
+      </g>
+      <path d="M36 24 L40 19 H62 L66 24 Z" fill="url(#pptb)" stroke="#4b5c8d" stroke-width=".6"/>
+      <rect x="46" y="16.5" width="8" height="3" rx=".8" fill="#9aa6c8"/><rect x="48" y="15.5" width="4" height="1.4" rx=".6" fill="#cfd8f2"/>
+      <rect x="8" y="24" width="84" height="48" rx="8" fill="url(#ppbb)" stroke="url(#ppeb)" stroke-width=".9"/>
+      <rect x="9" y="25" width="82" height="9" rx="6" fill="#fff" opacity=".07"/>
+      <rect x="9" y="38" width="17" height="32" rx="6" fill="url(#ppgripb)"/>
+      <rect x="74" y="38" width="17" height="32" rx="6" fill="url(#ppgripb)"/>
+      <g><circle cx="22" cy="23.4" r="5.4" fill="#222c4b" stroke="#6a7cb4" stroke-width=".7"/><circle cx="22" cy="23.4" r="3.6" fill="none" stroke="#b9c5ea" stroke-width=".5" stroke-dasharray=".8 .9"/><circle cx="22" cy="23.4" r="1.2" fill="#c9d4f5"/></g>
+      <g class="pp-shutter"><ellipse cx="80" cy="23.4" rx="4.3" ry="1.9" fill="#d94457"/><ellipse cx="80" cy="22.8" rx="3.2" ry="1" fill="#ff8a98" opacity=".7"/></g>
+      <rect x="82" y="29" width="5.5" height="3" rx="1" fill="#101830" stroke="#3f4e7d" stroke-width=".4"/>
+      <circle cx="14" cy="31" r="1.5" fill="#ff5a5a"/><circle cx="14" cy="31" r=".6" fill="#ffd0d0"/>
+      <text x="57" y="31.6" font-family="Inter,Arial,sans-serif" font-size="3.1" font-weight="700" fill="#8fa0d4" letter-spacing=".5">PIXEL POETRY</text>
+      <circle cx="50" cy="52" r="22" fill="#05070f" stroke="url(#pprb)" stroke-width="1.2"/>
+      <circle cx="50" cy="52" r="19.6" fill="none" stroke="#1a2240" stroke-width="3" />
+      <circle cx="50" cy="52" r="19.6" fill="none" stroke="#3c4a7c" stroke-width="3" stroke-dasharray="1 1.15" opacity=".8"/>
+      <circle cx="50" cy="52" r="16.6" fill="url(#pplb)" stroke="#8c97b8" stroke-width=".9"/>
+      <circle cx="50" cy="52" r="14" fill="url(#ppgb)"/>
+      <circle cx="50" cy="52" r="10.4" fill="none" stroke="#7a86ff" stroke-width=".5" opacity=".45"/>
+      <circle cx="50" cy="52" r="7" fill="none" stroke="#c76bff" stroke-width=".45" opacity=".4"/>
+      <circle cx="50" cy="52" r="4.2" fill="#02030a"/>
+      <ellipse cx="44.2" cy="45.8" rx="5.6" ry="3.1" fill="#fff" opacity=".42" transform="rotate(-38 44.2 45.8)"/>
+      <circle cx="55.6" cy="58.2" r="1.6" fill="#ff9cc9" opacity=".55"/>
+      <path d="M58 44 A11 11 0 0 1 61 52" stroke="#9fb0ff" stroke-width=".7" fill="none" opacity=".5" stroke-linecap="round"/>
+      <g class="pp-flash" style="transform-origin:50px 52px"><path d="M50 30 L52.4 49.6 L72 52 L52.4 54.4 L50 74 L47.6 54.4 L28 52 L47.6 49.6Z" fill="#fff"/><circle cx="50" cy="52" r="9" fill="#fff"/></g>
+      <g class="pp-bee">
+        <g class="pp-wings"><ellipse cx="-3" cy="-4.6" rx="3.4" ry="2" fill="#fff" fill-opacity=".85" transform="rotate(-25 -3 -4.6)"/><ellipse cx="3" cy="-4.6" rx="3.4" ry="2" fill="#fff" fill-opacity=".85" transform="rotate(25 3 -4.6)"/></g>
+        <ellipse cx="0" cy="0" rx="5" ry="3.7" fill="#ffd23f"/>
+        <path d="M-1.6 -3.5 V3.5 M1.8 -3.6 V3.6" stroke="#2a1b05" stroke-width="1.5"/>
+        <circle cx="4.6" cy="-.4" r="2.1" fill="#2a1b05"/><circle cx="5.3" cy="-1" r=".55" fill="#fff"/>
+        <path d="M-5 0 l-2 .6" stroke="#2a1b05" stroke-width="1.2" stroke-linecap="round"/>
+      </g>
+    </svg></div>
+  <h1 id="title">Pixel Poetry</h1>
+  <p>Petals, skies and small wonders, caught in the golden light between the leaves.</p>
+  <a class="btn" href="#gallery">Enter the forest ↓</a>
+</header>
+
+<main>
+  <section id="gallery">
+    <h2 class="section-title">The Gallery</h2>
+    <p class="section-sub" id="gallerySub">Hover to feel the light. Click to step inside. 🌿</p>
+    <div class="filters" id="filters"></div>
+    <div class="tools">
+      <button class="tool" id="surpriseBtn">🎲 Surprise me</button>
+      <button class="tool" id="slideBtn">▶ Forest walk (slideshow)</button>
+    </div>
+    <div class="gallery" id="grid"></div>
+  </section>
+
+  <section id="about">
+    <div class="about-card">
+      <h2 class="section-title">About</h2>
+      <p class="about-hi">Hi, I'm <strong>Arpita Firoz</strong> 🐾</p>
+      <p class="about">
+        I'm a Computer Science &amp; Engineering student at Daffodil International University, Bangladesh.
+        By day I'm busy with code, algorithms and big questions in AI/ML and cybersecurity.
+        In every spare golden hour I'm outside with my phone camera, chasing petals, clouds and tiny details most people walk past.
+      </p>
+      <p class="about">
+        Pixel Poetry is where my two worlds meet: I write the story behind every photo, and I'm learning to build the website that holds them.
+        Everything here is photographed by me under the name <strong>Cat_Berrie</strong>.
+      </p>
+      <div class="about-tags" aria-label="A few things about me">
+        <span>📸 Phone photographer</span><span>💻 CSE student</span><span>🤖 AI/ML curious</span><span>🔐 Cybersecurity explorer</span><span>🌸 Flower collector</span><span>🐱 Cat energy</span>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>© <span id="year"></span> Pixel Poetry · Photos &amp; website by Arpita Firoz (<span id="credit"></span>)<br>Fueled by curiosity, cat energy and an ever-growing camera roll 🐾📸</footer>
+
+<!-- LIGHTBOX -->
+<div id="lightbox" aria-modal="true" role="dialog" aria-label="Photo viewer">
+  <button id="close" aria-label="Close">×</button>
+  <button class="nav-btn" id="prev" aria-label="Previous photo">‹</button>
+  <button class="nav-btn" id="next" aria-label="Next photo">›</button>
+  <div class="lb-box">
+    <div class="lb-imgwrap">
+      <img class="lb-img" id="lbImg" alt="">
+      <div class="lb-progress" id="lbProgress"></div>
+    </div>
+    <div class="lb-info">
+      <div class="lb-count" id="lbCount"></div>
+      <div class="cat" id="lbCat"></div>
+      <h2 id="lbTitle"></h2>
+      <p id="lbCap"></p>
+      <div class="lb-date" id="lbDate"></div>
+      <div class="palette" id="lbPalette"></div>
+      <div class="actions">
+        <button class="act" id="likeBtn" aria-label="Like">❤️ <span id="likeN">0</span></button>
+        <button class="act" id="dislikeBtn" aria-label="Dislike">👎 <span id="dislikeN">0</span></button>
+        <button class="act dl" id="dlBtn">⬇ Download</button>
+        <button class="act" id="playBtn" title="Play slideshow" aria-label="Play slideshow">▶</button>
+      </div>
+      <div class="views" id="lbViews"></div>
+      <div class="hint">← → to browse · L to like · Esc to close</div>
+    </div>
+  </div>
+</div>
+
+<!-- DOWNLOAD PANEL -->
+<div id="dlPanel" class="dl-panel" role="dialog" aria-label="Download this photo">
+  <div class="dl-card">
+    <button class="dl-x" id="dlClose" aria-label="Close download panel">×</button>
+    <div class="dl-vines" aria-hidden="true"><span>🌿</span><span>🍃</span><span>🌿</span><span>🍃</span><span>🌿</span></div>
+    <img class="dl-thumb" id="dlThumb" alt="">
+    <h3>Take a piece of the forest</h3>
+    <p class="dl-name" id="dlName"></p>
+    <ul class="dl-list">
+      <li>🍃 Free for personal use</li>
+      <li>✦ A small <b>Pixel Poetry</b> watermark is added</li>
+      <li>📏 Up to 2000 px on the long side</li>
+    </ul>
+    <a class="dl-go off" id="dlGo" href="#" download>⬇ Download free</a>
+    <p class="dl-note" id="dlNote"></p>
+    <div class="dl-soon">💎 HD without watermark <em>coming soon</em></div>
+    <p class="dl-credit">Sharing it? Please credit <b id="dlCredit"></b> 💚</p>
+  </div>
+</div>
+
+<div id="progress"></div>
+<div id="shutterFlash"></div>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/* =====================================================
+   A) SITE SETTINGS + COLLECTIONS  ← easy things to rename
+   ===================================================== */
+const SITE = { credit:"Cat_Berrie" };       // shown in the footer and in the download panel
+
+// The filter buttons. The word on the left (blooms, canopy...) is what a photo writes in  category:"..."
+const collections = {
+  blooms:  { name:"Blooms",  icon:"🌸" },
+  canopy:  { name:"Canopy",  icon:"🌳" },
+  skies:   { name:"Skies",   icon:"🌅" },
+  hand:    { name:"In Hand", icon:"🤲" },
+  gardens: { name:"Gardens", icon:"🌿" },
+  nightfall:{ name:"Nightfall", icon:"🌙" },
+};
+
+/* =====================================================
+   B) YOUR PHOTOS  ← this is the part you will edit most!
+   -----------------------------------------------------
+   Each photo is one { ... } line:
+     file     the picture inside the  photos  folder
+     title    the poetic name 🌙      caption  one line under it
+     category must match a key in  collections  above
+     date     when you took it (or "" if you don't know)
+     w, h     the picture's size (makes the page not jump while loading)
+     colors   main colors of the photo (the little chips in the viewer)
+   To add a new photo the easy way:
+     1) drop the original into the  originals  folder
+     2) run   python3 make_photos.py   (it makes the web + watermarked copies)
+     3) paste the line it prints here, then write your own title + caption ✍️
+   ===================================================== */
+const photos = [
+  { file:"petals-before-the-leaves.jpg", title:"Petals Before the Leaves", caption:"The branches are still bare, but the white blossoms couldn't wait.", category:"canopy", date:"Feb 15, 2025", w:1254, h:1600, colors:["#7c9cbe", "#4b5554", "#1f2421", "#617687", "#dbd5be"] },
+  { file:"the-sky-caught-fire.jpg", title:"The Sky Caught Fire", caption:"Two frames of one evening, as the clouds burned from gold to ember.", category:"skies", date:"Jul 17, 2024", w:1600, h:1600, colors:["#2f0b06", "#731706", "#bc4713", "#ea861f"] },
+  { file:"cargo-of-small-wonders.jpg", title:"Cargo of Small Wonders", caption:"A dried leaf turned boat, carrying flowers, a green leaf and two shy fruits.", category:"hand", date:"Dec 24, 2025", w:757, h:1600, colors:["#443d29", "#c69555", "#8c6e4a", "#888d73", "#576152"] },
+  { file:"tiny-planets-of-monsoon.jpg", title:"Tiny Planets of Monsoon", caption:"Kadam blossoms, round as little planets, glowing under a rain-washed sky.", category:"blooms", date:"Jul 25, 2023", w:1205, h:1600, colors:["#46681c", "#5f7a3f", "#ced4e0", "#543514", "#908e6d"] },
+  { file:"a-shower-of-gold.jpg", title:"A Shower of Gold", caption:"Shonalu blossoms pouring down from the branches into a bright April sky.", category:"canopy", date:"Apr 23, 2024", w:1600, h:1200, colors:["#887329", "#61592c", "#5e8dc4", "#77aaee", "#5b7276"] },
+  { file:"a-moon-on-the-water.jpg", title:"A Moon on the Water", caption:"A white shapla resting on dark, still water, like a small moon that landed.", category:"blooms", date:"Oct 3, 2020", w:1600, h:757, colors:["#0a322f", "#040f0c", "#b0beb2"] },
+  { file:"a-heart-held-to-the-sky.jpg", title:"A Heart Held to the Sky", caption:"A red gerbera, a blurred hand, and a tiny heart hiding in its center.", category:"hand", date:"Dec 16, 2024", w:1224, h:1600, colors:["#4b77ba", "#88a3cd", "#823230", "#adc3de", "#3e5064"] },
+  { file:"winter-garden-fireworks.jpg", title:"Winter Garden Fireworks", caption:"Celosia, marigolds and roses bursting with color in a city garden.", category:"gardens", date:"Dec 6, 2023", w:1200, h:1600, colors:["#7a9c66", "#475c2e", "#a81b28", "#a85c1d", "#a69a7c"] },
+  { file:"fire-in-feathered-leaves.jpg", title:"Fire in Feathered Leaves", caption:"Krishnachura blossoms burning red against soft, feathery leaves.", category:"blooms", date:"May 12, 2021", w:1600, h:757, colors:["#3a7934", "#1e2f22", "#c4603b", "#759130", "#c1bd2d"] },
+  { file:"where-indigo-meets-ember.jpg", title:"Where Indigo Meets Ember", caption:"The day sinking into a sky that melts from fire to deep midnight blue.", category:"skies", date:"Apr 24, 2024", w:1200, h:1600, colors:["#010204", "#302861", "#010e55", "#6e4d75"] },
+  { file:"red-lanterns-in-leaf-light.jpg", title:"Red Lanterns in Leaf-Light", caption:"Rangoon creeper blossoms lit from behind, like paper lanterns among the leaves.", category:"blooms", date:"Mar 29, 2024", w:1600, h:1200, colors:["#051403", "#618f23", "#356309", "#a5c94c", "#a59f72"] },
+  { file:"the-only-color-in-the-fog.jpg", title:"The Only Color in the Fog", caption:"Everything fades to grey except a handful of mustard flowers, bright as a tiny sun.", category:"hand", date:"", w:1200, h:1600, colors:["#dadad9", "#838073", "#494948", "#1a1a1a", "#c4c2b3"] },
+  { file:"the-quiet-violet.jpg", title:"The Quiet Violet", caption:"One violet flower glowing softly in the deep, damp green.", category:"blooms", date:"Aug 22, 2021", w:757, h:1600, colors:["#37521c", "#181e10", "#738245"] },
+  { file:"four-hellos-from-the-garden.jpg", title:"Four Hellos from the Garden", caption:"An orange star, lantana, a white rain lily and a red hibiscus: four small hellos from one day.", category:"gardens", date:"Oct 17, 2026", w:900, h:1600, colors:["#273a1e", "#32642f", "#c7cfb2", "#839b5c", "#e22c52"] },
+  { file:"stained-glass-petals.jpg", title:"Stained Glass Petals", caption:"Backlit by the afternoon sun, two tiny flowers glow like stained glass.", category:"hand", date:"Jun 12, 2025", w:1600, h:1200, colors:["#7a9bc0", "#46504f", "#2b2f2f", "#567da0", "#734f4a"] },
+  { file:"small-sun-wet-leaves.jpg", title:"Small Sun, Wet Leaves", caption:"Raindrops still on the leaves while a little yellow sun opens in the green.", category:"blooms", date:"Mar 30, 2024", w:1080, h:810, colors:["#283a09", "#cb8f0f", "#386c17", "#6e8745"] },
+  { file:"a-small-light-in-the-shade.jpg", title:"A Small Light in the Shade", caption:"Two pink flowers lit softly, as if the shadows were holding their breath.", category:"blooms", date:"May 5, 2022", w:1600, h:1200, colors:["#2d322a", "#030303", "#726860", "#5c4744", "#b8999f"] },
+  { file:"reaching-for-the-blue.jpg", title:"Reaching for the Blue", caption:"The same tree from another angle: white blossoms stretching into an empty blue sky.", category:"canopy", date:"Feb 15, 2025", w:1255, h:1600, colors:["#7e9fc2", "#4c5654", "#1f2421", "#637889", "#dcd7c1"] },
+  { file:"a-curl-of-lavender.jpg", title:"A Curl of Lavender", caption:"Tiny star-eyed flowers on a curved spike, hiding among crinkled green leaves.", category:"blooms", date:"May 26, 2025", w:1278, h:1600, colors:["#1b5705", "#0b1a05", "#347e17", "#658d58"] },
+  { file:"a-pot-full-of-small-suns.jpg", title:"A Pot Full of Small Suns", caption:"Orange zinnias crowding a humble pot, as if the garden had saved a few sunsets for the cold months.", category:"gardens", date:"Dec 6, 2023", w:1200, h:1600, colors:["#cc811b", "#405825", "#6e9e54", "#2c2d14", "#8db779"] },
+  { file:"where-the-last-light-waits.jpg", title:"Where the Last Light Waits", caption:"A railway platform at dusk, a footbridge of silhouettes, and one pink thread of daylight refusing to leave.", category:"nightfall", date:"", w:1600, h:1200, colors:["#14182f", "#020204", "#3d394e"] },
+  { file:"the-map-inside-a-leaf.jpg", title:"The Map Inside a Leaf", caption:"Held up to the light, a tired leaf becomes a glowing map of rivers, every vein a road leading home.", category:"hand", date:"Feb 7, 2025", w:1222, h:1600, colors:["#252525", "#454441", "#987f30", "#765f2e", "#d0c7aa"] },
+  { file:"dew-on-a-spiders-silk.jpg", title:"Dew on a Spider's Silk", caption:"A tiny golden bell wrapped in a web of dewdrops, waiting for the morning to notice it.", category:"blooms", date:"Feb 1, 2025", w:1214, h:1600, colors:["#423c11", "#506e1a", "#658f33", "#938a21"] },
+  { file:"the-violet-in-the-crowd.jpg", title:"The Violet in the Crowd", caption:"One ruffled lilac bloom among a sea of green leaves, soft as a held breath in the sun.", category:"blooms", date:"", w:1200, h:1600, colors:["#718b36", "#12141c", "#4e6c26", "#334823", "#98a759"] },
+  { file:"the-day-went-out-in-flames.jpg", title:"The Day Went Out in Flames", caption:"Clouds rolling like fire over the rooftops while two small birds crossed the burning sky.", category:"skies", date:"Oct 24, 2023", w:1600, h:1200, colors:["#874c6b", "#220809", "#e43b0f", "#cf4d40"] },
+  { file:"scattered-pearls-on-blue.jpg", title:"Scattered Pearls on Blue", caption:"Little clouds drifting like pearls across a deep blue sky as the last pink of the sun slips away.", category:"skies", date:"Apr 23, 2024", w:1600, h:1200, colors:["#0577f2", "#07215e", "#2464c2", "#458de6", "#9ebdee"] },
+  { file:"a-lantern-between-the-palms.jpg", title:"A Lantern Between the Palms", caption:"Lying at the roots of the palms, the sinking sun glows like a lantern at the end of a long day.", category:"nightfall", date:"Apr 12, 2024", w:1600, h:1200, colors:["#000000", "#656a6e", "#343a41"] },
+  { file:"a-pink-spark-in-the-purple-dark.jpg", title:"A Pink Spark in the Purple Dark", caption:"A tiny pink flower opens on a deep purple leaf, small enough to miss and bright enough to remember.", category:"blooms", date:"Mar 14, 2024", w:1200, h:1600, colors:["#302425", "#020000", "#754f5b", "#51453f", "#997185"] },
+];
+
+/* =====================================================
+   C) SMALL HELPERS + SAVED LIKES / VIEWS / DOWNLOADS
+   Likes are stored in YOUR browser only, for now.
+   Later, in "Level 3", we'll move them to a real database
+   so everyone's likes count together. 🗄️
+   ===================================================== */
+const $ = id => document.getElementById(id);   // short way to say "find the element with this id"
+function rng(seed){ let s = seed; return () => (s = (s * 16807) % 2147483647) / 2147483647; }  // repeatable random numbers (the forest uses it)
+const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+// while you scroll, the busy canvas animations run at half speed so scrolling stays smooth
+let scrolling = false, scrollTimer, skipTick = 0;
+addEventListener('scroll', () => { scrolling = true; clearTimeout(scrollTimer); scrollTimer = setTimeout(() => scrolling = false, 140); }, { passive:true });
+const skipFrame = () => scrolling && (++skipTick & 1);
+// start the intro animation when the page is visible and the fonts are ready (replays on every open)
+(function startIntro(){
+  const go = () => requestAnimationFrame(() => requestAnimationFrame(() => document.body.classList.add('go')));
+  const ready = () => { let done = false; const fire = () => { if(!done){ done = true; go(); } };
+    (document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve()).then(fire); setTimeout(fire, 900); };
+  if(document.visibilityState === 'visible') ready();
+  else document.addEventListener('visibilitychange', function f(){ if(document.visibilityState === 'visible'){ document.removeEventListener('visibilitychange', f); ready(); } });
+})();
+// true when you double-click index.html (the page comes from a folder, not a web server).
+// Browsers refuse to "save" files that way, so the download button behaves a bit differently then.
+const FILE_MODE = true; // hosted preview: photo opens in a new tab
+
+// work out each photo's file paths once
+photos.forEach((ph, i) => {
+  ph.id   = i;
+  ph.slug = ph.file.replace(/\.[^.]+$/, '');                        // "a-shower-of-gold.jpg" -> "a-shower-of-gold"
+  ph.src  = 'photos/' + ph.file;                                     // the picture people see
+  ph.dl   = 'photos/download/' + ph.slug + '-pixelpoetry.jpg';         // the watermarked copy they can download
+});
+
+let store = {};
+try { store = JSON.parse(localStorage.getItem('fernlight_v2') || '{}'); } catch(e){}
+const save = () => { try { localStorage.setItem('fernlight_v2', JSON.stringify(store)); } catch(e){} };
+const stat = slug => (store[slug] ||= { likes:0, dislikes:0, views:0, downloads:0, mine:null });
+
+let toastTimer;
+function toast(msg){                                  // the little message at the bottom
+  const t = $('toast'); t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), 2600);
+}
+function burstFrom(el, glyphs){                       // a pop of hearts / petals flying out of a button
+  if(reduceMotion) return;
+  const r = el.getBoundingClientRect(), x = r.left + r.width/2, y = r.top + r.height/2;
+  for(let i = 0; i < 14; i++){
+    const p = document.createElement('span');
+    p.className = 'burst';
+    p.textContent = glyphs[i % glyphs.length];
+    const a = Math.random()*Math.PI*2, d = 50 + Math.random()*80;
+    p.style.cssText = `left:${x}px; top:${y}px; --dx:${Math.cos(a)*d}px; --dy:${Math.sin(a)*d - 40}px; --rot:${(Math.random()-.5)*160}deg; font-size:${14 + Math.random()*12}px`;
+    document.body.appendChild(p);
+    setTimeout(() => p.remove(), 1100);
+  }
+}
+async function copyText(text){                        // copy to clipboard (with a backup way for older browsers)
+  try { await navigator.clipboard.writeText(text); return true; }
+  catch(e){
+    const ta = document.createElement('textarea');
+    ta.value = text; ta.style.cssText = 'position:fixed;opacity:0';
+    document.body.appendChild(ta); ta.select();
+    let ok = false; try { ok = document.execCommand('copy'); } catch(_){}
+    ta.remove(); return ok;
+  }
+}
+
+/* =====================================================
+   D) BUILD THE GALLERY (cards, filters, hover effects)
+   ===================================================== */
+const grid = $('grid');
+const collectionOf = ph => collections[ph.category] || { name:ph.category, icon:'✦' };
+
+const cards = photos.map(ph => {
+  const card = document.createElement('article');
+  card.className = 'card';
+  card.dataset.cat = ph.category;
+  card.dataset.id = ph.id;
+  card.tabIndex = 0;                                  // so keyboard users can reach it too
+  card.setAttribute('role', 'button');
+
+  const tilt = document.createElement('div');
+  tilt.className = 'tilt';
+  const img = document.createElement('img');
+  img.src = ph.src;
+  img.alt = ph.title + '. ' + ph.caption;
+  img.loading = 'lazy'; img.decoding = 'async';
+  if(ph.w && ph.h){ img.width = ph.w; img.height = ph.h; }
+  const shine = document.createElement('div'); shine.className = 'shine';
+  const meta = document.createElement('div');   meta.className = 'meta';
+  const h3 = document.createElement('h3');      h3.textContent = ph.title;
+  const tag = document.createElement('span');   tag.textContent = collectionOf(ph).icon + ' ' + collectionOf(ph).name;
+  meta.append(h3, tag);
+  const heart = document.createElement('div');  heart.className = 'liked-badge'; heart.textContent = '❤';
+  tilt.append(img, shine, meta, heart);
+  card.appendChild(tilt);
+
+  /* 3D TILT: figure out where the mouse is on the card, then rotate toward it */
+  card.addEventListener('mousemove', e => {
+    const r = tilt.getBoundingClientRect();
+    const x = (e.clientX - r.left) / r.width;   // 0 (left) → 1 (right)
+    const y = (e.clientY - r.top)  / r.height;  // 0 (top)  → 1 (bottom)
+    tilt.style.transform = `perspective(900px) rotateX(${(.5-y)*14}deg) rotateY(${(x-.5)*14}deg) scale(1.05)`;
+    tilt.style.setProperty('--mx', x*100 + '%');
+    tilt.style.setProperty('--my', y*100 + '%');
+  });
+  /* HOVER FOCUS: this card pops up, all the others dim + blur (see .gallery.focus in the CSS) */
+  card.addEventListener('mouseenter', () => { card.classList.add('hovered'); grid.classList.add('focus'); });
+  card.addEventListener('mouseleave', () => {
+    card.classList.remove('hovered'); grid.classList.remove('focus');
+    tilt.style.transform = '';
+  });
+  card.addEventListener('click', () => openBox(ph.id));
+  card.addEventListener('keydown', e => { if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); openBox(ph.id); } });
+  grid.appendChild(card);
+  return card;
+});
+
+/* a little ❤ shows on the cards you liked */
+function refreshBadges(){
+  cards.forEach(c => c.classList.toggle('is-liked', store[photos[c.dataset.id].slug]?.mine === 'like'));
+}
+refreshBadges();
+
+/* cards fade + slide in as you scroll down */
+const io = new IntersectionObserver(entries => {
+  entries.forEach(en => { if(en.isIntersecting){ en.target.classList.add('in'); io.unobserve(en.target); } });
+}, { threshold:.12 });
+cards.forEach((c,i) => { c.dataset.d = ['l','c','r'][i%3]; c.style.transitionDelay = (i%3)*70 + 'ms'; io.observe(c); });
+// headings, filters, tools and the About card float in too
+const flObserver = new IntersectionObserver(entries => {
+  entries.forEach(en => { if(en.isIntersecting){ en.target.classList.add('in'); flObserver.unobserve(en.target); } });
+}, { threshold:.15 });
+document.querySelectorAll('#gallery .section-title, .about-card .section-title').forEach(h => {   // words slide up one by one
+  h.innerHTML = h.textContent.trim().split(/\s+/).map((w,i) => `<span class="wr"><span style="transition-delay:${i*110}ms">${w}</span></span>`).join(' ');
+});
+['#gallery .section-title', '#gallerySub', '#filters', '.tools', '.about-card'].forEach((sel, n) => {
+  const el = document.querySelector(sel); if(!el) return;
+  el.classList.add('fl'); el.style.transitionDelay = (n < 4 ? n*70 : 0) + 'ms'; flObserver.observe(el);
+});
+
+/* filter buttons are made from the collections list, with a count on each */
+(function buildFilters(){
+  const box = $('filters');
+  const make = (key, label, count) => {
+    const b = document.createElement('button');
+    b.dataset.f = key; b.textContent = label + ' ';
+    const n = document.createElement('small'); n.textContent = count;
+    b.appendChild(n); return b;
+  };
+  box.appendChild(make('all', '✨ All', photos.length));
+  Object.entries(collections).forEach(([key, c]) => {
+    const count = photos.filter(p => p.category === key).length;
+    if(count) box.appendChild(make(key, c.icon + ' ' + c.name, count));
+  });
+  box.firstChild.classList.add('active');
+  const kinds = box.children.length - 1;
+  $('gallerySub').textContent = photos.length + ' photographs in ' + kinds + ' collections. Hover to feel the light, click to step inside. 🌿';
+})();
+let curFilter = 'all', query = '';
+const noMatch = document.createElement('p'); noMatch.className = 'nomatch';
+$('filters').after(noMatch);
+const haystack = photos.map(p => [p.title, p.caption, p.category, (collections[p.category]||{}).name, p.date].join(' ').toLowerCase());
+function applyFilters(){
+  let shown = 0;
+  cards.forEach(c => {
+    const okCat = curFilter === 'all' || c.dataset.cat === curFilter;
+    const okQ = !query || query.split(/\s+/).every(w => haystack[+c.dataset.id].includes(w));
+    const ok = okCat && okQ; c.classList.toggle('hide', !ok); if(ok) shown++;
+  });
+  noMatch.textContent = shown ? '' : 'No photos match "' + query + '" 🌱 Try a flower, a color or a month.';
+  noMatch.classList.toggle('show', !shown);
+}
+$('filters').addEventListener('click', e => {
+  const b = e.target.closest('button'); if(!b) return;
+  document.querySelectorAll('#filters button').forEach(x => x.classList.toggle('active', x === b));
+  curFilter = b.dataset.f; applyFilters();
+});
+const searchBox = $('searchBox');
+searchBox.addEventListener('input', () => {
+  query = searchBox.value.trim().toLowerCase(); applyFilters();
+  if(query) $('gallery').scrollIntoView({ behavior:'smooth' });
+});
+searchBox.addEventListener('keydown', e => { if(e.key === 'Escape'){ searchBox.value = ''; query = ''; applyFilters(); searchBox.blur(); e.stopPropagation(); } });
+addEventListener('keydown', e => {
+  if(e.key === '/' && document.activeElement !== searchBox && !lb.classList.contains('open') && !['INPUT','TEXTAREA'].includes(document.activeElement.tagName)){ e.preventDefault(); searchBox.focus(); }
+});
+$('credit').textContent = SITE.credit;
+$('dlCredit').textContent = SITE.credit + ' · Pixel Poetry';
+
+/* =====================================================
+   E) LIGHTBOX + DOWNLOAD PANEL + FUN EXTRAS
+   ===================================================== */
+const lb = $('lightbox'), dlPanel = $('dlPanel');
+let cur = 0, timer = null;
+const SLIDE_MS = 5000;                                // slideshow speed (5 seconds per photo)
+
+function visibleIds(){                                // the photos currently shown by the filter
+  return cards.filter(c => !c.classList.contains('hide')).map(c => +c.dataset.id);
+}
+
+function openBox(id){
+  cur = id;
+  const ph = photos[id], s = stat(ph.slug);
+  s.views++; save();
+  $('lbImg').src = ph.src; $('lbImg').alt = ph.title + '. ' + ph.caption;
+  $('lbTitle').textContent = ph.title;
+  $('lbCap').textContent = ph.caption;
+  $('lbCat').textContent = collectionOf(ph).icon + ' ' + collectionOf(ph).name;
+  $('lbDate').textContent = ph.date ? '📅 Captured ' + ph.date : '';
+  const ids = visibleIds(), pos = ids.indexOf(id);
+  $('lbCount').textContent = String(pos + 1).padStart(2,'0') + ' / ' + String(ids.length).padStart(2,'0');
+  drawPalette(ph);
+  paint();
+  lb.classList.add('open'); document.body.style.overflow = 'hidden';
+  $('close').focus({ preventScroll:true });
+  [1,-1].forEach(d => { const n = photos[ids[(pos + d + ids.length) % ids.length]]; if(n) new Image().src = n.src; });  // preload neighbours
+  if(timer) play(true);                               // slideshow running? restart its 5-second clock
+}
+
+function drawPalette(ph){                             // the little color chips (tap to copy the code)
+  const box = $('lbPalette'); box.textContent = '';
+  if(!ph.colors || !ph.colors.length) return;
+  const label = document.createElement('div'); label.className = 'palette-label';
+  label.textContent = '🎨 Colors in this photo (tap to copy)';
+  const row = document.createElement('div'); row.className = 'palette-row';
+  ph.colors.forEach(hex => {
+    const chip = document.createElement('button'); chip.className = 'chip'; chip.style.setProperty('--c', hex);
+    chip.innerHTML = '<i></i>'; chip.append(hex.toUpperCase()); chip.title = 'Copy ' + hex;
+    chip.onclick = async () => toast((await copyText(hex)) ? 'Copied ' + hex.toUpperCase() + ' 🎨' : 'The code is ' + hex.toUpperCase());
+    row.appendChild(chip);
+  });
+  box.append(label, row);
+}
+
+function paint(){                                     // refresh the numbers and button colors
+  const s = stat(photos[cur].slug);
+  $('likeN').textContent = s.likes; $('dislikeN').textContent = s.dislikes;
+  $('likeBtn').classList.toggle('on', s.mine === 'like');
+  $('dislikeBtn').classList.toggle('on', s.mine === 'dislike');
+  $('lbViews').textContent = '👁 ' + s.views + (s.views === 1 ? ' view' : ' views') +
+                             '  ·  ⬇ ' + s.downloads + (s.downloads === 1 ? ' download' : ' downloads');
+  refreshBadges();
+}
+
+function vote(type){
+  const s = stat(photos[cur].slug), key = type + 's';
+  if(s.mine === type){ s[key]--; s.mine = null; }                    // click again = undo
+  else {
+    if(s.mine) s[s.mine + 's']--;                                    // switching sides
+    s[key]++; s.mine = type;
+    if(type === 'like') burstFrom($('likeBtn'), ['❤️','🌸','✨','💚']);
+  }
+  save(); paint();
+}
+
+/* ---- download panel: shows the REAL watermarked file, then downloads it ---- */
+const FILE_TIP = 'The photo opens in a new tab. On a phone, press and hold it, then Save Image. On a computer, right-click → Save Image As 🌿';
+function openDownload(){
+  const ph = photos[cur], thumb = $('dlThumb'), go = $('dlGo'), note = $('dlNote');
+  go.classList.add('off');
+  note.className = 'dl-note' + (FILE_MODE ? ' info' : '');
+  note.textContent = FILE_MODE ? FILE_TIP : '';
+  thumb.onload  = () => go.classList.remove('off');
+  thumb.onerror = () => { note.className = 'dl-note'; note.textContent = 'The watermarked copy is missing. Run make_photos.py to create it 🌱'; };
+  thumb.src = ph.dl; thumb.alt = 'Preview of ' + ph.title + ' with the Pixel Poetry watermark';
+  if(thumb.complete && thumb.naturalWidth) go.classList.remove('off');
+  go.href = ph.dl; go.download = ph.slug + '-pixelpoetry.jpg';
+  if(FILE_MODE){ go.target = '_blank'; go.rel = 'noopener'; go.textContent = '↗ Open photo to save'; }
+  else         { go.textContent = '⬇ Download free'; }
+  $('dlName').textContent = ph.title;
+  dlPanel.classList.add('open');
+}
+function closeDownload(){ dlPanel.classList.remove('open'); }
+$('dlGo').addEventListener('click', e => {
+  if(e.currentTarget.classList.contains('off')){ e.preventDefault(); return; }
+  const s = stat(photos[cur].slug); s.downloads++; save(); paint();
+  burstFrom($('dlGo'), ['🌿','🍃','✨','💚','🌸']);
+  toast(FILE_MODE ? 'Opened in a new tab. Press and hold (or right-click) to save it 🌿' : 'Saved! Thank you for carrying a piece of the forest 🌿');
+  setTimeout(closeDownload, 1100);                                   // the download itself starts right away
+});
+
+/* ---- slideshow ("forest walk") ---- */
+function play(on){
+  clearInterval(timer); timer = null;
+  const bar = $('lbProgress'); bar.classList.remove('run');
+  if(on){
+    timer = setInterval(() => step(1), SLIDE_MS);
+    void bar.offsetWidth; bar.classList.add('run');                  // restart the thin progress line
+  }
+  $('playBtn').textContent = on ? '⏸' : '▶';
+  $('playBtn').classList.toggle('on', on);
+  $('playBtn').title = on ? 'Pause slideshow' : 'Play slideshow';
+}
+
+function step(dir){
+  const ids = visibleIds(); if(!ids.length) return;
+  const i = ids.indexOf(cur);
+  openBox(ids[(i + dir + ids.length) % ids.length]);
+}
+function closeBox(){ closeDownload(); play(false); lb.classList.remove('open'); document.body.style.overflow = ''; }
+
+$('likeBtn').onclick = () => vote('like');
+$('dislikeBtn').onclick = () => vote('dislike');
+$('dlBtn').onclick = openDownload;
+$('dlClose').onclick = closeDownload;
+dlPanel.addEventListener('click', e => { if(e.target === dlPanel) closeDownload(); });
+$('playBtn').onclick = () => play(!timer);
+$('close').onclick = closeBox;
+$('prev').onclick = () => step(-1);
+$('next').onclick = () => step(1);
+lb.addEventListener('click', e => { if(e.target === lb) closeBox(); });
+
+/* gallery buttons: 🎲 Surprise me + ▶ Forest walk */
+$('surpriseBtn').onclick = () => {
+  const all = visibleIds(), pool = all.filter(i => i !== cur);
+  const list = pool.length ? pool : all;
+  if(list.length) openBox(list[Math.floor(Math.random() * list.length)]);
+};
+$('slideBtn').onclick = () => {
+  const ids = visibleIds(); if(!ids.length) return;
+  openBox(ids[0]); play(true);
+};
+
+document.addEventListener('keydown', e => {
+  if(!lb.classList.contains('open')) return;
+  if(dlPanel.classList.contains('open')){ if(e.key === 'Escape') closeDownload(); return; }
+  if(e.key === 'Escape') closeBox();
+  else if(e.key === 'ArrowLeft') step(-1);
+  else if(e.key === 'ArrowRight') step(1);
+  else if(e.key.toLowerCase() === 'l') vote('like');
+});
+
+/* =====================================================
+   F) HERO: animated title letters + parallax trees
+   ===================================================== */
+const title = $('title');
+// each letter gets its own colour on the same pink -> lime fade as the top-bar logo (plain text colour: nothing gets cropped, even the swirly Pacifico tails)
+const titleStops = [[255,194,226],[236,221.5,191.5],[217,249,157]];   // same pink -> lime fade as the name in the top bar (#ffc2e2 -> #d9f99d)
+function titleColor(t){ const k = t < .5 ? 0 : 1, u = (t < .5 ? t : t - .5)*2, A = titleStops[k], B = titleStops[k+1];
+  return `rgb(${A.map((v,n) => Math.round(v + (B[n]-v)*u)).join(',')})`; }
+const titleChars = [...title.textContent];
+let wordNo = 0, inWord = 0;                                    // "Pixel" appears first, "Poetry" follows a beat later
+title.innerHTML = titleChars.map((c,i) => {
+  if(c === ' '){ wordNo++; inWord = 0; return '<span class="ch" style="animation-delay:0ms">&nbsp;</span>'; }
+  const delay = 120 + wordNo*260 + (inWord++)*38;
+  return `<span class="ch" style="animation-delay:${delay}ms; color:${titleColor(i/(titleChars.length-1))}">${c}</span>`;
+}).join('');
+$('year').textContent = new Date().getFullYear();
+
+/* =====================================================
+   F2) REAL-LOOKING FOREST BACKGROUND (stays while you scroll) 🌲
+   Trees are drawn by code: pines have layered drooping branches,
+   oaks have a trunk, bending branches and a bumpy leafy crown.
+   Far trees are small + pale (like they hide in mist), near trees
+   are big + dark. This "atmospheric depth" is what makes it feel real!
+   ===================================================== */
+function pine(r, x, base, h, col){
+  const tiers = 8 + Math.floor(r()*4), maxW = h*(.16 + r()*.05);
+  let p = `<rect x='${(x-h*.011).toFixed(1)}' y='${(base-h*.22).toFixed(1)}' width='${(h*.022).toFixed(1)}' height='${(h*.22).toFixed(1)}' fill='${col}'/>`;
+  for(let i=0; i<tiers; i++){
+    const yTop = base - h + (i/tiers)*h*.84;
+    const yBot = yTop + (h*.84/tiers)*2.2;
+    const wb = maxW * Math.pow((i+1)/tiers, .85) * (.9 + r()*.2);
+    const side = sign => [1,2,3].map(j => [
+      x + sign*wb*(j/3)*(j===3 ? 1 : .75 + r()*.35),
+      yTop + (yBot-yTop)*(j/3) + (r()-.5)*h*.012
+    ]);
+    const L = side(-1), R = side(1);
+    let d = `M${x.toFixed(1)} ${yTop.toFixed(1)}`;
+    L.forEach(q => d += ` L${q[0].toFixed(1)} ${q[1].toFixed(1)}`);
+    d += ` Q${x.toFixed(1)} ${(yBot-h*.035).toFixed(1)} ${R[2][0].toFixed(1)} ${R[2][1].toFixed(1)}`;
+    d += ` L${R[1][0].toFixed(1)} ${R[1][1].toFixed(1)} L${R[0][0].toFixed(1)} ${R[0][1].toFixed(1)} Z`;
+    p += `<path d='${d}' fill='${col}'/>`;
+  }
+  return p;
+}
+function oak(r, x, base, h, col, col2){
+  const tw = h*.035;
+  let p = `<path d='M${(x-tw).toFixed(1)} ${base.toFixed(1)} Q${(x-tw*.6).toFixed(1)} ${(base-h*.35).toFixed(1)} ${(x-tw*.4).toFixed(1)} ${(base-h*.55).toFixed(1)} L${(x+tw*.4).toFixed(1)} ${(base-h*.55).toFixed(1)} Q${(x+tw*.6).toFixed(1)} ${(base-h*.35).toFixed(1)} ${(x+tw).toFixed(1)} ${base.toFixed(1)} Z' fill='${col}'/>`;
+  for(let i=0; i<4; i++){                       // bending branches
+    const s = i%2 ? 1 : -1, by = base - h*(.45 + r()*.2);
+    p += `<path d='M${x.toFixed(1)} ${by.toFixed(1)} Q${(x+s*h*.1).toFixed(1)} ${(by-h*.1).toFixed(1)} ${(x+s*h*(.15+r()*.1)).toFixed(1)} ${(by-h*(.2+r()*.1)).toFixed(1)}' stroke='${col}' stroke-width='${(tw*.5).toFixed(1)}' fill='none' stroke-linecap='round'/>`;
+  }
+  for(let i=0; i<16; i++){                      // bumpy leafy crown = many overlapping circles
+    const a = r()*6.28, rad = r()*h*.2;
+    p += `<circle cx='${(x+Math.cos(a)*rad*1.3).toFixed(1)}' cy='${(base-h*.7+Math.sin(a)*rad*.8).toFixed(1)}' r='${(h*(.08+r()*.07)).toFixed(1)}' fill='${i%3 ? col : col2}'/>`;
+  }
+  return p;
+}
+function forestLayer(seed, count, hMin, hMax, col, col2, opacity, oakChance, baseY){
+  const r = rng(seed); let p = '';
+  for(let i=0; i<count; i++){
+    const x = (i+.5)/count*1600 + (r()-.5)*140, h = hMin + r()*(hMax-hMin), base = baseY + r()*30;
+    p += r() < oakChance ? oak(r, x, base, h, col, col2) : pine(r, x, base, h, col);
+  }
+  return `<svg viewBox='0 0 1600 900' preserveAspectRatio='xMidYMax slice' style='opacity:${opacity}'>${p}</svg>`;
+}
+
+const forest = $('forest');
+forest.innerHTML = '<div class="rays"></div>'
+  + forestLayer(21, 16, 170, 250, '#2f6a50', '#3a7a5c', .75, .20, 800)  // far: small + hazy
+  + '<div class="mist"></div>'
+  + forestLayer(33, 10, 270, 380, '#1c4a37', '#255a43', .95, .30, 880)  // middle
+  + forestLayer(47,  6, 420, 560, '#0f2f22', '#16402f', 1,   .25, 930); // near: big + dark
+const forestLayers = [...forest.querySelectorAll('svg')];
+let mxp = 0, scy = 0;
+let parallaxQueued = false;
+function parallax(){ if(parallaxQueued) return; parallaxQueued = true; requestAnimationFrame(doParallax); }
+function doParallax(){
+  parallaxQueued = false;
+  forestLayers.forEach((el,i) => {
+    const f = [.25,.6,1][i];                      // near trees move more = depth
+    el.style.transform = `translate(${mxp*-34*f}px, ${Math.min(scy,1600)*.035*f}px)`;
+  });
+}
+addEventListener('mousemove', e => { mxp = e.clientX/innerWidth - .5; parallax(); });
+addEventListener('scroll', () => { scy = scrollY; parallax(); }, { passive:true });
+
+/* =====================================================
+   F2b) SCROLL EFFECTS: the first screen drifts away at different
+   speeds (depth!) and a glowing bar fills as you scroll.
+   ===================================================== */
+(function scrollFx(){
+  if(reduceMotion) return;
+  const bar = $('progress'), nav = document.querySelector('nav');
+  const layers = [['.hero-logo', .45], ['#title', .32], ['.hero p', .22], ['.hero .btn', .12]]
+    .map(([sel, k]) => [document.querySelector(sel), k]).filter(l => l[0]);
+  let ticking = false;
+  function update(){
+    ticking = false;
+    const y = scrollY, h = innerHeight, max = document.documentElement.scrollHeight - h;
+    bar.style.transform = `scaleX(${max > 0 ? Math.min(1, y/max) : 0})`;
+    if(y < 2){ layers.forEach(([el]) => { el.style.transform = ''; el.style.opacity = ''; }); }       // back at the top: let the normal styles (and button hover) take over
+    else if(y < h*1.2){
+      const fade = Math.max(0, 1 - y/(h*.75));
+      layers.forEach(([el, k]) => { el.style.transform = `translateY(${(y*k).toFixed(1)}px) scale(${(1 - y/h*.06*k*2).toFixed(3)})`; el.style.opacity = fade.toFixed(3); });
+    }
+  }
+  addEventListener('scroll', () => { if(!ticking){ ticking = true; requestAnimationFrame(update); } }, { passive:true });
+  update();
+})();
+
+/* =====================================================
+   F3) PIXEL POETRY LOGO: a bee that loops around the flower 🐝🌸
+   Move your mouse near the logo and the bee flies to follow it.
+   Tap / click the camera: flash, shutter click, a polaroid slides out and petals fly.
+   ===================================================== */
+document.querySelectorAll('.plogo').forEach(svg => {
+  const bee = svg.querySelector('.pp-bee');
+  let bx = 50, by = 8, hover = false, tx = 50, ty = 20;
+  svg.addEventListener('pointermove', e => {
+    const r = svg.getBoundingClientRect();
+    tx = (e.clientX - r.left)/r.width*100; ty = (e.clientY - r.top)/r.height*84; hover = true;
+  });
+  svg.addEventListener('pointerleave', () => hover = false);
+  function fly(t){
+    // default: a lazy loop around the flower. On hover: chase the pointer.
+    const gx = hover ? tx : 50 + Math.sin(t/1300)*38;
+    const gy = hover ? ty : 9 + Math.sin(t/650)*5;
+    const px = bx, py = by;
+    bx += (gx - bx)*.07; by += (gy - by)*.07;
+    const face = (bx - px) >= 0 ? 1 : -1;
+    bee.setAttribute('transform', `translate(${bx.toFixed(2)} ${(by + Math.sin(t/110)*.6).toFixed(2)}) scale(${(.8*face).toFixed(2)} .8) rotate(${Math.sin(t/300)*8})`);
+    requestAnimationFrame(fly);
+  }
+  if(!reduceMotion) requestAnimationFrame(fly); else bee.setAttribute('transform','translate(70 8)');
+});
+// tiny camera "click" made with the Web Audio API (no sound file needed; it only plays after a tap)
+let audioCtx;
+function shutterSound(){
+  try {
+    audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+    const t0 = audioCtx.currentTime;
+    [[0, 1800], [.07, 900]].forEach(([dt, freq]) => {                 // two quick clicks: shutter opens, shutter closes
+      const len = audioCtx.sampleRate * .05, buf = audioCtx.createBuffer(1, len, audioCtx.sampleRate), d = buf.getChannelData(0);
+      for(let i = 0; i < len; i++) d[i] = (Math.random()*2 - 1) * Math.pow(1 - i/len, 3);
+      const src = audioCtx.createBufferSource(); src.buffer = buf;
+      const f = audioCtx.createBiquadFilter(); f.type = 'bandpass'; f.frequency.value = freq;
+      const g = audioCtx.createGain(); g.gain.value = .5;
+      src.connect(f).connect(g).connect(audioCtx.destination); src.start(t0 + dt);
+    });
+  } catch(e){}
+}
+function snapLogo(svg, big){
+  svg.classList.remove('snap'); void svg.getBoundingClientRect(); svg.classList.add('snap');   // restart the animation
+  setTimeout(() => svg.classList.remove('snap'), 700);
+  shutterSound();
+  if(reduceMotion) return;
+  const f = $('shutterFlash'); f.classList.remove('go'); void f.offsetWidth; f.classList.add('go');
+  const r = svg.getBoundingClientRect();
+  burstFrom(svg, ['🌼','🌸','🍃','🌿','✨']);
+  // a little polaroid of a random photo slides out of the camera
+  const p = document.createElement('div'); p.className = 'polaroid';
+  const ph = photos[Math.floor(Math.random()*photos.length)];
+  p.innerHTML = '<i></i>'; p.firstChild.style.setProperty('--img', `url("${ph.src}")`);
+  p.style.left = (r.left + r.width/2) + 'px'; p.style.top = (r.top + r.height*.8) + 'px';
+  document.body.appendChild(p); setTimeout(() => p.remove(), 2000);
+  if(big) toast('📸 Click! Another pixel of poetry saved 🌼');
+}
+document.querySelectorAll('.plogo').forEach(svg => svg.addEventListener('click', () => snapLogo(svg, !svg.closest('.logo'))));
+$('heroLogo').addEventListener('keydown', e => { if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); snapLogo($('heroLogo').querySelector('.plogo'), true); } });
+
+/* =====================================================
+   G) REALISTIC FIREFLIES (jonaki poka) 🪲
+   Real fireflies: 1) wander slowly in curvy paths, 2) flash in a
+   rhythm (glow... dark... glow...), 3) have a tiny body + wings.
+   ===================================================== */
+const cv = $('fireflies'), ctx = cv.getContext('2d');
+let W, H, dpr = Math.min(devicePixelRatio || 1, 2);
+const dprLite = Math.min(dpr, 1.25);   // soft glows and tiny critters don't need full retina resolution
+function resize(){ W = innerWidth; H = innerHeight; cv.width = W*dprLite; cv.height = H*dprLite; ctx.setTransform(dprLite,0,0,dprLite,0,0); }
+resize(); addEventListener('resize', resize);
+const mouse = { x:-999, y:-999 };
+addEventListener('mousemove', e => { mouse.x = e.clientX; mouse.y = e.clientY; });
+
+function newFly(){
+  return {
+    x:Math.random()*innerWidth, y:Math.random()*innerHeight,
+    vx:(Math.random()-.5)*.3, vy:(Math.random()-.5)*.2,   // gentle drifting speed
+    sway:Math.random()*6.28, swaySpd:.0004 + Math.random()*.0005,
+    size:.7 + Math.random()*.7,       // small and cute
+    period:3600 + Math.random()*3000, // ms for one slow glow breath
+    offset:Math.random()*6000,        // so they don't all glow together
+    wing:Math.random()*6.28,
+    hue:58 + Math.random()*34,        // soft yellow-green
+    px:0, py:0                        // push from your mouse
+  };
+}
+const flies = Array.from({length: innerWidth < 700 ? 10 : 20}, newFly);
+
+// glow sprites are painted ONCE, then stamped every frame (drawing gradients each frame was the slow part)
+function makeSprite(hue, stops){
+  const c = document.createElement('canvas'); c.width = c.height = 64; const x = c.getContext('2d');
+  const g = x.createRadialGradient(32,32,0, 32,32,32);
+  stops.forEach(([p,l,a]) => g.addColorStop(p, `hsla(${hue},100%,${l}%,${a})`));
+  x.fillStyle = g; x.fillRect(0,0,64,64); return c;
+}
+const flySprites = [62, 78, 92].map(h => ({
+  hue:h,
+  halo:makeSprite(h, [[0,72,1],[.35,62,.33],[1,60,0]]),
+  core:makeSprite(h, [[0,96,1],[.5,70,.6],[1,60,0]]),
+}));
+flies.forEach(f => f.sp = flySprites.reduce((a,b) => Math.abs(b.hue - f.hue) < Math.abs(a.hue - f.hue) ? b : a));
+
+function drawFly(f, t, k){          // k = how bright the glow is right now (0 to 1)
+  const s = f.size;
+  ctx.globalCompositeOperation = 'lighter';
+  const R = (8 + 14*k) * s;
+  ctx.globalAlpha = .10 + .30*k;                                   // big soft halo
+  ctx.drawImage(f.sp.halo, f.x - R, f.y - R, R*2, R*2);
+  const beat = Math.sin(t/14 + f.wing);                            // tiny see-through wings beating fast = it is FLYING
+  ctx.globalAlpha = .10 + .12*k; ctx.fillStyle = '#ffffe6';
+  for(let side = -1; side <= 1; side += 2){
+    ctx.beginPath();
+    ctx.ellipse(f.x + side*3.2*s, f.y - 2.2*s, 3.6*s, (1 + 1.6*Math.abs(beat))*s, side*(.9 + .5*beat), 0, 7);
+    ctx.fill();
+  }
+  ctx.globalAlpha = .45 + .35*k;                                   // bright round glow-body
+  ctx.drawImage(f.sp.core, f.x - 3.4*s, f.y - 3.4*s, 6.8*s, 6.8*s);
+  ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
+}
+
+let lastF = 0;
+function frame(t){
+  if(skipFrame()){ requestAnimationFrame(frame); return; }
+  const dt = lastF ? Math.min(3, (t-lastF)/16.667) : 1; lastF = t;
+  ctx.clearRect(0,0,W,H);
+  for(const f of flies){
+    // float: lazy drifting direction + a soft sway, with a slight upward lift (like it floats on warm air)
+    f.vx += (Math.random()-.5)*.012*dt; f.vy += (Math.random()-.5)*.010*dt;
+    f.vx = Math.max(-.26, Math.min(.26, f.vx)); f.vy = Math.max(-.2, Math.min(.16, f.vy - .0005*dt));
+    // run away gently from your mouse
+    const dx = f.x - mouse.x, dy = f.y - mouse.y, d = Math.hypot(dx,dy) || 1;
+    if(d < 150){ const force = (150-d)/150; f.px += dx/d*force*.6*dt; f.py += dy/d*force*.6*dt; }
+    f.px *= .94; f.py *= .94;
+    f.x += (f.vx + Math.sin(t*f.swaySpd + f.sway)*.2 + f.px)*dt;
+    f.y += (f.vy + Math.cos(t*f.swaySpd*1.3 + f.sway)*.17 + f.py)*dt;
+    if(f.x < -30) f.x = W+30; if(f.x > W+30) f.x = -30;
+    if(f.y < -30) f.y = H+30; if(f.y > H+30) f.y = -30;
+    // slow breathing glow: soft rise and fall, always a little bit lit
+    const phase = ((t + f.offset) % f.period) / f.period;
+    const k = Math.pow(.5 - .5*Math.cos(phase*Math.PI*2), 1.6);
+    drawFly(f, t, k);
+  }
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+
+/* =====================================================
+   G2) FLOWER + STAR TRAIL behind your cursor 🌸⭐
+   ===================================================== */
+const tc = document.createElement('canvas');
+tc.style.cssText = 'position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:998';
+document.body.appendChild(tc);
+const tctx = tc.getContext('2d');
+function resizeTrail(){ tc.width = innerWidth*dprLite; tc.height = innerHeight*dprLite; tctx.setTransform(dprLite,0,0,dprLite,0,0); }
+resizeTrail(); addEventListener('resize', resizeTrail);
+
+const bits = [];
+const trailColors = ['#fbcfe8','#ffffff','#a7f3d0','#d9f99d','#e9d5ff','#fde68a'];
+let lx = -999, ly = -999;
+const calm = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+addEventListener('pointermove', e => {
+  if(calm) return;
+  if(Math.hypot(e.clientX-lx, e.clientY-ly) < 16) return;   // only drop one every ~16px
+  lx = e.clientX; ly = e.clientY;
+  bits.push({
+    x:lx + (Math.random()-.5)*8, y:ly + (Math.random()-.5)*8,
+    vx:(Math.random()-.5)*.8, vy:.3 + Math.random()*.7,      // drifts down slowly like falling petals
+    rot:Math.random()*6.28, vr:(Math.random()-.5)*.1,
+    size:6 + Math.random()*7, life:1,
+    kind:Math.random() < .5 ? 'flower' : 'star',
+    color:trailColors[Math.floor(Math.random()*trailColors.length)]
+  });
+  if(bits.length > 120) bits.shift();
+});
+
+function drawStar(c, r){
+  c.beginPath();
+  for(let i=0; i<10; i++){
+    const a = i*Math.PI/5 - Math.PI/2, rr = i%2 ? r*.45 : r;
+    c[i ? 'lineTo' : 'moveTo'](Math.cos(a)*rr, Math.sin(a)*rr);
+  }
+  c.closePath(); c.fill();
+}
+function drawFlower(c, r){
+  for(let i=0; i<5; i++){
+    c.save(); c.rotate(i*Math.PI*2/5);
+    c.beginPath(); c.ellipse(0, -r*.55, r*.36, r*.55, 0, 0, 7); c.fill();
+    c.restore();
+  }
+  c.fillStyle = '#fde68a'; c.beginPath(); c.arc(0,0,r*.25,0,7); c.fill();
+}
+let trailClean = true;
+(function trailLoop(){
+  if(!bits.length && trailClean){ requestAnimationFrame(trailLoop); return; }     // nothing to draw: do no work
+  tctx.clearRect(0,0,innerWidth,innerHeight); trailClean = !bits.length;
+  for(let i=bits.length-1; i>=0; i--){
+    const b = bits[i];
+    b.life -= .016; b.x += b.vx; b.y += b.vy; b.rot += b.vr;
+    if(b.life <= 0){ bits.splice(i,1); continue; }
+    tctx.save();
+    tctx.translate(b.x, b.y); tctx.rotate(b.rot);
+    tctx.globalAlpha = b.life;                    // fades out as life goes 1 -> 0
+    tctx.fillStyle = b.color;
+    const sc = .5 + b.life*.5; tctx.scale(sc, sc); // shrinks a little as it fades
+    b.kind === 'star' ? drawStar(tctx, b.size) : drawFlower(tctx, b.size);
+    tctx.restore();
+  }
+  requestAnimationFrame(trailLoop);
+})();
+
+
+/* =====================================================
+   I) BUTTERFLIES 🦋 + BIRDS 🐦
+   They fly in the forest BEHIND the page content, so they show in the green
+   margins and never cover a photo.
+   Butterflies: flutter in bursts, glide now and then, and drift away from your mouse.
+   Birds: cross the sky with real wing-beats, glide, then come back from a new side.
+   ===================================================== */
+const rnd = (a,b) => a + Math.random()*(b-a);
+const cc = document.createElement('canvas');
+cc.style.cssText = 'position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:0';
+document.body.appendChild(cc);
+const cctx = cc.getContext('2d');
+const dprC = Math.min(dpr, 1.5);
+function resizeCritters(){ cc.width = innerWidth*dprC; cc.height = innerHeight*dprC; cctx.setTransform(dprC,0,0,dprC,0,0); }
+resizeCritters(); addEventListener('resize', resizeCritters);
+
+/* ---------- BUTTERFLIES ---------- */
+// base = near the body, main = big wing color, tip = dark edge, hind = lower wings, spot = little white dots
+const butterflyPalettes = [
+  { base:'#d35400', main:'#ff8c1a', tip:'#1a1008', hind:'#ff9d2f', spot:'#ffffff', line:'#1a1008' },  // monarch orange
+  { base:'#0a2a6b', main:'#2f7bff', tip:'#0b1a3d', hind:'#5aa2ff', spot:'#d5e6ff', line:'#07122b' },  // blue morpho
+  { base:'#4a3a00', main:'#ffe14d', tip:'#2a2200', hind:'#ffd21a', spot:'#fff6c2', line:'#2a2200' },  // yellow swallowtail
+  { base:'#8e2a6b', main:'#ff7ac8', tip:'#4a1038', hind:'#ffa3dc', spot:'#fff0fa', line:'#4a1038' },  // pink
+  { base:'#2a0f4d', main:'#8a4dff', tip:'#160826', hind:'#b58cff', spot:'#ffffff', line:'#160826' },  // purple
+  { base:'#0f3d2a', main:'#38e08a', tip:'#06180f', hind:'#a6f5c8', spot:'#e8fff3', line:'#06180f' },  // green
+];
+
+function newButterfly(){
+  return {
+    x:rnd(0,innerWidth), y:rnd(0,innerHeight), heading:rnd(0,6.28),
+    turn:0, targetTurn:0, nextTurn:0,
+    s:rnd(.42,.75),                          // size: small and cute
+    pal:butterflyPalettes[Math.floor(Math.random()*butterflyPalettes.length)],
+    phase:rnd(0,6.28), flapSpeed:rnd(.18,.26), glideUntil:0, seed:rnd(0,100), px:0, py:0
+  };
+}
+const butterflies = Array.from({length: innerWidth < 700 ? 4 : 7}, newButterfly);
+
+// draws the RIGHT wings (we mirror it for the left side)
+function drawWing(c, flap, pal, hflap){
+  c.save();
+  c.save(); c.scale(flap, 1);                // flap < 1 = wings folded a bit
+  // upper (fore) wing
+  let g = c.createLinearGradient(0,0,27,-14);
+  g.addColorStop(0, pal.base); g.addColorStop(.6, pal.main); g.addColorStop(1, pal.tip);
+  c.fillStyle = g; c.strokeStyle = pal.line; c.lineWidth = .9;
+  c.beginPath(); c.moveTo(0,-1); c.bezierCurveTo(6,-20, 26,-22, 27,-8); c.bezierCurveTo(27,-2, 14,0, 0,2); c.closePath();
+  c.fill(); c.stroke();
+  c.restore();
+  c.save(); c.scale(hflap, 1);               // hind wings follow a moment later = more natural
+  // lower (hind) wing
+  g = c.createLinearGradient(0,0,20,18);
+  g.addColorStop(0, pal.base); g.addColorStop(.7, pal.hind); g.addColorStop(1, pal.tip);
+  c.fillStyle = g;
+  c.beginPath(); c.moveTo(0,1); c.bezierCurveTo(16,-1, 24,10, 17,19); c.quadraticCurveTo(15,25, 11,22); c.quadraticCurveTo(7,26, 3,16); c.lineTo(0,8); c.closePath();
+  c.fill(); c.stroke();
+  // thin wing veins
+  c.strokeStyle = pal.line; c.globalAlpha = .35; c.lineWidth = .6;
+  c.restore(); c.save(); c.scale(flap, 1);
+  c.beginPath();
+  c.moveTo(1,-1); c.lineTo(22,-14); c.moveTo(1,0); c.lineTo(25,-6); c.moveTo(1,2); c.lineTo(15,14);
+  c.stroke(); c.globalAlpha = 1;
+  // little white dots near the edge
+  c.fillStyle = pal.spot; c.globalAlpha = .9;
+  [[22,-14,1.6],[25,-9,1.3],[18,-18,1.2],[14,16,1.4],[19,10,1.1]].forEach(d => { c.beginPath(); c.arc(d[0],d[1],d[2],0,7); c.fill(); });
+  c.globalAlpha = 1;
+  c.restore();
+  c.restore();
+}
+
+function updateButterfly(b, t, dt){
+  if(t > b.nextTurn){ b.targetTurn = rnd(-.05,.05); b.nextTurn = t + rnd(350,1300); }
+  b.turn += (b.targetTurn - b.turn)*.08*dt;
+  b.heading += b.turn*dt;
+  const burst = .5 + .5*Math.sin(t/430 + b.seed);                 // flutter in bursts
+  const speed = (.45 + 1.1*burst) * (.8 + b.s) * .55;
+  if(t > b.glideUntil && Math.random() < .002*dt) b.glideUntil = t + rnd(500,1100);
+  b.phase += ((t < b.glideUntil) ? .06 : (b.flapSpeed + .08*burst)*.65)*dt; // slow wings while gliding
+  const dx = b.x - mouse.x, dy = b.y - mouse.y, d = Math.hypot(dx,dy) || 1;
+  if(d < 140){ const f = (140-d)/140; b.px += dx/d*f*.5; b.py += dy/d*f*.5; }
+  b.px *= .93; b.py *= .93;
+  b.x += (Math.cos(b.heading)*speed + b.px)*dt;
+  b.y += (Math.sin(b.heading)*speed + b.py + Math.sin(b.phase*.5)*.5)*dt; // up-down bobbing
+  const m = 40;
+  if(b.x < -m) b.x = innerWidth + m; if(b.x > innerWidth + m) b.x = -m;
+  if(b.y < -m) b.y = innerHeight + m; if(b.y > innerHeight + m) b.y = -m;
+}
+function drawButterfly(b){
+  const flap = .18 + .82*Math.abs(Math.cos(b.phase));
+  cctx.save();
+  cctx.translate(b.x, b.y); cctx.rotate(b.heading + Math.PI/2); cctx.scale(b.s, b.s);
+  const hflap = .18 + .82*Math.abs(Math.cos(b.phase - .7));
+  drawWing(cctx, flap, b.pal, hflap);
+  cctx.scale(-1,1); drawWing(cctx, flap, b.pal, hflap); cctx.scale(-1,1);
+  // body, head and curly antennae
+  cctx.fillStyle = '#17110c'; cctx.strokeStyle = '#17110c'; cctx.lineWidth = .7;
+  cctx.beginPath(); cctx.ellipse(0,2,1.6,8,0,0,7); cctx.fill();
+  cctx.beginPath(); cctx.arc(0,-7,1.8,0,7); cctx.fill();
+  cctx.beginPath(); cctx.moveTo(-.6,-8); cctx.quadraticCurveTo(-3,-14,-5,-15);
+  cctx.moveTo(.6,-8); cctx.quadraticCurveTo(3,-14,5,-15); cctx.stroke();
+  cctx.beginPath(); cctx.arc(-5,-15,.8,0,7); cctx.arc(5,-15,.8,0,7); cctx.fill();
+  cctx.restore();
+}
+
+/* ---------- BIRDS (side view, facing right, then flipped if flying left) ---------- */
+const birdPalettes = [
+  { body:'#1fa5d8', belly:'#ff9a3c', wing:'#0b6fa8', wingTip:'#073b5e', tail:'#0b6fa8', head:'#1fa5d8', beak:'#222222' },  // kingfisher
+  { body:'#d9382a', belly:'#ff8a5c', wing:'#9a2016', wingTip:'#4a0d09', tail:'#9a2016', head:'#d9382a', beak:'#3a2a1a' },  // red
+  { body:'#ffcf1f', belly:'#ffe680', wing:'#222222', wingTip:'#0d0d0d', tail:'#222222', head:'#ffcf1f', beak:'#e0453a' },  // golden oriole
+  { body:'#3fbf3f', belly:'#a6e36b', wing:'#1f8f3a', wingTip:'#14602a', tail:'#1f8f3a', head:'#3fbf3f', beak:'#e53935' },  // green parakeet
+  { body:'#2fb6c9', belly:'#b57a4a', wing:'#1d6fd6', wingTip:'#0b2f6b', tail:'#1d6fd6', head:'#8a5a3a', beak:'#2a2a2a' },  // roller
+];
+function newBird(first){
+  const dir = Math.random() < .5 ? 1 : -1;
+  return {
+    dir, x: first ? rnd(0,innerWidth) : (dir > 0 ? -80 : innerWidth + 80),
+    y: rnd(.08,.5)*innerHeight, speed:rnd(.5,.95), s:rnd(.7,1.1),
+    pal:birdPalettes[Math.floor(Math.random()*birdPalettes.length)],
+    phase:rnd(0,6.28), wob:rnd(0,6.28), glideUntil:0, gliding:false,
+    wait: first ? 0 : rnd(1500,9000)          // rest off-screen before the next fly-by
+  };
+}
+const birds = Array.from({length: innerWidth < 700 ? 2 : 4}, () => newBird(true));
+
+// wing points UP at sy = 1 and swings DOWN at sy = -1 (that's the flap!)
+function birdWing(c, f1, f2, p, far){
+  // f1 = arm (inner wing) up/down, f2 = feathered tip, which lags a little behind = real wing-beat
+  c.save(); c.translate(2,-3); c.globalAlpha *= far ? .8 : 1;
+  const tx = -9, ty = -16*f1;
+  const g = c.createLinearGradient(0,0,tx,ty);
+  g.addColorStop(0, far ? p.wingTip : p.wing); g.addColorStop(1, p.wing);
+  c.fillStyle = g;
+  c.beginPath(); c.moveTo(5,0); c.quadraticCurveTo(3,ty*.7, tx,ty); c.lineTo(-13,ty*.35); c.lineTo(-12,1); c.closePath(); c.fill();
+  // 5 separate feathers fanning out from the wing tip
+  c.fillStyle = p.wingTip;
+  for(let i=0;i<5;i++){
+    const ex = tx - 2 - i*3.4, ey = ty + (-8 + i*1.8)*f2 - 2*f1;
+    c.beginPath(); c.moveTo(tx+3-i*1.6, ty*(1-i*.12)); c.quadraticCurveTo(tx-1-i*2.4, (ty+ey)/2 - 1.5, ex, ey);
+    c.quadraticCurveTo(tx-1-i*2.4, (ty+ey)/2 + 1.8, tx+1-i*1.6, ty*(1-i*.12)+2); c.closePath(); c.fill();
+  }
+  c.restore();
+}
+function updateBird(b, t, dt){
+  if(t > b.glideUntil && Math.random() < .003*dt) b.glideUntil = t + rnd(700,1600);
+  b.gliding = t < b.glideUntil;
+  b.phase += (b.gliding ? .04 : .2)*dt;
+  b.x += b.dir*b.speed*dt;
+  b.y += (Math.sin(t/700 + b.wob)*.4 + (b.gliding ? .2 : -.08))*dt;        // sink while gliding, rise while flapping
+  b.y = Math.max(.05*innerHeight, Math.min(.7*innerHeight, b.y));
+}
+function drawBird(b){
+  const p = b.pal, flap = b.gliding ? .3 : Math.sin(b.phase), tip = b.gliding ? .15 : Math.sin(b.phase - 1);
+  cctx.save();
+  cctx.translate(b.x, b.y + (b.gliding ? 0 : -flap*1.6)); cctx.scale(b.dir*b.s, b.s);
+  cctx.globalAlpha = .75 + .25*Math.min(1,(b.s-.7)/.4);                      // smaller = farther = a bit fainter
+  birdWing(cctx, flap*.9, tip*.9, p, true);                                          // far wing (behind the body)
+  // tail
+  cctx.fillStyle = p.tail;
+  cctx.beginPath(); cctx.moveTo(-9,-1); cctx.lineTo(-26,-3); cctx.lineTo(-27,2); cctx.lineTo(-9,3); cctx.closePath(); cctx.fill();
+  // body (back color on top, belly color below)
+  const g = cctx.createLinearGradient(0,-6,0,6);
+  g.addColorStop(0, p.body); g.addColorStop(.55, p.body); g.addColorStop(.6, p.belly); g.addColorStop(1, p.belly);
+  cctx.fillStyle = g; cctx.beginPath(); cctx.ellipse(0,0,12,5.5,0,0,7); cctx.fill();
+  // head, eye, beak
+  cctx.fillStyle = p.head; cctx.beginPath(); cctx.arc(11.5,-3,4.6,0,7); cctx.fill();
+  cctx.fillStyle = '#111'; cctx.beginPath(); cctx.arc(13,-4,1,0,7); cctx.fill();
+  cctx.fillStyle = '#fff'; cctx.beginPath(); cctx.arc(13.3,-4.3,.35,0,7); cctx.fill();
+  cctx.fillStyle = p.beak;
+  cctx.beginPath(); cctx.moveTo(15.5,-3.8); cctx.lineTo(22,-2.4); cctx.lineTo(15.5,-1); cctx.closePath(); cctx.fill();
+  birdWing(cctx, flap, tip, p, false);                                            // near wing (in front)
+  cctx.restore();
+}
+
+/* ---------- main loop for both ---------- */
+let lastT = 0;
+function critterLoop(t){
+  if(skipFrame()){ requestAnimationFrame(critterLoop); return; }
+  const dtms = lastT ? Math.min(100, t - lastT) : 16.7; lastT = t;
+  const dt = dtms/16.667;                         // keeps speed the same on any screen refresh rate
+  cctx.clearRect(0,0,innerWidth,innerHeight);
+  butterflies.forEach(b => { updateButterfly(b,t,dt); drawButterfly(b); });
+  for(let i=0; i<birds.length; i++){
+    const b = birds[i];
+    if(b.wait > 0){ b.wait -= dtms; continue; }
+    updateBird(b,t,dt); drawBird(b);
+    if((b.dir > 0 && b.x > innerWidth + 90) || (b.dir < 0 && b.x < -90)) birds[i] = newBird(false);
+  }
+  requestAnimationFrame(critterLoop);
+}
+if(calm){ cc.remove(); } else { requestAnimationFrame(critterLoop); }
+
+</script>
+
+</body></html>
