@@ -71,7 +71,7 @@ header,main,footer,nav{position:relative; z-index:1}
 @keyframes themeGlow{from{text-shadow:0 0 5px rgba(167,243,208,.7), 0 0 12px rgba(167,243,208,.45)}to{text-shadow:0 0 8px rgba(167,243,208,1), 0 0 18px rgba(167,243,208,.85), 0 0 30px rgba(74,222,128,.6)}}
 .themebtn{border-color:rgba(167,243,208,.45); box-shadow:0 0 14px rgba(167,243,208,.18)}
 @media (max-width:480px){ .themebtn .tl{display:none} .themebtn{padding:0; width:36px; justify-content:center} }
-.themebtn.hint{animation:themePulse 1.8s ease-out 3}
+.themebtn.nudge{animation:themePulse 1.8s ease-out 3}
 @keyframes themePulse{0%{box-shadow:0 0 0 0 rgba(167,243,208,.7)}100%{box-shadow:0 0 0 14px rgba(167,243,208,0)}}
 .themebtn:hover{background:rgba(255,255,255,.2); transform:scale(1.05)}
 #skyfx{position:fixed; inset:0; z-index:0; pointer-events:none; display:none; overflow:hidden}
@@ -120,6 +120,23 @@ header,main,footer,nav{position:relative; z-index:1}
 .swatch{width:26px; height:26px; border-radius:50%; border:2px solid rgba(255,255,255,.55); background:var(--c); cursor:pointer; padding:0; transition:.2s}
 .swatch:hover{transform:scale(1.18)}
 .swatch.on{box-shadow:0 0 0 3px rgba(255,255,255,.9), 0 0 0 5px rgba(74,222,128,.7); transform:scale(1.12)}
+
+/* ---- FULL-SCREEN PHOTO VIEWER (opens from the download panel) ---- */
+.lb-fs{position:absolute; top:12px; right:12px; z-index:3; width:42px; height:42px; border-radius:50%; border:1px solid rgba(255,255,255,.3); background:rgba(10,16,13,.62); color:#fff; font-size:1.2rem; line-height:1; cursor:pointer; transition:.2s; display:flex; align-items:center; justify-content:center; padding:0}
+.lb-fs:hover{background:rgba(10,16,13,.88); transform:scale(1.08)}
+.lb-img{cursor:zoom-in}
+.dl-fs{display:inline-flex; align-items:center; justify-content:center; gap:8px; width:100%; margin:0 0 12px; padding:10px 14px; border-radius:30px; border:1px solid rgba(167,243,208,.45); background:rgba(255,255,255,.08); color:#eafff1; font:600 .9rem 'Inter',system-ui,sans-serif; cursor:pointer; transition:.2s}
+.dl-fs:hover{background:rgba(255,255,255,.18)}
+#fsView{position:fixed; inset:0; z-index:1200; display:none; background:#050807; overflow:hidden; touch-action:none; user-select:none; -webkit-user-select:none}
+#fsView.open{display:block}
+#fsImg{position:absolute; left:50%; top:50%; max-width:100vw; max-height:100vh; max-width:100dvw; max-height:100dvh; transform-origin:center; cursor:grab; will-change:transform; -webkit-user-drag:none}
+#fsView.drag #fsImg{cursor:grabbing}
+.fs-bar{position:absolute; left:50%; bottom:max(18px, env(safe-area-inset-bottom,0px)); transform:translateX(-50%); display:flex; gap:8px; padding:8px; border-radius:40px; background:rgba(15,20,18,.78); border:1px solid rgba(255,255,255,.16); z-index:2}
+.fs-bar button, .fs-x{width:44px; height:44px; border-radius:50%; border:0; background:rgba(255,255,255,.12); color:#fff; font:600 1.4rem/1 'Inter',system-ui,sans-serif; cursor:pointer}
+.fs-bar button:hover, .fs-x:hover{background:rgba(255,255,255,.26)}
+.fs-bar button.fit{width:auto; padding:0 16px; font-size:.85rem; border-radius:30px}
+.fs-x{position:absolute; top:max(14px, env(safe-area-inset-top,0px)); right:max(14px, env(safe-area-inset-right,0px)); z-index:2; background:rgba(15,20,18,.78); border:1px solid rgba(255,255,255,.16)}
+.fs-hint{position:absolute; top:max(22px, env(safe-area-inset-top,0px)); left:50%; transform:translateX(-50%); color:rgba(255,255,255,.7); font:.78rem 'Inter',system-ui,sans-serif; background:rgba(15,20,18,.6); padding:6px 12px; border-radius:20px; pointer-events:none; white-space:nowrap; transition:opacity .6s}
 
 /* =====================================================
    2) NAVBAR
@@ -251,7 +268,7 @@ section{padding:90px clamp(18px,5vw,56px)}
   box-shadow:0 12px 30px rgba(0,0,0,.45);
   background:var(--card);
 }
-.card.hovered .tilt{box-shadow:0 25px 60px rgba(0,0,0,.65), 0 0 40px rgba(74,222,128,.25)}
+.card.hovered .tilt{box-shadow:0 25px 60px rgba(0,0,0,.65)}
 .tilt img{width:100%; display:block; transition:transform .6s}
 .card.hovered .tilt img{transform:scale(1.08)}
 /* light that follows the mouse across the photo */
@@ -259,7 +276,7 @@ section{padding:90px clamp(18px,5vw,56px)}
   position:absolute; inset:0; pointer-events:none; opacity:0; transition:opacity .3s;
   background:radial-gradient(circle at var(--mx,50%) var(--my,50%), rgba(217,249,157,.30), transparent 55%);
 }
-.card.hovered .shine{opacity:1}
+.shine{display:none}   /* cursor glow over photos removed: it hid the picture */
 .meta{
   position:absolute; left:0; right:0; bottom:0; padding:60px 18px 16px;
   background:linear-gradient(to top, rgba(3,10,6,.92), transparent);
@@ -615,6 +632,7 @@ footer{text-align:center; padding:40px 20px 60px; color:var(--muted); font-size:
   <div class="lb-box">
     <div class="lb-imgwrap">
       <img class="lb-img" id="lbImg" alt="">
+      <button class="lb-fs" id="lbFs" type="button" aria-label="View full screen with zoom" title="Full screen &amp; zoom (F)">⛶</button>
       <div class="lb-progress" id="lbProgress"></div>
     </div>
     <div class="lb-info">
@@ -631,12 +649,23 @@ footer{text-align:center; padding:40px 20px 60px; color:var(--muted); font-size:
         <button class="act" id="playBtn" title="Play slideshow" aria-label="Play slideshow">▶</button>
       </div>
       <div class="views" id="lbViews"></div>
-      <div class="hint">← → to browse · L to like · Esc to close</div>
+      <div class="hint">← → to browse · L to like · F full screen · Esc to close</div>
     </div>
   </div>
 </div>
 
 <!-- DOWNLOAD PANEL -->
+<div id="fsView" role="dialog" aria-label="Full screen photo" aria-modal="true">
+  <img id="fsImg" alt="" draggable="false">
+  <div class="fs-hint" id="fsHint">Pinch to zoom · drag to move</div>
+  <button class="fs-x" id="fsClose" aria-label="Close full screen (Esc)">×</button>
+  <div class="fs-bar">
+    <button id="fsOut" aria-label="Zoom out">−</button>
+    <button id="fsFit" class="fit" aria-label="Fit to screen">Fit</button>
+    <button id="fsIn" aria-label="Zoom in">+</button>
+  </div>
+</div>
+
 <div id="dlPanel" class="dl-panel" role="dialog" aria-label="Download this photo">
   <div class="dl-card">
     <button class="dl-x" id="dlClose" aria-label="Close download panel">×</button>
@@ -957,6 +986,7 @@ function visibleIds(){                                // the photos currently sh
 
 function openBox(id){
   cur = id;
+  if(!lb.classList.contains('open')) pushLayer('lb');
   const ph = photos[id], s = stat(ph.slug);
   s.views++; save();
   $('lbImg').src = ph.src; $('lbImg').alt = ph.title + '. ' + ph.caption;
@@ -1026,8 +1056,26 @@ function openDownload(){
   else         { go.textContent = '⬇ Download free'; }
   $('dlName').textContent = ph.title;
   dlPanel.classList.add('open');
+  pushLayer('dl');
 }
-function closeDownload(){ dlPanel.classList.remove('open'); }
+/* ---- BACK BUTTON: every opened layer (photo -> download panel -> full screen) adds one history step,
+   so the phone's Back button (or the browser's) closes just the top layer, like the × does. ---- */
+const layers = [];
+function pushLayer(name){ try{ history.pushState({ pp:layers.length + 1 }, ''); layers.push(name); }catch(e){} }
+function closeLayer(name){                          // × / Esc / backdrop call this: go "back" in history, popstate then closes
+  const i = layers.lastIndexOf(name);
+  if(i < 0) return hide[name]();                     // history unavailable: just close directly
+  history.go(i - layers.length);
+}
+addEventListener('popstate', e => {
+  const target = (e.state && e.state.pp) || 0;
+  while(layers.length > target) hide[layers.pop()]();
+});
+const hide = {
+  fs: () => hideFs(), dl: () => hideDownload(), lb: () => hideBox()
+};
+function hideDownload(){ dlPanel.classList.remove('open'); }
+function closeDownload(){ closeLayer('dl'); }
 $('dlGo').addEventListener('click', e => {
   if(e.currentTarget.classList.contains('off')){ e.preventDefault(); return; }
   const s = stat(photos[cur].slug); s.downloads++; save(); paint();
@@ -1054,7 +1102,8 @@ function step(dir){
   const i = ids.indexOf(cur);
   openBox(ids[(i + dir + ids.length) % ids.length]);
 }
-function closeBox(){ closeDownload(); play(false); lb.classList.remove('open'); document.body.style.overflow = ''; }
+function hideBox(){ hideFs(); hideDownload(); play(false); lb.classList.remove('open'); document.body.style.overflow = ''; }
+function closeBox(){ closeLayer('lb'); }
 
 $('likeBtn').onclick = () => vote('like');
 $('dislikeBtn').onclick = () => vote('dislike');
@@ -1067,6 +1116,75 @@ $('prev').onclick = () => step(-1);
 $('next').onclick = () => step(1);
 lb.addEventListener('click', e => { if(e.target === lb) closeBox(); });
 
+/* ---- FULL SCREEN VIEWER: zoom with + / - / wheel / pinch, drag to move ---- */
+const fs = $('fsView'), fsImg = $('fsImg');
+let fz = 1, fx = 0, fy = 0;
+const FZ_MAX = 6;
+function fsApply(){ fsImg.style.transform = `translate(calc(-50% + ${fx}px), calc(-50% + ${fy}px)) scale(${fz})`; }
+function fsClamp(){                                   // keep the picture from being dragged completely off screen
+  const w = fsImg.clientWidth*fz, h = fsImg.clientHeight*fz;
+  const mx = Math.max(0, (w - innerWidth)/2), my = Math.max(0, (h - innerHeight)/2);
+  fx = Math.min(mx, Math.max(-mx, fx)); fy = Math.min(my, Math.max(-my, fy));
+}
+function fsZoom(f, cx, cy){                           // zoom towards a point (cx, cy) in screen pixels
+  const nz = Math.min(FZ_MAX, Math.max(1, fz*f));
+  if(cx === undefined){ cx = innerWidth/2; cy = innerHeight/2; }
+  const k = nz/fz, ox = cx - innerWidth/2, oy = cy - innerHeight/2;
+  fx = ox - (ox - fx)*k; fy = oy - (oy - fy)*k; fz = nz;
+  if(fz === 1){ fx = 0; fy = 0; } else fsClamp();
+  fsApply();
+}
+function openFs(){
+  const ph = photos[cur];
+  fsImg.src = ph.src; fsImg.alt = ph.title; fz = 1; fx = 0; fy = 0; fsApply();
+  fs.classList.add('open'); $('fsHint').style.opacity = 1; setTimeout(() => $('fsHint').style.opacity = 0, 3200);
+  pushLayer('fs');
+  try{ const r = fs.requestFullscreen && fs.requestFullscreen(); if(r && r.catch) r.catch(() => {}); }catch(e){}
+}
+function hideFs(){
+  fs.classList.remove('open');
+  try{ if(document.fullscreenElement) document.exitFullscreen(); }catch(e){}
+}
+function closeFs(){ closeLayer('fs'); }
+document.addEventListener('fullscreenchange', () => { if(!document.fullscreenElement && fs.classList.contains('open')) closeFs(); });
+$('lbFs').onclick = e => { e.stopPropagation(); openFs(); };
+$('lbImg').onclick = openFs;
+$('fsClose').onclick = closeFs;
+$('fsIn').onclick  = () => fsZoom(1.5);
+$('fsOut').onclick = () => fsZoom(1/1.5);
+$('fsFit').onclick = () => fsZoom(1/fz);
+fs.addEventListener('wheel', e => { e.preventDefault(); fsZoom(e.deltaY < 0 ? 1.15 : 1/1.15, e.clientX, e.clientY); }, { passive:false });
+fsImg.addEventListener('dblclick', e => fz > 1 ? fsZoom(1/fz) : fsZoom(2.5, e.clientX, e.clientY));
+// one finger / mouse = drag, two fingers = pinch
+const ptrs = new Map(); let pinch0 = 0;
+fs.addEventListener('pointerdown', e => {
+  if(e.target.closest('.fs-bar, .fs-x')) return;
+  fs.setPointerCapture(e.pointerId); ptrs.set(e.pointerId, { x:e.clientX, y:e.clientY });
+  if(ptrs.size === 2){ const [a,b] = [...ptrs.values()]; pinch0 = Math.hypot(a.x-b.x, a.y-b.y); }
+  fs.classList.add('drag');
+});
+fs.addEventListener('pointermove', e => {
+  const p = ptrs.get(e.pointerId); if(!p) return;
+  if(ptrs.size === 2){
+    const o = [...ptrs.entries()].find(([id]) => id !== e.pointerId)[1];
+    const before = Math.hypot(p.x-o.x, p.y-o.y); p.x = e.clientX; p.y = e.clientY;
+    const now = Math.hypot(p.x-o.x, p.y-o.y);
+    if(before) fsZoom(now/before, (p.x+o.x)/2, (p.y+o.y)/2);
+  }else{
+    fx += e.clientX - p.x; fy += e.clientY - p.y; p.x = e.clientX; p.y = e.clientY;
+    if(fz > 1){ fsClamp(); fsApply(); } else { fx = fy = 0; }
+  }
+});
+const fsUp = e => { ptrs.delete(e.pointerId); if(!ptrs.size) fs.classList.remove('drag'); };
+fs.addEventListener('pointerup', fsUp); fs.addEventListener('pointercancel', fsUp);
+addEventListener('keydown', e => {
+  if(!fs.classList.contains('open')) return;
+  const k = e.key.toLowerCase();
+  if(k === 'escape' || k === 's' || k === 'x'){ e.preventDefault(); e.stopPropagation(); closeFs(); }
+  else if(k === '+' || k === '='){ fsZoom(1.5); }
+  else if(k === '-' || k === '_'){ fsZoom(1/1.5); }
+  else if(k === '0'){ fsZoom(1/fz); }
+}, true);
 /* gallery buttons: 🎲 Surprise me + ▶ Forest walk */
 $('surpriseBtn').onclick = () => {
   const all = visibleIds(), pool = all.filter(i => i !== cur);
@@ -1080,11 +1198,13 @@ $('slideBtn').onclick = () => {
 
 document.addEventListener('keydown', e => {
   if(!lb.classList.contains('open')) return;
+  if(fs.classList.contains('open')) return;          // the full-screen viewer has its own keys
   if(dlPanel.classList.contains('open')){ if(e.key === 'Escape') closeDownload(); return; }
   if(e.key === 'Escape') closeBox();
   else if(e.key === 'ArrowLeft') step(-1);
   else if(e.key === 'ArrowRight') step(1);
   else if(e.key.toLowerCase() === 'l') vote('like');
+  else if(e.key.toLowerCase() === 'f') openFs();
 });
 
 /* =====================================================
@@ -1640,7 +1760,7 @@ if(calm){ cc.remove(); } else { requestAnimationFrame(critterLoop); }
   function label(t){ btn.querySelector('.ti').textContent = icons[t]; btn.querySelector('.tl').textContent = 'Theme'; btn.title = 'Theme: ' + names[t] + ' (press T to switch)'; }
   function apply(t, say){
     if(t === 'default') document.documentElement.removeAttribute('data-theme'); else document.documentElement.setAttribute('data-theme', t);
-    label(t); btn.classList.remove('hint');
+    label(t); btn.classList.remove('nudge');
     titleStops = TITLE_STOPS[t];
     document.querySelectorAll('#title .ch[data-t]').forEach(c => c.style.color = titleColor(+c.dataset.t));
     buildForest(t);
@@ -1654,7 +1774,7 @@ if(calm){ cc.remove(); } else { requestAnimationFrame(critterLoop); }
   });
   label(currentTheme());
   let seen = false; try{ seen = !!localStorage.getItem('pp_theme'); }catch(e){}
-  if(!seen) btn.classList.add('hint');                  // first visit: a soft pulse so people notice the theme button
+  if(!seen) btn.classList.add('nudge');                  // first visit: a soft pulse so people notice the theme button
 })();
 </script>
 </body>
