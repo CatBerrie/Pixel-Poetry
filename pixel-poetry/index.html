@@ -65,15 +65,15 @@ header,main,footer,nav{position:relative; z-index:1}
    Pick one with the 🌿/🌙/☀️ button in the top bar (or press T).
    The tree colours live in the JS function buildForest().
    ===================================================== */
-.themebtn{flex:none; display:inline-flex; align-items:center; gap:7px; height:36px; padding:0 11px; border-radius:999px; font:600 .8rem/1 'Inter',system-ui,sans-serif; border:1px solid rgba(255,255,255,.2); background:rgba(255,255,255,.09); color:#fff; cursor:pointer; transition:.25s}
+.themebtn{flex:none; display:inline-flex; align-items:center; gap:7px; height:36px; padding:0 11px; border-radius:999px; font:600 .8rem/1 'Inter',system-ui,sans-serif;
+  border:1px solid rgba(167,243,208,.45); background:rgba(255,255,255,.09); color:#fff; box-shadow:0 0 14px rgba(167,243,208,.18); cursor:pointer; transition:.25s}
+.themebtn:hover{background:rgba(255,255,255,.2); transform:scale(1.05)}
 .themebtn .ti{font-size:1.05rem; line-height:1}
 .themebtn .tl{white-space:nowrap; color:#eafff1; letter-spacing:.4px; text-shadow:0 0 6px rgba(167,243,208,.95), 0 0 14px rgba(167,243,208,.7), 0 0 26px rgba(74,222,128,.5); animation:themeGlow 2.6s ease-in-out infinite alternate}
-@keyframes themeGlow{from{text-shadow:0 0 5px rgba(167,243,208,.7), 0 0 12px rgba(167,243,208,.45)}to{text-shadow:0 0 8px rgba(167,243,208,1), 0 0 18px rgba(167,243,208,.85), 0 0 30px rgba(74,222,128,.6)}}
-.themebtn{border-color:rgba(167,243,208,.45); box-shadow:0 0 14px rgba(167,243,208,.18)}
+.themebtn.nudge{animation:themePulse 1.8s ease-out 3}          /* first visit only: a soft pulse so people notice it */
 @media (max-width:480px){ .themebtn .tl{display:none} .themebtn{padding:0; width:36px; justify-content:center} }
-.themebtn.nudge{animation:themePulse 1.8s ease-out 3}
+@keyframes themeGlow{from{text-shadow:0 0 5px rgba(167,243,208,.7), 0 0 12px rgba(167,243,208,.45)}to{text-shadow:0 0 8px rgba(167,243,208,1), 0 0 18px rgba(167,243,208,.85), 0 0 30px rgba(74,222,128,.6)}}
 @keyframes themePulse{0%{box-shadow:0 0 0 0 rgba(167,243,208,.7)}100%{box-shadow:0 0 0 14px rgba(167,243,208,0)}}
-.themebtn:hover{background:rgba(255,255,255,.2); transform:scale(1.05)}
 #skyfx{position:fixed; inset:0; z-index:0; pointer-events:none; display:none; overflow:hidden}
 #skyfx .star{position:absolute; border-radius:50%; background:#fff; animation:twinkle var(--d,3s) ease-in-out infinite alternate}
 @keyframes twinkle{from{opacity:.15}to{opacity:.95}}
@@ -124,9 +124,6 @@ header,main,footer,nav{position:relative; z-index:1}
 /* ---- FULL-SCREEN PHOTO VIEWER (opens from the download panel) ---- */
 .lb-fs{position:absolute; top:12px; right:12px; z-index:3; width:42px; height:42px; border-radius:50%; border:1px solid rgba(255,255,255,.3); background:rgba(10,16,13,.62); color:#fff; font-size:1.2rem; line-height:1; cursor:pointer; transition:.2s; display:flex; align-items:center; justify-content:center; padding:0}
 .lb-fs:hover{background:rgba(10,16,13,.88); transform:scale(1.08)}
-.lb-img{cursor:zoom-in}
-.dl-fs{display:inline-flex; align-items:center; justify-content:center; gap:8px; width:100%; margin:0 0 12px; padding:10px 14px; border-radius:30px; border:1px solid rgba(167,243,208,.45); background:rgba(255,255,255,.08); color:#eafff1; font:600 .9rem 'Inter',system-ui,sans-serif; cursor:pointer; transition:.2s}
-.dl-fs:hover{background:rgba(255,255,255,.18)}
 #fsView{position:fixed; inset:0; z-index:1200; display:none; background:#050807; overflow:hidden; touch-action:none; user-select:none; -webkit-user-select:none}
 #fsView.open{display:block}
 #fsImg{position:absolute; left:50%; top:50%; max-width:100vw; max-height:100vh; max-width:100dvw; max-height:100dvh; transform-origin:center; cursor:grab; will-change:transform; -webkit-user-drag:none}
@@ -256,7 +253,6 @@ section{padding:90px clamp(18px,5vw,56px)}
 .card[data-d="r"]{transform:translate(56px,26px) rotate(2deg) scale(.95)}
 .card[data-d="c"]{transform:translateY(60px) scale(.93)}
 .card.in{opacity:1; transform:none}
-.card.hovered .tilt{will-change:transform}
 .card.hide{display:none}
 /* when you hover ONE photo, all the others dim + blur a little */
 .gallery.focus .card:not(.hovered){filter:blur(2.5px) brightness(.5) saturate(.7)}
@@ -268,15 +264,9 @@ section{padding:90px clamp(18px,5vw,56px)}
   box-shadow:0 12px 30px rgba(0,0,0,.45);
   background:var(--card);
 }
-.card.hovered .tilt{box-shadow:0 25px 60px rgba(0,0,0,.65)}
+.card.hovered .tilt{will-change:transform; box-shadow:0 25px 60px rgba(0,0,0,.65)}
 .tilt img{width:100%; display:block; transition:transform .6s}
 .card.hovered .tilt img{transform:scale(1.08)}
-/* light that follows the mouse across the photo */
-.shine{
-  position:absolute; inset:0; pointer-events:none; opacity:0; transition:opacity .3s;
-  background:radial-gradient(circle at var(--mx,50%) var(--my,50%), rgba(217,249,157,.30), transparent 55%);
-}
-.shine{display:none}   /* cursor glow over photos removed: it hid the picture */
 .meta{
   position:absolute; left:0; right:0; bottom:0; padding:60px 18px 16px;
   background:linear-gradient(to top, rgba(3,10,6,.92), transparent);
@@ -284,7 +274,33 @@ section{padding:90px clamp(18px,5vw,56px)}
 }
 .card.hovered .meta{transform:none; opacity:1}
 .meta h3{margin:0 0 4px; font-family:'Playfair Display',serif; font-size:1.25rem}
+:root[data-theme="day"] .meta h3{background:linear-gradient(90deg,#ffc2e2,#d9f99d); -webkit-background-clip:text; background-clip:text; color:transparent; -webkit-text-fill-color:transparent}
 .meta span{font-size:.78rem; color:var(--glow); text-transform:uppercase; letter-spacing:1.5px}
+.meta .m-cap{margin:8px 0 0; font-size:.82rem; line-height:1.45; color:#e6f2ea; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden}
+.meta .by{margin-top:8px; font-size:.8rem; font-weight:600}
+.lb-by{margin:4px 0 10px; font-size:.95rem; font-weight:600}
+.meta .by span{text-transform:none; letter-spacing:0; font-size:inherit}   /* the tag style above would shout the name in capitals */
+:root[data-theme="day"] .meta > span{color:#d9f99d}   /* readable on the dark hover strip */
+.by-name, .by-alias{display:inline-block; -webkit-background-clip:text; background-clip:text; color:transparent; -webkit-text-fill-color:transparent}
+.by-name{background-image:linear-gradient(90deg,#ffc2e2,#d9f99d)}      /* pink -> lime, same as the logo */
+.by-alias{background-image:linear-gradient(90deg,#a7f3d0,#7dd3fc,#c4b5fd)}   /* mint -> sky -> lavender */
+.card.hovered .by-name, .lb-by .by-name{animation:floatUp .6s cubic-bezier(.2,.8,.2,1) .05s backwards}
+.card.hovered .by-alias, .lb-by .by-alias{animation:floatUp .6s cubic-bezier(.2,.8,.2,1) .2s backwards}
+/* photographer chips + search suggestions */
+.by-row{margin:-14px 0 22px}
+.by-row .lab{align-self:center; color:var(--muted); font-size:.85rem; padding-right:4px}
+#searchPop{position:fixed; z-index:60; display:none; padding:12px 14px 14px; border-radius:16px; background:rgba(8,14,11,.96); border:1px solid rgba(255,255,255,.14); box-shadow:0 18px 44px rgba(0,0,0,.55); color:#e4e4e8; max-height:70vh; overflow:auto}
+#searchPop.open{display:block}
+#searchPop h4{margin:10px 0 8px; font:600 .7rem 'Inter',system-ui,sans-serif; letter-spacing:1.4px; text-transform:uppercase; color:#9b9ba3}
+#searchPop h4:first-child{margin-top:0}
+#searchPop .chips{display:flex; flex-wrap:wrap; gap:7px}
+#searchPop button{border:1px solid rgba(255,255,255,.18); background:rgba(255,255,255,.07); color:#e8f5ec; border-radius:20px; padding:7px 12px; font:500 .82rem 'Inter',system-ui,sans-serif; cursor:pointer}
+#searchPop button:hover{background:rgba(167,243,208,.2); border-color:#a7f3d0}
+#searchPop .none{color:#9b9ba3; font-size:.82rem}
+/* light theme: download window + photo viewer sit on dark glass, so keep their text light */
+:root[data-theme="day"] #lightbox, :root[data-theme="day"] .dl-panel{--text:#e8f5ec; --muted:#c6dccf; --mint:#a7f3d0; --glow:#d9f99d; --moss:#4ade80; --card:#163a29}
+:root[data-theme="day"] #lightbox, :root[data-theme="day"] .dl-panel, :root[data-theme="day"] .dl-card{color:#e8f5ec}   /* text is inherited from <body> (dark in day mode), so set it here */
+:root[data-theme="day"] #lightbox h2, :root[data-theme="day"] .dl-card h3{color:#f4fbef}
 
 /* =====================================================
    5) ABOUT + FOOTER
@@ -354,7 +370,7 @@ footer{text-align:center; padding:40px 20px 60px; color:var(--muted); font-size:
 }
 @keyframes pop{from{transform:scale(.8) rotateX(20deg); opacity:0}}
 .lb-imgwrap{position:relative; justify-self:center; display:flex; justify-content:center; align-items:center; border-radius:16px; overflow:hidden; box-shadow:0 0 70px rgba(74,222,128,.2)}
-.lb-img{display:block; max-width:100%; max-height:86vh; object-fit:contain}
+.lb-img{display:block; max-width:100%; max-height:86vh; object-fit:contain; cursor:zoom-in}
 .lb-progress{position:absolute; left:0; bottom:0; height:3px; width:0; background:linear-gradient(90deg,var(--moss),var(--glow))}
 .lb-progress.run{animation:prog 5s linear forwards}
 @keyframes prog{to{width:100%}}
@@ -518,7 +534,7 @@ footer{text-align:center; padding:40px 20px 60px; color:var(--muted); font-size:
       </g>
     </svg><b>Pixel Poetry</b></a>
   <button class="themebtn" id="themeBtn" type="button" aria-label="Switch look: default, night or day" title="Switch theme (T)"><span class="ti">🌿</span><span class="tl">Theme</span></button>
-  <label class="search" for="searchBox"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg><input id="searchBox" type="search" placeholder="Search photos…" autocomplete="off" aria-label="Search photos"><kbd>/</kbd></label>
+  <label class="search" for="searchBox"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg><input id="searchBox" type="search" placeholder="Search photos or photographers" autocomplete="off" autocomplete="off" aria-label="Search photos"><kbd>/</kbd></label>
   <div class="links"><a href="#gallery">Gallery</a><a href="#about">About</a><a id="feedbackLink" href="#" target="_blank" rel="noopener" hidden>💌 Feedback</a></div>
 </nav>
 
@@ -594,6 +610,7 @@ footer{text-align:center; padding:40px 20px 60px; color:var(--muted); font-size:
     <h2 class="section-title">The Gallery</h2>
     <p class="section-sub" id="gallerySub">Hover to feel the light. Click to step inside. 🌿</p>
     <div class="filters" id="filters"></div>
+    <div class="filters by-row" id="byFilters" aria-label="Choose a photographer"></div>
     <div class="swatches" id="swatches" aria-label="Find photos by colour"><span>🎨 Find by colour</span></div>
     <div class="tools">
       <button class="tool" id="surpriseBtn">🎲 Surprise me</button>
@@ -638,6 +655,7 @@ footer{text-align:center; padding:40px 20px 60px; color:var(--muted); font-size:
     <div class="lb-info">
       <div class="lb-count" id="lbCount"></div>
       <div class="cat" id="lbCat"></div>
+      <div class="lb-by" id="lbBy"></div>
       <h2 id="lbTitle"></h2>
       <p id="lbCap"></p>
       <div class="lb-date" id="lbDate"></div>
@@ -655,6 +673,8 @@ footer{text-align:center; padding:40px 20px 60px; color:var(--muted); font-size:
 </div>
 
 <!-- DOWNLOAD PANEL -->
+<div id="searchPop" role="listbox" aria-label="Search suggestions"></div>
+
 <div id="fsView" role="dialog" aria-label="Full screen photo" aria-modal="true">
   <img id="fsImg" alt="" draggable="false">
   <div class="fs-hint" id="fsHint">Pinch to zoom · drag to move</div>
@@ -707,6 +727,7 @@ const collections = {
   hand:    { name:"In Hand", icon:"🤲" },
   gardens: { name:"Gardens", icon:"🌿" },
   nightfall:{ name:"Nightfall", icon:"🌙" },
+  wings:   { name:"Wings", icon:"🦋" },
 };
 
 /* =====================================================
@@ -742,7 +763,6 @@ const photos = [
   { file:"stained-glass-petals.jpg", title:"Stained Glass Petals", caption:"Backlit by the afternoon sun, two tiny flowers glow like stained glass.", category:"hand", date:"Jun 12, 2025", w:1600, h:1200, colors:["#7a9bc0", "#46504f", "#2b2f2f", "#567da0", "#734f4a"] },
   { file:"small-sun-wet-leaves.jpg", title:"Small Sun, Wet Leaves", caption:"Raindrops still on the leaves while a little yellow sun opens in the green.", category:"blooms", date:"Mar 30, 2024", w:1080, h:810, colors:["#283a09", "#cb8f0f", "#386c17", "#6e8745"] },
   { file:"a-small-light-in-the-shade.jpg", title:"A Small Light in the Shade", caption:"Two pink flowers lit softly, as if the shadows were holding their breath.", category:"blooms", date:"May 5, 2022", w:1600, h:1200, colors:["#2d322a", "#030303", "#726860", "#5c4744", "#b8999f"] },
-  { file:"reaching-for-the-blue.jpg", title:"Reaching for the Blue", caption:"The same tree from another angle: white blossoms stretching into an empty blue sky.", category:"canopy", date:"Feb 15, 2025", w:1255, h:1600, colors:["#7e9fc2", "#4c5654", "#1f2421", "#637889", "#dcd7c1"] },
   { file:"a-curl-of-lavender.jpg", title:"A Curl of Lavender", caption:"Tiny star-eyed flowers on a curved spike, hiding among crinkled green leaves.", category:"blooms", date:"May 26, 2025", w:1278, h:1600, colors:["#1b5705", "#0b1a05", "#347e17", "#658d58"] },
   { file:"a-pot-full-of-small-suns.jpg", title:"A Pot Full of Small Suns", caption:"Orange zinnias crowding a humble pot, as if the garden had saved a few sunsets for the cold months.", category:"gardens", date:"Dec 6, 2023", w:1200, h:1600, colors:["#cc811b", "#405825", "#6e9e54", "#2c2d14", "#8db779"] },
   { file:"where-the-last-light-waits.jpg", title:"Where the Last Light Waits", caption:"A railway platform at dusk, a footbridge of silhouettes, and one pink thread of daylight refusing to leave.", category:"nightfall", date:"", w:1600, h:1200, colors:["#14182f", "#020204", "#3d394e"] },
@@ -753,6 +773,14 @@ const photos = [
   { file:"scattered-pearls-on-blue.jpg", title:"Scattered Pearls on Blue", caption:"Little clouds drifting like pearls across a deep blue sky as the last pink of the sun slips away.", category:"skies", date:"Apr 23, 2024", w:1600, h:1200, colors:["#0577f2", "#07215e", "#2464c2", "#458de6", "#9ebdee"] },
   { file:"a-lantern-between-the-palms.jpg", title:"A Lantern Between the Palms", caption:"Lying at the roots of the palms, the sinking sun glows like a lantern at the end of a long day.", category:"nightfall", date:"Apr 12, 2024", w:1600, h:1200, colors:["#000000", "#656a6e", "#343a41"] },
   { file:"a-pink-spark-in-the-purple-dark.jpg", title:"A Pink Spark in the Purple Dark", caption:"A tiny pink flower opens on a deep purple leaf, small enough to miss and bright enough to remember.", category:"blooms", date:"Mar 14, 2024", w:1200, h:1600, colors:["#302425", "#020000", "#754f5b", "#51453f", "#997185"] },
+  { file:"the-sun-behind-the-haze.jpg", title:"The Sun Behind the Haze", caption:"A pale sun floating in amber dust, while bare branches reach up to touch it.", category:"skies", date:"", by:"sadid", w:960, h:1280, colors:["#733a19", "#9d5d2e", "#cf823c", "#441f0d", "#f6aa4e"] },
+  { file:"the-sky-wrote-a-spiral.jpg", title:"The Sky Wrote a Spiral", caption:"At dusk the clouds twisted into a rose-colored spiral above a city of tiny lit windows.", category:"skies", date:"", by:"sadid", w:1280, h:853, colors:["#302741", "#070706", "#763c4d", "#986575"] },
+  { file:"guest-of-the-red-ixora.jpg", title:"Guest of the Red Ixora", caption:"A velvet-dark swallowtail resting among red ixora, its wings trimmed with tiny white lights.", category:"wings", date:"", by:"sadid", w:853, h:1280, colors:["#f31d19", "#306108", "#76af1d", "#202308", "#93d12d"] },
+  { file:"waiting-on-the-teal-rails.jpg", title:"Waiting on the Teal Rails", caption:"A small bird with an amber chest perched on a teal grille, watching the world go by.", category:"wings", date:"", by:"sadid", w:853, h:1280, colors:["#26452b", "#acbeb0", "#e2d6ce", "#81825a", "#466b4e"] },
+  { file:"where-the-river-holds-the-sun.jpg", title:"Where the River Holds the Sun", caption:"The sun slips behind the town while a quiet river keeps the last of its gold.", category:"skies", date:"", by:"sadid", w:1600, h:1200, colors:["#000200", "#3d617f", "#708486", "#a6a88f", "#1b3446"] },
+  { file:"the-moon-up-close.jpg", title:"The Moon, Up Close", caption:"A full moon alone in the dark, every crater and sea drawn in silver.", category:"nightfall", date:"", by:"sadid", w:1448, h:1086, colors:["#010101", "#47443d"] },
+  { file:"the-sky-in-a-spiderweb.jpg", title:"The Sky in a Spiderweb", caption:"Looking up through a glass dome, where the sky is caught in a web of steel.", category:"skies", date:"", by:"sadid", w:1280, h:960, colors:["#a7b4c1", "#727b83", "#000103", "#414345"] },
+  { file:"buds-in-the-evening-hush.jpg", title:"Buds in the Evening Hush", caption:"Tiny buds standing in the last soft light while the world blurs to gold behind them.", category:"blooms", date:"", by:"sadid", w:1024, h:1280, colors:["#14130e", "#4b4337", "#8b7866"] },
 ];
 
 /* =====================================================
@@ -780,9 +808,18 @@ const skipFrame = () => scrolling && (++skipTick & 1);
 // Browsers refuse to "save" files that way, so the download button behaves a bit differently then.
 const FILE_MODE = location.protocol === 'file:';
 
+// WHO TOOK THE PHOTOS: add a person here, then give a photo  by:"their-key"  in the list above.
+// (A photo with no "by" belongs to the site owner.)
+const PHOTOGRAPHERS = {
+  arpita: { name:"Arpita Firoz",          alias:"Cat_Berrie", credit:"Cat_Berrie" },
+  sadid:  { name:"Abdullah Sadid Sharon", credit:"Abdullah Sadid Sharon" }
+};
 // work out each photo's file paths once
 photos.forEach((ph, i) => {
   ph.id   = i;
+  ph.by   = PHOTOGRAPHERS[ph.by] ? ph.by : 'arpita';
+  ph.byName = PHOTOGRAPHERS[ph.by].name;
+  ph.byHtml = '📷 <span class="by-name">' + ph.byName + '</span>' + (PHOTOGRAPHERS[ph.by].alias ? ' <span class="by-alias">(' + PHOTOGRAPHERS[ph.by].alias + ')</span>' : '');
   ph.slug = ph.file.replace(/\.[^.]+$/, '');                        // "a-shower-of-gold.jpg" -> "a-shower-of-gold"
   ph.src  = 'photos/' + ph.file;                                     // the big picture (lightbox)
   ph.thumb = 'photos/thumb/' + ph.file;                              // small copy for the grid, so scrolling stays smooth
@@ -844,13 +881,14 @@ const cards = photos.map(ph => {
   img.alt = ph.title + '. ' + ph.caption;
   img.loading = 'lazy'; img.decoding = 'async';
   if(ph.w && ph.h){ img.width = ph.w; img.height = ph.h; }
-  const shine = document.createElement('div'); shine.className = 'shine';
   const meta = document.createElement('div');   meta.className = 'meta';
   const h3 = document.createElement('h3');      h3.textContent = ph.title;
   const tag = document.createElement('span');   tag.textContent = collectionOf(ph).icon + ' ' + collectionOf(ph).name;
-  meta.append(h3, tag);
+  const capEl = document.createElement('p');    capEl.className = 'm-cap'; capEl.textContent = ph.caption;
+  const byEl = document.createElement('div');   byEl.className = 'by'; byEl.innerHTML = ph.byHtml;
+  meta.append(h3, tag, capEl, byEl);
   const heart = document.createElement('div');  heart.className = 'liked-badge'; heart.textContent = '❤';
-  tilt.append(img, shine, meta, heart);
+  tilt.append(img, meta, heart);
   card.appendChild(tilt);
 
   /* 3D TILT: figure out where the mouse is on the card, then rotate toward it */
@@ -859,8 +897,6 @@ const cards = photos.map(ph => {
     const x = (e.clientX - r.left) / r.width;   // 0 (left) → 1 (right)
     const y = (e.clientY - r.top)  / r.height;  // 0 (top)  → 1 (bottom)
     tilt.style.transform = `perspective(900px) rotateX(${(.5-y)*14}deg) rotateY(${(x-.5)*14}deg) scale(1.05)`;
-    tilt.style.setProperty('--mx', x*100 + '%');
-    tilt.style.setProperty('--my', y*100 + '%');
   });
   /* HOVER FOCUS: this card pops up, all the others dim + blur (see .gallery.focus in the CSS) */
   card.addEventListener('mouseenter', () => { card.classList.add('hovered'); grid.classList.add('focus'); });
@@ -915,7 +951,7 @@ document.querySelectorAll('#gallery .section-title, .about-card .section-title')
   const kinds = box.children.length - 1;
   $('gallerySub').textContent = photos.length + ' photographs in ' + kinds + ' collections. Hover to feel the light, click to step inside. 🌿';
 })();
-let curFilter = 'all', query = '', curColor = '';
+let curFilter = 'all', query = '', curColor = '', curBy = '';
 const noMatch = document.createElement('p'); noMatch.className = 'nomatch';
 $('filters').after(noMatch);
 // FIND BY COLOUR: turn each photo's 4-5 main colours into a few "colour families"
@@ -942,14 +978,15 @@ $('swatches').addEventListener('click', e => {
   document.querySelectorAll('.swatch').forEach(x => x.classList.toggle('on', x.dataset.k === curColor));
   applyFilters();
 });
-const haystack = photos.map(p => [p.title, p.caption, p.category, (collections[p.category]||{}).name, p.date].join(' ').toLowerCase());
+const haystack = photos.map(p => [p.title, p.caption, p.category, (collections[p.category]||{}).name, p.date, p.byName, (PHOTOGRAPHERS[p.by]||{}).alias || ''].join(' ').toLowerCase());
 function applyFilters(){
   let shown = 0;
   cards.forEach(c => {
     const okCat = curFilter === 'all' || c.dataset.cat === curFilter;
     const okQ = !query || query.split(/\s+/).every(w => haystack[+c.dataset.id].includes(w));
+    const okBy = !curBy || photos[+c.dataset.id].by === curBy;
     const okC = !curColor || (photoHues[+c.dataset.id] || []).includes(curColor);
-    const ok = okCat && okQ && okC; c.classList.toggle('hide', !ok); if(ok) shown++;
+    const ok = okCat && okQ && okC && okBy; c.classList.toggle('hide', !ok); if(ok) shown++;
   });
   noMatch.textContent = shown ? '' : 'No photos match that 🌱 Try a flower, a colour or a month.';
   noMatch.classList.toggle('show', !shown);
@@ -959,10 +996,59 @@ $('filters').addEventListener('click', e => {
   document.querySelectorAll('#filters button').forEach(x => x.classList.toggle('active', x === b));
   curFilter = b.dataset.f; applyFilters();
 });
+/* PHOTOGRAPHER FILTER: one chip per person (only shown when the gallery has 2 or more) */
+const byBox = $('byFilters');
+const byKeys = Object.keys(PHOTOGRAPHERS).filter(k => photos.some(p => p.by === k));
+function syncFilterButtons(){
+  document.querySelectorAll('#filters button').forEach(x => x.classList.toggle('active', x.dataset.f === curFilter));
+  document.querySelectorAll('#byFilters button').forEach(x => x.classList.toggle('active', x.dataset.by === curBy));
+}
+if(byKeys.length > 1){
+  byBox.innerHTML = '<span class="lab">📷 Photographer</span>';
+  [['', 'Everyone', photos.length], ...byKeys.map(k => [k, PHOTOGRAPHERS[k].name, photos.filter(p => p.by === k).length])].forEach(([k, name, n]) => {
+    const b = document.createElement('button'); b.dataset.by = k; b.innerHTML = name + ' <i>' + n + '</i>';
+    byBox.appendChild(b);
+  });
+  byBox.addEventListener('click', e => { const b = e.target.closest('button'); if(!b) return; curBy = b.dataset.by; syncFilterButtons(); applyFilters(); });
+  syncFilterButtons();
+}else byBox.hidden = true;
 const searchBox = $('searchBox');
 searchBox.addEventListener('input', () => {
   query = searchBox.value.trim().toLowerCase(); applyFilters();
   if(query) $('gallery').scrollIntoView({ behavior:'smooth' });
+});
+/* SEARCH SUGGESTIONS: when the search box is focused, offer collections and photographers to tap */
+const pop = $('searchPop');
+function renderPop(){
+  const q = searchBox.value.trim().toLowerCase();
+  const cols = Object.keys(collections).filter(k => photos.some(p => p.category === k) && (!q || (collections[k].name + ' ' + k).toLowerCase().includes(q)));
+  const people = byKeys.filter(k => !q || PHOTOGRAPHERS[k].name.toLowerCase().includes(q));
+  let h = '';
+  if(cols.length) h += '<h4>Collections</h4><div class="chips">' + cols.map(k => '<button data-c="' + k + '">' + collections[k].icon + ' ' + collections[k].name + '</button>').join('') + '</div>';
+  if(people.length) h += '<h4>Photographers</h4><div class="chips">' + people.map(k => '<button data-p="' + k + '">📷 ' + PHOTOGRAPHERS[k].name + '</button>').join('') + '</div>';
+  if(!h) h = '<div class="none">No collection or photographer matches. Press Enter to search the captions 🌱</div>';
+  pop.innerHTML = h;
+}
+function placePop(){
+  const r = searchBox.closest('.search').getBoundingClientRect(), w = Math.min(400, innerWidth - 16);
+  pop.style.width = w + 'px'; pop.style.top = (r.bottom + 8) + 'px';
+  pop.style.left = Math.max(8, Math.min(r.left, innerWidth - w - 8)) + 'px';
+}
+function showPop(){ renderPop(); placePop(); pop.classList.add('open'); }
+function hidePop(){ pop.classList.remove('open'); }
+searchBox.addEventListener('focus', showPop);
+searchBox.addEventListener('input', showPop);
+searchBox.addEventListener('blur', () => setTimeout(hidePop, 120));
+addEventListener('resize', () => { if(pop.classList.contains('open')) placePop(); });
+pop.addEventListener('mousedown', e => e.preventDefault());       // keep the box focused while tapping a chip
+pop.addEventListener('click', e => {
+  const b = e.target.closest('button'); if(!b) return;
+  if(b.dataset.c){ curFilter = b.dataset.c; curBy = ''; }
+  if(b.dataset.p){ curBy = b.dataset.p; curFilter = 'all'; }
+  searchBox.value = ''; query = ''; curColor = '';
+  document.querySelectorAll('.swatch').forEach(x => x.classList.remove('on'));
+  syncFilterButtons(); applyFilters(); hidePop(); searchBox.blur();
+  $('gallery').scrollIntoView({ behavior:'smooth' });
 });
 searchBox.addEventListener('keydown', e => { if(e.key === 'Escape'){ searchBox.value = ''; query = ''; applyFilters(); searchBox.blur(); e.stopPropagation(); } });
 addEventListener('keydown', e => {
@@ -971,7 +1057,7 @@ addEventListener('keydown', e => {
 $('credit').textContent = SITE.credit;
 $('owner').textContent = SITE.name; $('aboutName').textContent = SITE.name;
 if(SITE.feedbackUrl){ const fb = $('feedbackLink'); fb.href = SITE.feedbackUrl; fb.hidden = false; }
-$('dlCredit').textContent = SITE.credit + ' · Pixel Poetry';
+
 
 /* =====================================================
    E) LIGHTBOX + DOWNLOAD PANEL + FUN EXTRAS
@@ -993,6 +1079,7 @@ function openBox(id){
   $('lbTitle').textContent = ph.title;
   $('lbCap').textContent = ph.caption;
   $('lbCat').textContent = collectionOf(ph).icon + ' ' + collectionOf(ph).name;
+  $('lbBy').innerHTML = ph.byHtml;               // new elements each time, so the float-in plays for every photo
   $('lbDate').textContent = ph.date ? '📅 Captured ' + ph.date : '';
   const ids = visibleIds(), pos = ids.indexOf(id);
   $('lbCount').textContent = String(pos + 1).padStart(2,'0') + ' / ' + String(ids.length).padStart(2,'0');
@@ -1055,6 +1142,7 @@ function openDownload(){
   if(FILE_MODE){ go.target = '_blank'; go.rel = 'noopener'; go.textContent = '↗ Open photo to save'; }
   else         { go.textContent = '⬇ Download free'; }
   $('dlName').textContent = ph.title;
+  $('dlCredit').textContent = PHOTOGRAPHERS[ph.by].credit + ' · Pixel Poetry';
   dlPanel.classList.add('open');
   pushLayer('dl');
 }
@@ -1156,11 +1244,10 @@ $('fsFit').onclick = () => fsZoom(1/fz);
 fs.addEventListener('wheel', e => { e.preventDefault(); fsZoom(e.deltaY < 0 ? 1.15 : 1/1.15, e.clientX, e.clientY); }, { passive:false });
 fsImg.addEventListener('dblclick', e => fz > 1 ? fsZoom(1/fz) : fsZoom(2.5, e.clientX, e.clientY));
 // one finger / mouse = drag, two fingers = pinch
-const ptrs = new Map(); let pinch0 = 0;
+const ptrs = new Map();
 fs.addEventListener('pointerdown', e => {
   if(e.target.closest('.fs-bar, .fs-x')) return;
   fs.setPointerCapture(e.pointerId); ptrs.set(e.pointerId, { x:e.clientX, y:e.clientY });
-  if(ptrs.size === 2){ const [a,b] = [...ptrs.values()]; pinch0 = Math.hypot(a.x-b.x, a.y-b.y); }
   fs.classList.add('drag');
 });
 fs.addEventListener('pointermove', e => {
@@ -1280,7 +1367,7 @@ function forestLayer(seed, count, hMin, hMax, col, col2, opacity, oakChance, bas
 }
 
 const forest = $('forest');
-// tree colours for each look: [far trunk, far leaves, mid, mid, near, near, mist-free sky is in CSS]
+// tree colours for each look: [trunk, leaves] for the far, middle and near rows (the sky colours live in the CSS)
 const FOREST_THEMES = {
   default:{ far:['#2f6a50','#3a7a5c'], mid:['#1c4a37','#255a43'], near:['#0f2f22','#16402f'] },
   night:  { far:['#173b3d','#1e4a4a'], mid:['#0e2a2b','#14363a'], near:['#051419','#0a2024'] },
@@ -1294,7 +1381,7 @@ function buildForest(theme){
     + forestLayer(33, 10, 270, 380, c.mid[0],  c.mid[1],  .95, .30, 880)  // middle
     + forestLayer(47,  6, 420, 560, c.near[0], c.near[1], 1,   .25, 930); // near: big + dark
   forestLayers = [...forest.querySelectorAll('svg')];
-  if(window.ppReady) parallax();                 // (not on the very first build: parallax() isn't defined yet)
+  if(window.ppReady) parallax();                 // skipped on the first build (parallax isn't defined yet)
 }
 let forestLayers = [];
 buildForest(currentTheme());
