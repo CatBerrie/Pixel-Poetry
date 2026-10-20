@@ -34,16 +34,25 @@ body{
 body::before{
   content:""; position:fixed; inset:0; z-index:-1; pointer-events:none;
   background:
-    radial-gradient(1000px 600px at 20% 0%, rgba(167,243,208,.16), transparent 65%),
-    radial-gradient(900px 600px at 85% 30%, rgba(217,249,157,.08), transparent 65%),
-    linear-gradient(180deg,#246048 0%,#1a4a35 45%,#123626 100%);
+    radial-gradient(1000px 600px at 20% 0%, rgba(167,243,208,.20), transparent 65%),
+    radial-gradient(900px 600px at 85% 30%, rgba(217,249,157,.12), transparent 65%),
+    radial-gradient(600px 400px at 50% 80%, rgba(34,120,60,.18), transparent 55%),
+    linear-gradient(180deg,#1e5a40 0%,#1a4a35 30%,#123626 65%,#0a2618 100%);
 }
 #fireflies{position:fixed; inset:0; z-index:0; pointer-events:none}
 
 /* the forest background: fixed, so it stays with you while you scroll */
 #forest{position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden; contain:paint}
 #forest svg{position:absolute; left:-4%; bottom:0; width:108%; height:100%; will-change:transform; transition:transform .3s ease-out}
-#forest .mist{position:absolute; left:0; right:0; bottom:0; height:60%; background:linear-gradient(to top, rgba(150,215,180,.22), transparent)}
+#forest .mist{position:absolute; left:0; right:0; bottom:0; height:70%; background:linear-gradient(to top, rgba(100,200,140,.30), rgba(60,160,100,.12), transparent)}
+#forest .ground-fog{position:absolute; left:-10%; right:-10%; bottom:0; height:25%; opacity:.45;
+  background:linear-gradient(to top, rgba(180,230,200,.5), rgba(140,200,170,.2), transparent);
+  animation:fog-drift 20s ease-in-out infinite alternate}
+@keyframes fog-drift{from{transform:translateX(-15px)}to{transform:translateX(15px)}}
+#forest .undergrowth{position:absolute; left:0; right:0; bottom:0; height:100%; pointer-events:none}
+#forest .undergrowth svg{position:absolute; bottom:0; left:-4%; width:108%; height:100%}
+/* falling leaves canvas */
+#fallingLeaves{position:fixed; inset:0; z-index:0; pointer-events:none}
 #forest .rays{
   position:absolute; inset:-10% -10% 35% -10%; opacity:.4; will-change:transform;
   background:repeating-linear-gradient(105deg, transparent 0 70px, rgba(217,249,157,.06) 70px 120px, transparent 120px 230px);
@@ -85,35 +94,137 @@ header,main,footer,nav{position:relative; z-index:1}
 :root[data-theme="night"]{--text:#dcebe3; --muted:#9db8a9; --card:#0e281e; --glow:#e7fca8}
 :root[data-theme="night"] body{background:#07130f}
 :root[data-theme="night"] body::before{background:
-  radial-gradient(900px 600px at 82% 6%, rgba(130,170,255,.16), transparent 65%),
-  linear-gradient(180deg,#040d0a 0%,#08170f 45%,#06120d 100%)}
+  radial-gradient(900px 600px at 82% 6%, rgba(100,140,220,.18), transparent 65%),
+  radial-gradient(600px 400px at 20% 80%, rgba(40,80,120,.12), transparent 60%),
+  linear-gradient(180deg,#020805 0%,#06120d 30%,#040d0a 65%,#020604 100%)}
 :root[data-theme="night"] #skyfx{display:block}
-:root[data-theme="night"] #forest .rays{background:repeating-linear-gradient(105deg, transparent 0 70px, rgba(170,200,255,.05) 70px 120px, transparent 120px 230px)}
-:root[data-theme="night"] #forest .mist{background:linear-gradient(to top, rgba(90,140,150,.16), transparent)}
+:root[data-theme="night"] #forest .rays{background:repeating-linear-gradient(105deg, transparent 0 70px, rgba(140,170,230,.04) 70px 120px, transparent 120px 230px)}
+:root[data-theme="night"] #forest .mist{background:linear-gradient(to top, rgba(40,80,100,.18), transparent)}
+:root[data-theme="night"] #forest .ground-fog{opacity:.2; background:linear-gradient(to top, rgba(60,100,120,.3), rgba(30,60,80,.1), transparent)}
+:root[data-theme="night"] #forestGlow{background:radial-gradient(circle, rgba(130,170,255,.08), transparent 70%)}
+:root[data-theme="night"] .vine-left svg path, :root[data-theme="night"] .vine-right svg path{stroke:#0e3828}
+:root[data-theme="night"] .vine-left svg ellipse, :root[data-theme="night"] .vine-right svg ellipse{fill:#0a2a1e}
 
-/* DAY: bright yellow-green meadow light */
-:root[data-theme="day"]{--text:#123520; --muted:#2c5a37; --mint:#1d6b3a; --glow:#46801a; --moss:#2f9140; --card:#eef6cc}
-:root[data-theme="day"] body{background:#b9dc72}
+/* DAY / LIGHT THEME: Sunlit enchanted forest canopy with golden amber warmth & rich emerald foliage */
+:root[data-theme="day"]{
+  --bg:#1f5633;
+  --bg2:#123821;
+  --text:#092415;
+  --muted:#1d4e31;
+  --mint:#156c38;
+  --glow:#e6881c;
+  --moss:#2b8a40;
+  --card:rgba(255,255,255,.88);
+}
+:root[data-theme="day"] body{background:#2a693c}
 :root[data-theme="day"] body::before{background:
-  radial-gradient(900px 640px at 14% 0%, rgba(255,250,170,.85), transparent 62%),
-  radial-gradient(800px 500px at 90% 30%, rgba(255,235,140,.35), transparent 65%),
-  linear-gradient(180deg,#ecf6a6 0%,#bfe075 45%,#86c24d 100%)}
+  radial-gradient(1100px 700px at 18% 0%, rgba(255,252,215,.95), transparent 62%),
+  radial-gradient(900px 600px at 85% 15%, rgba(185,248,212,.7), transparent 60%),
+  radial-gradient(800px 500px at 50% 82%, rgba(50,130,70,.45), transparent 68%),
+  linear-gradient(180deg,#d8f4da 0%,#aae5b5 26%,#6ebf7a 56%,#357a46 84%,#1d502c 100%)}
 :root[data-theme="day"] #fireflies{opacity:0}
-:root[data-theme="day"] #forest .rays{opacity:.7; background:repeating-linear-gradient(105deg, transparent 0 70px, rgba(255,252,200,.28) 70px 120px, transparent 120px 230px)}
-:root[data-theme="day"] #forest .mist{background:linear-gradient(to top, rgba(255,255,200,.38), transparent)}
-:root[data-theme="day"] .hero h1 .ch{text-shadow:0 2px 0 rgba(255,255,255,.55), 0 0 24px rgba(255,255,200,.6)}
-:root[data-theme="day"] .section-title{text-shadow:0 1px 0 rgba(255,255,255,.5)}
-:root[data-theme="day"] .filters button{background:rgba(255,255,255,.35); border-color:rgba(35,95,30,.35); color:#1d4d2a}
-:root[data-theme="day"] .filters button:hover{color:#0f3b1c; border-color:#2f9140}
-:root[data-theme="day"] .filters button.active{background:#2f9140; color:#fff; border-color:#2f9140; box-shadow:0 4px 14px rgba(47,145,64,.35)}
-:root[data-theme="day"] .tool{background:rgba(255,255,255,.4); border-color:rgba(35,95,30,.45); color:#1d4d2a}
-:root[data-theme="day"] .tool:hover{color:#0f3b1c; border-color:#2f9140}
-:root[data-theme="day"] .btn{background:linear-gradient(120deg,#2f9140,#8cc63f); color:#fff; box-shadow:0 6px 20px rgba(47,145,64,.4)}
-:root[data-theme="day"] nav{background:rgba(12,26,16,.9)}
+:root[data-theme="day"] #forest .rays{
+  opacity:.68;
+  background:repeating-linear-gradient(108deg, transparent 0 60px, rgba(255,246,180,.32) 60px 125px, transparent 125px 235px);
+}
+:root[data-theme="day"] #forest .mist{
+  background:linear-gradient(to top, rgba(200,245,195,.52), rgba(255,250,225,.24), transparent);
+}
+:root[data-theme="day"] #forest .ground-fog{
+  opacity:.42;
+  background:linear-gradient(to top, rgba(230,255,220,.65), rgba(175,235,185,.25), transparent);
+}
+:root[data-theme="day"] #forestGlow{
+  background:radial-gradient(circle, rgba(255,240,170,.25), transparent 70%);
+}
+:root[data-theme="day"] .hero h1 .ch{
+  text-shadow:0 3px 12px rgba(255,255,255,.85), 0 0 35px rgba(255,240,160,.75);
+}
+:root[data-theme="day"] .section-title{
+  text-shadow:0 2px 10px rgba(255,255,255,.7), 0 0 20px rgba(180,240,190,.5);
+  color:#072113;
+}
+:root[data-theme="day"] .section-sub{
+  color:#1b4a2e;
+  font-weight:500;
+}
+:root[data-theme="day"] .filters button{
+  background:rgba(255,255,255,.55);
+  backdrop-filter:blur(8px);
+  border-color:rgba(35,100,45,.35);
+  color:#0f381e;
+  box-shadow:0 4px 12px rgba(20,50,25,.1);
+}
+:root[data-theme="day"] .filters button:hover{
+  color:#062412;
+  background:rgba(255,255,255,.85);
+  border-color:#2a853b;
+  transform:translateZ(8px) translateY(-2px);
+  box-shadow:0 6px 18px rgba(35,110,50,.2);
+}
+:root[data-theme="day"] .filters button.active{
+  background:linear-gradient(135deg,#2f9140,#1d752c);
+  color:#fff;
+  border-color:#2f9140;
+  box-shadow:0 6px 20px rgba(47,145,64,.42);
+}
+:root[data-theme="day"] .tool{
+  background:rgba(255,255,255,.6);
+  backdrop-filter:blur(8px);
+  border-color:rgba(35,95,30,.45);
+  color:#0f3b1c;
+  box-shadow:0 4px 12px rgba(20,50,25,.08);
+}
+:root[data-theme="day"] .tool:hover{
+  color:#062412;
+  background:rgba(255,255,255,.9);
+  border-color:#2f9140;
+}
+:root[data-theme="day"] .btn{
+  background:linear-gradient(120deg,#228537,#8ac438);
+  color:#fff;
+  box-shadow:0 8px 26px rgba(35,120,50,.45);
+}
+:root[data-theme="day"] nav{
+  background:rgba(10,34,18,.82);
+  backdrop-filter:blur(14px);
+  border-bottom:1px solid rgba(255,255,255,.18);
+  box-shadow:0 6px 24px rgba(0,0,0,.3);
+}
 :root[data-theme="day"] #toast{color:#f2fbe8}
-:root[data-theme="day"] .hero p{color:#0f3b1c; font-weight:500; text-shadow:0 0 12px rgba(255,255,210,.9), 0 0 3px rgba(255,255,230,.9)}
-:root[data-theme="day"] footer{color:#25502f}
-:root[data-theme="day"] .swatch.on{box-shadow:0 0 0 3px #fff, 0 0 0 5px #2f9140}
+:root[data-theme="day"] .hero p{
+  color:#082414;
+  font-weight:500;
+  text-shadow:0 0 16px rgba(255,255,230,.95), 0 0 4px rgba(255,255,240,.9);
+}
+:root[data-theme="day"] footer{color:#1e4c2e}
+:root[data-theme="day"] .swatch.on{box-shadow:0 0 0 3px #fff, 0 0 0 5px #2a853b}
+:root[data-theme="day"] .tilt{
+  background:rgba(255,255,255,.88);
+  backdrop-filter:blur(10px);
+  border:1px solid rgba(255,255,255,.75);
+  box-shadow:0 14px 34px rgba(10,40,20,.18), 0 2px 6px rgba(10,40,20,.08);
+}
+:root[data-theme="day"] .card.hovered .tilt{
+  box-shadow:0 30px 65px rgba(10,40,20,.26), 0 0 35px rgba(80,180,100,.3);
+}
+:root[data-theme="day"] .meta{
+  background:linear-gradient(to top, rgba(6,22,12,.92) 0%, rgba(6,22,12,.75) 75%, transparent 100%);
+}
+:root[data-theme="day"] .meta h3{
+  color:#f4fbf6;
+  -webkit-text-fill-color:initial;
+  background:none;
+}
+:root[data-theme="day"] .about-card{
+  background:
+    radial-gradient(120% 90% at 0% 0%, rgba(130,225,160,.38), transparent 60%),
+    radial-gradient(110% 90% at 100% 100%, rgba(255,225,175,.32), transparent 62%),
+    linear-gradient(160deg,#1c5c36 0%,#246c40 45%,#164a2a 100%);
+  border:1px solid rgba(255,255,255,.32);
+  box-shadow:0 26px 65px rgba(10,40,20,.32), inset 0 1px 0 rgba(255,255,255,.3);
+}
+:root[data-theme="day"] .about-hi{color:#fff7e6}
 
 /* find-by-colour dots */
 .swatches{display:flex; gap:10px; justify-content:center; align-items:center; flex-wrap:wrap; margin:-18px 0 34px; color:var(--muted); font-size:.85rem}
@@ -264,9 +375,16 @@ section{padding:90px clamp(18px,5vw,56px)}
   box-shadow:0 12px 30px rgba(0,0,0,.45);
   background:var(--card);
 }
-.card.hovered .tilt{will-change:transform; box-shadow:0 25px 60px rgba(0,0,0,.65)}
-.tilt img{width:100%; display:block; transition:transform .6s}
-.card.hovered .tilt img{transform:scale(1.08)}
+.tilt::before{
+  content:""; position:absolute; inset:0; z-index:3; pointer-events:none;
+  background:radial-gradient(circle 360px at var(--gx, 50%) var(--gy, 50%), rgba(255,255,255,.26), transparent 75%);
+  opacity:0; transition:opacity .25s; mix-blend-mode:screen;
+}
+.card.hovered .tilt::before{opacity:1}
+.card.hovered .tilt{will-change:transform; box-shadow:0 28px 65px rgba(0,0,0,.68), 0 0 35px rgba(74,222,128,.25)}
+.tilt img{width:100%; display:block; transition:transform .6s cubic-bezier(.2,.8,.2,1); transform:translateZ(0)}
+.card.hovered .tilt img{transform:scale(1.08) translateZ(20px)}
+.card.hovered .liked-badge{transform:translateZ(45px) scale(1.15)}
 .meta{
   position:absolute; left:0; right:0; bottom:0; padding:60px 18px 16px;
   background:linear-gradient(to top, rgba(3,10,6,.92), transparent);
@@ -455,6 +573,64 @@ footer{text-align:center; padding:40px 20px 60px; color:var(--muted); font-size:
 .dl-credit{margin:14px 0 0; font-size:.78rem; color:var(--muted)}
 .dl-credit b{color:var(--mint); font-weight:600}
 
+/* =====================================================
+   9) ENHANCED 3D DEPTH + FOREST IMMERSION
+   ===================================================== */
+/* global 3D perspective for sections */
+main{perspective:1200px; perspective-origin:50% 40%}
+section{transform-style:preserve-3d}
+/* hero gets a 3D floating feel */
+.hero{transform-style:preserve-3d}
+.hero h1{transform-style:preserve-3d; transform:translateZ(40px)}
+.hero p{transform:translateZ(25px)}
+.hero .btn{transform:translateZ(30px); transition:transform .25s, box-shadow .25s}
+.hero .btn:hover{transform:translateZ(30px) translateY(-3px) scale(1.04)}
+.hero-logo{transform:translateZ(50px)}
+/* 3D card depth */
+.gallery{transform-style:preserve-3d}
+.card{transform-style:preserve-3d}
+.tilt{transform-style:preserve-3d; transition:transform .2s ease-out, box-shadow .3s}
+.card.hovered .tilt{box-shadow:0 30px 70px rgba(0,0,0,.7), 0 0 40px rgba(74,222,128,.15)}
+/* section headings get depth */
+.section-title{transform:translateZ(20px); transform-style:preserve-3d}
+/* about card 3D */
+.about-card{transform-style:preserve-3d; transition:transform .4s, box-shadow .4s}
+.about-card:hover{transform:rotateX(-2deg) rotateY(1deg) translateZ(8px); box-shadow:0 34px 70px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.15)}
+/* filter buttons 3D pop */
+.filters button{transition:.25s; transform:translateZ(0)}
+.filters button:hover{transform:translateZ(8px) translateY(-2px)}
+.filters button.active{transform:translateZ(12px)}
+/* vignette for forest depth */
+body::after{
+  content:""; position:fixed; inset:0; z-index:0; pointer-events:none;
+  background:radial-gradient(ellipse 80% 70% at 50% 50%, transparent 50%, rgba(5,20,12,.4) 100%);
+}
+/* vine decorations along the edges */
+.vine-left, .vine-right{position:fixed; top:0; bottom:0; width:80px; z-index:1; pointer-events:none; opacity:.4}
+.vine-left{left:0}
+.vine-right{right:0; transform:scaleX(-1)}
+:root[data-theme="day"] .vine-left, :root[data-theme="day"] .vine-right{opacity:.25}
+:root[data-theme="night"] .vine-left, :root[data-theme="night"] .vine-right{opacity:.2}
+/* forest floor flowers (in hero area) */
+.forest-flowers{position:fixed; bottom:0; left:0; right:0; height:140px; z-index:1; pointer-events:none; overflow:hidden}
+.forest-flowers svg{position:absolute; bottom:0; width:100%; height:100%}
+/* ambient particles */
+#ambientParticles{position:fixed; inset:0; z-index:0; pointer-events:none}
+/* falling leaves canvas */
+#fallingLeaves{position:fixed; inset:0; z-index:0; pointer-events:none}
+/* interactive glow on hover over forest bg */
+#forestGlow{position:fixed; width:300px; height:300px; z-index:0; pointer-events:none; border-radius:50%;
+  background:radial-gradient(circle, rgba(74,222,128,.12), transparent 70%); transform:translate(-50%,-50%); opacity:0; transition:opacity .4s}
+/* enhanced night sky */
+:root[data-theme="night"] body::after{
+  background:radial-gradient(ellipse 80% 70% at 50% 50%, transparent 50%, rgba(2,8,5,.6) 100%);
+}
+#skyfx .shooting-star{position:absolute; width:2px; height:2px; background:#fff; border-radius:50%;
+  box-shadow:0 0 6px 2px rgba(255,255,255,.8), -30px 0 12px 1px rgba(255,255,255,.4); opacity:0}
+@keyframes shoot{0%{opacity:1; transform:translate(0,0) scaleX(1)}100%{opacity:0; transform:translate(250px,100px) scaleX(20)}}
+/* forest floor mushrooms (drawn in SVG via JS) */
+.forest-mushrooms{position:fixed; bottom:0; left:0; right:0; height:80px; z-index:1; pointer-events:none}
+
 @media (prefers-reduced-motion:reduce){
   *{animation:none !important; transition:none !important}
   .card{opacity:1; transform:none; filter:none}
@@ -470,6 +646,53 @@ footer{text-align:center; padding:40px 20px 60px; color:var(--muted); font-size:
 <div id="skyfx" aria-hidden="true"><div class="moon"></div></div>
 <div id="forest"></div>
 <canvas id="fireflies"></canvas>
+<canvas id="fallingLeaves"></canvas>
+<canvas id="ambientParticles"></canvas>
+<div id="forestGlow"></div>
+
+<!-- vine overlays -->
+<div class="vine-left" aria-hidden="true">
+  <svg viewBox="0 0 80 900" width="80" height="100%" preserveAspectRatio="xMinYMin slice">
+    <path d="M5 0 Q15 60 8 120 Q0 180 12 240 Q20 300 6 360 Q-2 420 14 480 Q22 540 4 600 Q-4 660 16 720 Q24 780 6 840 Q0 900 10 900" stroke="#2d7a48" stroke-width="2.5" fill="none" opacity=".7"/>
+    <path d="M5 120 Q20 110 30 95" stroke="#3a9d58" stroke-width="1.5" fill="none"/>
+    <ellipse cx="32" cy="90" rx="12" ry="7" fill="#2d8a42" opacity=".6" transform="rotate(-20 32 90)"/>
+    <path d="M8 240 Q25 225 35 215" stroke="#3a9d58" stroke-width="1.5" fill="none"/>
+    <ellipse cx="37" cy="210" rx="14" ry="8" fill="#3d9d50" opacity=".55" transform="rotate(-15 37 210)"/>
+    <path d="M12 360 Q30 348 40 335" stroke="#3a9d58" stroke-width="1.5" fill="none"/>
+    <ellipse cx="42" cy="330" rx="13" ry="7" fill="#2d8a42" opacity=".5" transform="rotate(-25 42 330)"/>
+    <path d="M6 480 Q22 468 32 455" stroke="#3a9d58" stroke-width="1.5" fill="none"/>
+    <ellipse cx="34" cy="450" rx="11" ry="6" fill="#3d9d50" opacity=".6" transform="rotate(-10 34 450)"/>
+    <path d="M14 600 Q28 590 38 575" stroke="#3a9d58" stroke-width="1.5" fill="none"/>
+    <ellipse cx="40" cy="570" rx="12" ry="7" fill="#2d8a42" opacity=".5" transform="rotate(-18 40 570)"/>
+    <path d="M4 720 Q20 710 28 695" stroke="#3a9d58" stroke-width="1.5" fill="none"/>
+    <ellipse cx="30" cy="690" rx="10" ry="6" fill="#3d9d50" opacity=".55" transform="rotate(-22 30 690)"/>
+    <!-- small flowers on vine -->
+    <g opacity=".8"><circle cx="18" cy="165" r="4" fill="#ff9dc4"/><circle cx="18" cy="165" r="1.5" fill="#ffe98a"/></g>
+    <g opacity=".7"><circle cx="22" cy="390" r="3.5" fill="#c9a0ff"/><circle cx="22" cy="390" r="1.2" fill="#ffe98a"/></g>
+    <g opacity=".8"><circle cx="10" cy="550" r="4" fill="#ff8fa0"/><circle cx="10" cy="550" r="1.5" fill="#fff4b0"/></g>
+    <g opacity=".7"><circle cx="20" cy="780" r="3" fill="#87ceeb"/><circle cx="20" cy="780" r="1" fill="#fff"/></g>
+  </svg>
+</div>
+<div class="vine-right" aria-hidden="true">
+  <svg viewBox="0 0 80 900" width="80" height="100%" preserveAspectRatio="xMinYMin slice">
+    <path d="M5 0 Q18 70 6 140 Q-2 210 14 280 Q24 350 8 420 Q0 490 16 560 Q26 630 10 700 Q2 770 18 840 Q22 900 12 900" stroke="#2d7a48" stroke-width="2.5" fill="none" opacity=".7"/>
+    <path d="M6 140 Q22 130 32 115" stroke="#3a9d58" stroke-width="1.5" fill="none"/>
+    <ellipse cx="34" cy="110" rx="13" ry="7" fill="#2d8a42" opacity=".55" transform="rotate(-18 34 110)"/>
+    <path d="M14 280 Q28 265 38 252" stroke="#3a9d58" stroke-width="1.5" fill="none"/>
+    <ellipse cx="40" cy="248" rx="12" ry="7" fill="#3d9d50" opacity=".6" transform="rotate(-22 40 248)"/>
+    <path d="M8 420 Q26 408 35 395" stroke="#3a9d58" stroke-width="1.5" fill="none"/>
+    <ellipse cx="37" cy="390" rx="14" ry="8" fill="#2d8a42" opacity=".5" transform="rotate(-12 37 390)"/>
+    <path d="M16 560 Q30 545 40 535" stroke="#3a9d58" stroke-width="1.5" fill="none"/>
+    <ellipse cx="42" cy="530" rx="11" ry="6" fill="#3d9d50" opacity=".55" transform="rotate(-20 42 530)"/>
+    <path d="M10 700 Q24 688 34 675" stroke="#3a9d58" stroke-width="1.5" fill="none"/>
+    <ellipse cx="36" cy="670" rx="13" ry="7" fill="#2d8a42" opacity=".6" transform="rotate(-15 36 670)"/>
+    <!-- small flowers on vine -->
+    <g opacity=".75"><circle cx="20" cy="195" r="4" fill="#ffa07a"/><circle cx="20" cy="195" r="1.5" fill="#fff4b0"/></g>
+    <g opacity=".8"><circle cx="12" cy="460" r="3.5" fill="#ff9dc4"/><circle cx="12" cy="460" r="1.2" fill="#ffe98a"/></g>
+    <g opacity=".7"><circle cx="24" cy="620" r="4" fill="#b8a9ff"/><circle cx="24" cy="620" r="1.5" fill="#fff"/></g>
+    <g opacity=".75"><circle cx="16" cy="810" r="3" fill="#90ee90"/><circle cx="16" cy="810" r="1" fill="#fff4b0"/></g>
+  </svg>
+</div>
 
 <nav>
   <a class="logo" href="#top" aria-label="Pixel Poetry home"><svg class="plogo" viewBox="0 0 100 84" role="img" aria-label="Pixel Poetry logo: a navy camera with wildflowers growing from its top and a bee flying around">
@@ -891,12 +1114,14 @@ const cards = photos.map(ph => {
   tilt.append(img, meta, heart);
   card.appendChild(tilt);
 
-  /* 3D TILT: figure out where the mouse is on the card, then rotate toward it */
+  /* 3D TILT: figure out where the mouse is on the card, rotate toward it and track light sheen */
   card.addEventListener('mousemove', e => {
     const r = tilt.getBoundingClientRect();
     const x = (e.clientX - r.left) / r.width;   // 0 (left) → 1 (right)
     const y = (e.clientY - r.top)  / r.height;  // 0 (top)  → 1 (bottom)
-    tilt.style.transform = `perspective(900px) rotateX(${(.5-y)*14}deg) rotateY(${(x-.5)*14}deg) scale(1.05)`;
+    tilt.style.setProperty('--gx', (x * 100).toFixed(1) + '%');
+    tilt.style.setProperty('--gy', (y * 100).toFixed(1) + '%');
+    tilt.style.transform = `perspective(900px) rotateX(${(.5-y)*16}deg) rotateY(${(x-.5)*16}deg) translateZ(14px) scale(1.05)`;
   });
   /* HOVER FOCUS: this card pops up, all the others dim + blur (see .gallery.focus in the CSS) */
   card.addEventListener('mouseenter', () => { card.classList.add('hovered'); grid.classList.add('focus'); });
@@ -1324,9 +1549,11 @@ $('year').textContent = new Date().getFullYear();
    Far trees are small + pale (like they hide in mist), near trees
    are big + dark. This "atmospheric depth" is what makes it feel real!
    ===================================================== */
-function pine(r, x, base, h, col){
-  const tiers = 8 + Math.floor(r()*4), maxW = h*(.16 + r()*.05);
-  let p = `<rect x='${(x-h*.011).toFixed(1)}' y='${(base-h*.22).toFixed(1)}' width='${(h*.022).toFixed(1)}' height='${(h*.22).toFixed(1)}' fill='${col}'/>`;
+function pine(r, x, base, h, col, col2, woodCol){
+  const tiers = 8 + Math.floor(r()*5), maxW = h*(.16 + r()*.06);
+  const tw = h * .022;
+  // wood trunk with root flare
+  let p = `<path d='M${(x-tw*.7).toFixed(1)} ${(base-h*.24).toFixed(1)} L${(x+tw*.7).toFixed(1)} ${(base-h*.24).toFixed(1)} L${(x+tw*1.6).toFixed(1)} ${base.toFixed(1)} L${(x-tw*1.6).toFixed(1)} ${base.toFixed(1)} Z' fill='${woodCol}'/>`;
   for(let i=0; i<tiers; i++){
     const yTop = base - h + (i/tiers)*h*.84;
     const yBot = yTop + (h*.84/tiers)*2.2;
@@ -1340,46 +1567,233 @@ function pine(r, x, base, h, col){
     L.forEach(q => d += ` L${q[0].toFixed(1)} ${q[1].toFixed(1)}`);
     d += ` Q${x.toFixed(1)} ${(yBot-h*.035).toFixed(1)} ${R[2][0].toFixed(1)} ${R[2][1].toFixed(1)}`;
     d += ` L${R[1][0].toFixed(1)} ${R[1][1].toFixed(1)} L${R[0][0].toFixed(1)} ${R[0][1].toFixed(1)} Z`;
-    p += `<path d='${d}' fill='${col}'/>`;
+    p += `<path d='${d}' fill='${i%2 ? col : (col2||col)}'/>`;
   }
   return p;
 }
-function oak(r, x, base, h, col, col2){
-  const tw = h*.035;
-  let p = `<path d='M${(x-tw).toFixed(1)} ${base.toFixed(1)} Q${(x-tw*.6).toFixed(1)} ${(base-h*.35).toFixed(1)} ${(x-tw*.4).toFixed(1)} ${(base-h*.55).toFixed(1)} L${(x+tw*.4).toFixed(1)} ${(base-h*.55).toFixed(1)} Q${(x+tw*.6).toFixed(1)} ${(base-h*.35).toFixed(1)} ${(x+tw).toFixed(1)} ${base.toFixed(1)} Z' fill='${col}'/>`;
-  for(let i=0; i<4; i++){                       // bending branches
-    const s = i%2 ? 1 : -1, by = base - h*(.45 + r()*.2);
-    p += `<path d='M${x.toFixed(1)} ${by.toFixed(1)} Q${(x+s*h*.1).toFixed(1)} ${(by-h*.1).toFixed(1)} ${(x+s*h*(.15+r()*.1)).toFixed(1)} ${(by-h*(.2+r()*.1)).toFixed(1)}' stroke='${col}' stroke-width='${(tw*.5).toFixed(1)}' fill='none' stroke-linecap='round'/>`;
+function oak(r, x, base, h, col, col2, woodCol){
+  const tw = h*.036;
+  // strong trunk with roots
+  let p = `<path d='M${(x-tw*1.6).toFixed(1)} ${base.toFixed(1)} Q${(x-tw*.9).toFixed(1)} ${(base-h*.2).toFixed(1)} ${(x-tw*.4).toFixed(1)} ${(base-h*.55).toFixed(1)} L${(x+tw*.4).toFixed(1)} ${(base-h*.55).toFixed(1)} Q${(x+tw*.9).toFixed(1)} ${(base-h*.2).toFixed(1)} ${(x+tw*1.6).toFixed(1)} ${base.toFixed(1)} Z' fill='${woodCol}'/>`;
+  for(let i=0; i<5; i++){                       // bending branches
+    const s = i%2 ? 1 : -1, by = base - h*(.42 + r()*.22);
+    p += `<path d='M${x.toFixed(1)} ${by.toFixed(1)} Q${(x+s*h*.12).toFixed(1)} ${(by-h*.1).toFixed(1)} ${(x+s*h*(.18+r()*.12)).toFixed(1)} ${(by-h*(.22+r()*.12)).toFixed(1)}' stroke='${woodCol}' stroke-width='${(tw*.5).toFixed(1)}' fill='none' stroke-linecap='round'/>`;
   }
-  for(let i=0; i<16; i++){                      // bumpy leafy crown = many overlapping circles
-    const a = r()*6.28, rad = r()*h*.2;
-    p += `<circle cx='${(x+Math.cos(a)*rad*1.3).toFixed(1)}' cy='${(base-h*.7+Math.sin(a)*rad*.8).toFixed(1)}' r='${(h*(.08+r()*.07)).toFixed(1)}' fill='${i%3 ? col : col2}'/>`;
+  for(let i=0; i<18; i++){                      // bumpy leafy crown in multiple canopy tones
+    const a = r()*6.28, rad = r()*h*.22;
+    p += `<circle cx='${(x+Math.cos(a)*rad*1.3).toFixed(1)}' cy='${(base-h*.72+Math.sin(a)*rad*.8).toFixed(1)}' r='${(h*(.08+r()*.08)).toFixed(1)}' fill='${i%3===0 ? col2 : col}' opacity='${(.88+r()*.12).toFixed(2)}'/>`;
   }
   return p;
 }
-function forestLayer(seed, count, hMin, hMax, col, col2, opacity, oakChance, baseY){
+function birch(r, x, base, h, col, col2, theme){
+  const tw = h * .022;
+  const birchBark = theme === 'night' ? '#354842' : '#f5f6ed';
+  const notchCol = theme === 'night' ? '#1c2824' : '#2b2a24';
+  let p = `<path d='M${(x-tw).toFixed(1)} ${base.toFixed(1)} Q${(x-tw*.5).toFixed(1)} ${(base-h*.4).toFixed(1)} ${(x-tw*.3).toFixed(1)} ${(base-h*.75).toFixed(1)} L${(x+tw*.3).toFixed(1)} ${(base-h*.75).toFixed(1)} Q${(x+tw*.5).toFixed(1)} ${(base-h*.4).toFixed(1)} ${(x+tw).toFixed(1)} ${base.toFixed(1)} Z' fill='${birchBark}'/>`;
+  // characteristic black horizontal lenticel notches
+  for(let i=0; i<7; i++){
+    const ny = base - h*(.08 + i*.09 + r()*.03);
+    const nw = tw*(1 + r()*.6);
+    p += `<line x1='${(x-nw*.7).toFixed(1)}' y1='${ny.toFixed(1)}' x2='${(x+nw*.7).toFixed(1)}' y2='${(ny+(r()-.5)*2).toFixed(1)}' stroke='${notchCol}' stroke-width='${(1+r()*.8).toFixed(1)}' stroke-linecap='round' opacity='.85'/>`;
+  }
+  // slender upright branches
+  for(let i=0; i<4; i++){
+    const s = i%2 ? 1 : -1, by = base - h*(.5 + i*.08);
+    p += `<path d='M${x.toFixed(1)} ${by.toFixed(1)} Q${(x+s*h*.08).toFixed(1)} ${(by-h*.1).toFixed(1)} ${(x+s*h*.16).toFixed(1)} ${(by-h*.22).toFixed(1)}' stroke='${birchBark}' stroke-width='${(tw*.35).toFixed(1)}' fill='none' stroke-linecap='round'/>`;
+  }
+  // delicate airy leaf clusters
+  for(let i=0; i<14; i++){
+    const a = r()*6.28, rad = r()*h*.18;
+    p += `<circle cx='${(x+Math.cos(a)*rad*1.2).toFixed(1)}' cy='${(base-h*.75+Math.sin(a)*rad).toFixed(1)}' r='${(h*(.05+r()*.05)).toFixed(1)}' fill='${i%2 ? col : col2}' opacity='.85'/>`;
+  }
+  return p;
+}
+function willow(r, x, base, h, col, col2, woodCol){
+  const tw = h * .038;
+  let p = `<path d='M${(x-tw*1.4).toFixed(1)} ${base.toFixed(1)} Q${(x-tw*.8).toFixed(1)} ${(base-h*.25).toFixed(1)} ${(x-tw*.3).toFixed(1)} ${(base-h*.6).toFixed(1)} L${(x+tw*.3).toFixed(1)} ${(base-h*.6).toFixed(1)} Q${(x+tw*.8).toFixed(1)} ${(base-h*.25).toFixed(1)} ${(x+tw*1.4).toFixed(1)} ${base.toFixed(1)} Z' fill='${woodCol}'/>`;
+  // weeping arching branches with cascading foliage
+  for(let i=0; i<8; i++){
+    const s = (i/8 - .5)*2;
+    const bx = x + s*h*.2;
+    const by = base - h*(.65 + r()*.15);
+    p += `<path d='M${x.toFixed(1)} ${(base-h*.55).toFixed(1)} Q${bx.toFixed(1)} ${(by-h*.08).toFixed(1)} ${bx.toFixed(1)} ${(by+h*(.2+r()*.2)).toFixed(1)}' stroke='${i%2 ? col : col2}' stroke-width='${(1.5+r()*1.2).toFixed(1)}' stroke-dasharray='4 2.5' fill='none' opacity='.9'/>`;
+  }
+  return p;
+}
+function forestLayer(seed, count, hMin, hMax, col, col2, opacity, oakChance, baseY, woodCol, theme){
   const r = rng(seed); let p = '';
   for(let i=0; i<count; i++){
     const x = (i+.5)/count*1600 + (r()-.5)*140, h = hMin + r()*(hMax-hMin), base = baseY + r()*30;
-    p += r() < oakChance ? oak(r, x, base, h, col, col2) : pine(r, x, base, h, col);
+    const treePick = r();
+    if(treePick < oakChance) {
+      p += oak(r, x, base, h, col, col2, woodCol);
+    } else if(treePick < oakChance + .22) {
+      p += birch(r, x, base, h, col, col2, theme);
+    } else if(treePick < oakChance + .35 && h > 260) {
+      p += willow(r, x, base, h, col, col2, woodCol);
+    } else {
+      p += pine(r, x, base, h, col, col2, woodCol);
+    }
   }
   return `<svg viewBox='0 0 1600 900' preserveAspectRatio='xMidYMax slice' style='opacity:${opacity}'>${p}</svg>`;
+}
+
+/* undergrowth: ferns, bushes, flowers, mushrooms at the forest floor */
+function fern(r, x, base, h, col){
+  let p = '';
+  const fronds = 6 + Math.floor(r()*5);
+  for(let i=0; i<fronds; i++){
+    const side = i%2 ? 1 : -1;
+    const angle = (i/fronds - .5) * 1.5 * side;
+    const len = h * (.55 + r()*.5);
+    const tipX = x + Math.sin(angle) * len;
+    const tipY = base - Math.cos(angle) * len;
+    const cpX = x + Math.sin(angle) * len * .5 + (r()-.5) * 10;
+    const cpY = base - Math.cos(angle) * len * .65;
+    p += `<path d='M${x.toFixed(1)} ${base.toFixed(1)} Q${cpX.toFixed(1)} ${cpY.toFixed(1)} ${tipX.toFixed(1)} ${tipY.toFixed(1)}' stroke='${col}' stroke-width='${(1.3 + r()*.8).toFixed(1)}' fill='none' stroke-linecap='round' opacity='${(.65+r()*.35).toFixed(2)}'/>`;
+    // fiddlehead curve or leaflets along each frond
+    for(let j=1; j<6; j++){
+      const t = j/6;
+      const lx = x + (tipX-x)*t + (r()-.5)*3;
+      const ly = base + (tipY-base)*t;
+      const ls = 4 + r()*7;
+      p += `<ellipse cx='${lx.toFixed(1)}' cy='${ly.toFixed(1)}' rx='${(ls*.42).toFixed(1)}' ry='${(ls*.75).toFixed(1)}' fill='${col}' opacity='${(.45+r()*.35).toFixed(2)}' transform='rotate(${(angle*32 + (r()-.5)*20).toFixed(0)} ${lx.toFixed(1)} ${ly.toFixed(1)})'/>`;
+    }
+  }
+  return p;
+}
+function flowerCluster(r, x, base, colors){
+  let p = '';
+  const count = 3 + Math.floor(r()*4);
+  for(let i=0; i<count; i++){
+    const fx = x + (r()-.5)*36;
+    const fy = base - 2 - r()*24;
+    const sz = 3 + r()*4.5;
+    const col = colors[Math.floor(r()*colors.length)];
+    // stem
+    p += `<path d='M${fx.toFixed(1)} ${base.toFixed(1)} Q${(fx + (r()-.5)*5).toFixed(1)} ${(fy+10).toFixed(1)} ${fx.toFixed(1)} ${fy.toFixed(1)}' stroke='#2d7a3a' stroke-width='.9' fill='none'/>`;
+    // petals
+    const petals = 5 + Math.floor(r()*3);
+    for(let j=0; j<petals; j++){
+      const a = (j/petals)*6.28;
+      p += `<ellipse cx='${(fx + Math.cos(a)*sz*.55).toFixed(1)}' cy='${(fy + Math.sin(a)*sz*.55).toFixed(1)}' rx='${(sz*.45).toFixed(1)}' ry='${(sz*.28).toFixed(1)}' fill='${col}' opacity='.82' transform='rotate(${(a*57.3).toFixed(0)} ${fx.toFixed(1)} ${fy.toFixed(1)})'/>`;
+    }
+    // bright center
+    p += `<circle cx='${fx.toFixed(1)}' cy='${fy.toFixed(1)}' r='${(sz*.24).toFixed(1)}' fill='#ffe259' opacity='.95'/>`;
+  }
+  return p;
+}
+function mushroom(r, x, base, col1, col2, isGlowing){
+  let p = '';
+  const sh = 7 + r()*12;
+  const sw = 1.8 + r()*2.2;
+  const capW = sw*2.6 + r()*4.5;
+  const capH = capW * (.45 + r()*.2);
+  if(isGlowing){
+    p += `<ellipse cx='${x.toFixed(1)}' cy='${(base-sh).toFixed(1)}' rx='${(capW*1.8).toFixed(1)}' ry='${(capH*1.8).toFixed(1)}' fill='${col1}' opacity='.25'/>`;
+  }
+  // stem
+  p += `<rect x='${(x-sw/2).toFixed(1)}' y='${(base-sh).toFixed(1)}' width='${sw.toFixed(1)}' height='${sh.toFixed(1)}' rx='${(sw*.35).toFixed(1)}' fill='${col2}' opacity='.85'/>`;
+  // cap
+  p += `<ellipse cx='${x.toFixed(1)}' cy='${(base-sh).toFixed(1)}' rx='${capW.toFixed(1)}' ry='${capH.toFixed(1)}' fill='${col1}' opacity='.9'/>`;
+  // spots
+  for(let i=0; i<4; i++){
+    const sx = x + (r()-.5)*capW*1.2;
+    const sy = base - sh - (r()-.25)*capH*.6;
+    p += `<circle cx='${sx.toFixed(1)}' cy='${sy.toFixed(1)}' r='${(.9+r()*1.1).toFixed(1)}' fill='#fff' opacity='.65'/>`;
+  }
+  return p;
+}
+function fallenLog(r, x, base, w, woodCol, mossCol){
+  let p = `<path d='M${x} ${base} Q${x+w*.5} ${base-8} ${x+w} ${base} L${x+w} ${base+10} Q${x+w*.5} ${base+14} ${x} ${base+10} Z' fill='${woodCol}' opacity='.9'/>`;
+  // moss patch on top of log
+  p += `<path d='M${x+w*.2} ${base-1} Q${x+w*.5} ${base-7} ${x+w*.8} ${base-1} Z' fill='${mossCol}' opacity='.75'/>`;
+  // tiny bracket fungi
+  p += `<ellipse cx='${x+w*.3}' cy='${base+2}' rx='4' ry='2' fill='#d4a373' opacity='.8'/>`;
+  p += `<ellipse cx='${x+w*.65}' cy='${base+4}' rx='5' ry='2.5' fill='#e9c46a' opacity='.8'/>`;
+  return p;
+}
+function undergrowthLayer(seed, baseY, theme){
+  const r = rng(seed); let p = '';
+  const fernCol = theme === 'day' ? '#3ea62c' : theme === 'night' ? '#0f402c' : '#1d6035';
+  const mossCol = theme === 'day' ? '#5bb832' : theme === 'night' ? '#144d34' : '#2d7a42';
+  const woodCol = theme === 'day' ? '#5a381d' : theme === 'night' ? '#122018' : '#2b1b11';
+  const flowerColors = theme === 'day'
+    ? ['#ff5a79','#ffaa33','#ffdd00','#ff5e9c','#d05ce3','#ff4500','#ffffff','#6eb4ff','#a064ff']
+    : theme === 'night'
+    ? ['#7a6baa','#5a5a8a','#9a8abf','#c4b0e8','#4deeea','#74ee15']
+    : ['#ff85b2','#ff9966','#b985ff','#6ec6ff','#ffb3c6','#ffffff','#ff5252','#ffcc00'];
+  const mushCols = theme === 'day'
+    ? [['#d93829','#faeee1'],['#e76f51','#faeee1'],['#f4a261','#faeee1']]
+    : theme === 'night'
+    ? [['#4deeea','#1a2e3b'],['#b388ff','#261c38'],['#76ff03','#122612']]
+    : [['#c0392b','#f5e6d0'],['#e67e22','#f5e6d0'],['#d35400','#eee8d5']];
+
+  // fallen mossy logs
+  p += fallenLog(r, 120, baseY+5, 110, woodCol, mossCol);
+  p += fallenLog(r, 920, baseY+7, 130, woodCol, mossCol);
+
+  // ferns
+  for(let i=0; i<24; i++){
+    const x = r()*1600;
+    p += fern(r, x, baseY + r()*22, 22 + r()*40, fernCol);
+  }
+  // flowers
+  for(let i=0; i<18; i++){
+    const x = r()*1600;
+    p += flowerCluster(r, x, baseY + r()*16, flowerColors);
+  }
+  // mushrooms
+  for(let i=0; i<9; i++){
+    const x = r()*1600;
+    const mc = mushCols[Math.floor(r()*mushCols.length)];
+    p += mushroom(r, x, baseY + r()*12, mc[0], mc[1], theme === 'night');
+  }
+  // small ground grass / clover tufts
+  for(let i=0; i<36; i++){
+    const gx = r()*1600;
+    const gy = baseY + r()*10;
+    const gh = 7 + r()*16;
+    for(let j=0; j<4; j++){
+      const a = (j-1.5)*.28 + (r()-.5)*.2;
+      p += `<path d='M${gx.toFixed(1)} ${gy.toFixed(1)} Q${(gx+Math.sin(a)*gh*.5).toFixed(1)} ${(gy-gh*.6).toFixed(1)} ${(gx+Math.sin(a)*gh).toFixed(1)} ${(gy-gh).toFixed(1)}' stroke='${fernCol}' stroke-width='${(.8+r()*.7).toFixed(1)}' fill='none' stroke-linecap='round' opacity='${(.45+r()*.4).toFixed(2)}'/>`;
+    }
+  }
+  return `<svg viewBox='0 0 1600 900' preserveAspectRatio='xMidYMax slice' style='opacity:.92'>${p}</svg>`;
 }
 
 const forest = $('forest');
 // tree colours for each look: [trunk, leaves] for the far, middle and near rows (the sky colours live in the CSS)
 const FOREST_THEMES = {
-  default:{ far:['#2f6a50','#3a7a5c'], mid:['#1c4a37','#255a43'], near:['#0f2f22','#16402f'] },
-  night:  { far:['#173b3d','#1e4a4a'], mid:['#0e2a2b','#14363a'], near:['#051419','#0a2024'] },
-  day:    { far:['#9ccc57','#aedb69'], mid:['#6db43c','#7cc54a'], near:['#3d8d2c','#4aa036'] }
+  default:{
+    far:['#285c45','#367055'],
+    mid:['#1c4a37','#255a43'],
+    near:['#0d2b1f','#143c2c'],
+    wood:['#3a2618','#2b1b11','#1e130c']
+  },
+  night:{
+    far:['#173b3d','#1e4a4a'],
+    mid:['#0e2a2b','#14363a'],
+    near:['#051419','#0a2024'],
+    wood:['#121d18','#0b1410','#070d0a']
+  },
+  day:{
+    far:['#68b344','#7fc958'],
+    mid:['#3f8f2b','#52a838'],
+    near:['#25681d','#328026'],
+    wood:['#5c3a21','#4a2e19','#361f10']
+  }
 };
 function buildForest(theme){
   const c = FOREST_THEMES[theme] || FOREST_THEMES.default;
   forest.innerHTML = '<div class="rays"></div>'
-    + forestLayer(21, 16, 170, 250, c.far[0],  c.far[1],  .75, .20, 800)  // far: small + hazy
+    + forestLayer(11, 14, 110, 190, c.far[0],  c.far[1],  .50, .20, 760, c.wood[0], theme)  // very far: tiny + misty
+    + forestLayer(21, 20, 170, 270, c.far[0],  c.far[1],  .75, .25, 800, c.wood[0], theme)  // far: small + hazy
     + '<div class="mist"></div>'
-    + forestLayer(33, 10, 270, 380, c.mid[0],  c.mid[1],  .95, .30, 880)  // middle
-    + forestLayer(47,  6, 420, 560, c.near[0], c.near[1], 1,   .25, 930); // near: big + dark
+    + '<div class="ground-fog"></div>'
+    + forestLayer(33, 14, 270, 400, c.mid[0],  c.mid[1],  .95, .32, 880, c.wood[1], theme)  // middle
+    + undergrowthLayer(77, 895, theme)                                                              // ferns, wildflowers, mossy logs, mushrooms
+    + forestLayer(47,  9, 420, 590, c.near[0], c.near[1], 1,   .28, 930, c.wood[2], theme); // near: big + dark woods
   forestLayers = [...forest.querySelectorAll('svg')];
   if(window.ppReady) parallax();                 // skipped on the first build (parallax isn't defined yet)
 }
@@ -1391,8 +1805,9 @@ let parallaxQueued = false;
 function parallax(){ if(parallaxQueued) return; parallaxQueued = true; requestAnimationFrame(doParallax); }
 function doParallax(){
   parallaxQueued = false;
+  const n = forestLayers.length;
   forestLayers.forEach((el,i) => {
-    const f = [.25,.6,1][i];                      // near trees move more = depth
+    const f = i / Math.max(1, n-1);                      // 0 = far, 1 = near
     el.style.transform = `translate(${mxp*-34*f}px, ${Math.min(scy,1600)*.035*f}px)`;
   });
 }
@@ -1817,11 +2232,15 @@ function critterLoop(t){
   const dt = dtms/16.667;                         // keeps speed the same on any screen refresh rate
   cctx.clearRect(0,0,innerWidth,innerHeight);
   butterflies.forEach(b => { updateButterfly(b,t,dt); drawButterfly(b); });
-  for(let i=0; i<birds.length; i++){
-    const b = birds[i];
-    if(b.wait > 0){ b.wait -= dtms; continue; }
-    updateBird(b,t,dt); drawBird(b);
-    if((b.dir > 0 && b.x > innerWidth + 90) || (b.dir < 0 && b.x < -90)) birds[i] = newBird(false);
+  // birds are hidden in night mode — the forest is sleeping 🌙
+  const isNight = currentTheme() === 'night';
+  if(!isNight){
+    for(let i=0; i<birds.length; i++){
+      const b = birds[i];
+      if(b.wait > 0){ b.wait -= dtms; continue; }
+      updateBird(b,t,dt); drawBird(b);
+      if((b.dir > 0 && b.x > innerWidth + 90) || (b.dir < 0 && b.x < -90)) birds[i] = newBird(false);
+    }
   }
   requestAnimationFrame(critterLoop);
 }
@@ -1862,6 +2281,241 @@ if(calm){ cc.remove(); } else { requestAnimationFrame(critterLoop); }
   label(currentTheme());
   let seen = false; try{ seen = !!localStorage.getItem('pp_theme'); }catch(e){}
   if(!seen) btn.classList.add('nudge');                  // first visit: a soft pulse so people notice the theme button
+})();
+
+/* =====================================================
+   H) FALLING LEAVES — gentle drifting leaves 🍃
+   Real autumn / forest feel: leaves sway, rotate and drift down.
+   ===================================================== */
+(function fallingLeavesSystem(){
+  if(reduceMotion) return;
+  const cv = document.getElementById('fallingLeaves');
+  const ctx = cv.getContext('2d');
+  let W, H;
+  const dprL = Math.min(devicePixelRatio || 1, 1.25);
+  function resize(){ W = innerWidth; H = innerHeight; cv.width = W*dprL; cv.height = H*dprL; ctx.setTransform(dprL,0,0,dprL,0,0); }
+  resize(); addEventListener('resize', resize);
+
+  const LEAF_COLORS = {
+    default:['#3d9d50','#2d7a3a','#5cb850','#8cc63f','#4ade80','#1d6b3a'],
+    night:['#1a4a35','#0e3828','#1d5a40','#2d6a48'],
+    day:['#7cc54a','#9ccc57','#aedb69','#c1e07a','#5cb830','#3d8d2c']
+  };
+  const leaves = [];
+  const MAX = innerWidth < 700 ? 15 : 30;
+
+  function newLeaf(){
+    const th = currentTheme();
+    const cols = LEAF_COLORS[th] || LEAF_COLORS.default;
+    return {
+      x: Math.random()*W, y: -20 - Math.random()*100,
+      vx: (Math.random()-.5)*.4,
+      vy: .3 + Math.random()*.5,
+      rot: Math.random()*6.28,
+      vr: (Math.random()-.5)*.03,
+      sway: Math.random()*6.28,
+      swayAmp: 15 + Math.random()*25,
+      swaySpd: .0008 + Math.random()*.001,
+      size: 4 + Math.random()*8,
+      type: Math.floor(Math.random()*3),
+      color: cols[Math.floor(Math.random()*cols.length)],
+      opacity: .3 + Math.random()*.5
+    };
+  }
+  for(let i=0; i<MAX; i++){ const l = newLeaf(); l.y = Math.random()*H; leaves.push(l); }
+
+  function drawLeaf(l){
+    ctx.save();
+    ctx.translate(l.x + Math.sin(l.sway)*l.swayAmp, l.y);
+    ctx.rotate(l.rot);
+    ctx.globalAlpha = l.opacity;
+    ctx.fillStyle = l.color;
+    const s = l.size;
+    if(l.type === 0){
+      // simple oval leaf
+      ctx.beginPath(); ctx.ellipse(0,0,s*.4,s,0,0,Math.PI*2); ctx.fill();
+      ctx.strokeStyle = l.color; ctx.globalAlpha = l.opacity*.5; ctx.lineWidth = .4;
+      ctx.beginPath(); ctx.moveTo(0,-s); ctx.lineTo(0,s); ctx.stroke();
+    } else if(l.type === 1){
+      // pointed leaf
+      ctx.beginPath(); ctx.moveTo(0,-s);
+      ctx.quadraticCurveTo(s*.6,0,0,s); ctx.quadraticCurveTo(-s*.6,0,0,-s);
+      ctx.fill();
+    } else {
+      // maple-ish leaf
+      ctx.beginPath();
+      ctx.moveTo(0,-s);
+      ctx.lineTo(s*.3,-s*.4); ctx.lineTo(s*.7,-s*.5); ctx.lineTo(s*.4,0);
+      ctx.lineTo(s*.6,s*.4); ctx.lineTo(s*.2,s*.3);
+      ctx.lineTo(0,s*.8);
+      ctx.lineTo(-s*.2,s*.3); ctx.lineTo(-s*.6,s*.4); ctx.lineTo(-s*.4,0);
+      ctx.lineTo(-s*.7,-s*.5); ctx.lineTo(-s*.3,-s*.4);
+      ctx.closePath(); ctx.fill();
+    }
+    ctx.restore();
+  }
+
+  function leafFrame(t){
+    ctx.clearRect(0,0,W,H);
+    for(const l of leaves){
+      l.sway += l.swaySpd * 16;
+      l.x += l.vx;
+      l.y += l.vy;
+      l.rot += l.vr;
+      if(l.y > H + 30 || l.x < -50 || l.x > W + 50){
+        Object.assign(l, newLeaf());
+      }
+      drawLeaf(l);
+    }
+    requestAnimationFrame(leafFrame);
+  }
+  requestAnimationFrame(leafFrame);
+})();
+
+/* =====================================================
+   H2) AMBIENT POLLEN / SPORES — tiny floating particles
+   ===================================================== */
+(function ambientParticles(){
+  if(reduceMotion) return;
+  const cv = document.getElementById('ambientParticles');
+  const ctx = cv.getContext('2d');
+  let W, H;
+  const dprP = Math.min(devicePixelRatio || 1, 1);
+  function resize(){ W = innerWidth; H = innerHeight; cv.width = W*dprP; cv.height = H*dprP; ctx.setTransform(dprP,0,0,dprP,0,0); }
+  resize(); addEventListener('resize', resize);
+
+  const particles = [];
+  const MAX = innerWidth < 700 ? 30 : 60;
+  for(let i=0; i<MAX; i++){
+    particles.push({
+      x: Math.random()*innerWidth, y: Math.random()*innerHeight,
+      vx: (Math.random()-.5)*.15,
+      vy: -.05 - Math.random()*.15,
+      size: .5 + Math.random()*2,
+      opacity: .1 + Math.random()*.3,
+      phase: Math.random()*6.28,
+      speed: .0005 + Math.random()*.001
+    });
+  }
+
+  function pollenFrame(t){
+    ctx.clearRect(0,0,W,H);
+    const th = currentTheme();
+    const color = th === 'night' ? '160,200,255' : th === 'day' ? '255,255,200' : '200,255,220';
+    for(const p of particles){
+      p.phase += p.speed * 16;
+      p.x += p.vx + Math.sin(p.phase)*0.15;
+      p.y += p.vy + Math.cos(p.phase*1.3)*.1;
+      if(p.y < -10){ p.y = H + 10; p.x = Math.random()*W; }
+      if(p.x < -10) p.x = W + 10;
+      if(p.x > W + 10) p.x = -10;
+      ctx.globalAlpha = p.opacity * (.5 + .5*Math.sin(p.phase*2));
+      ctx.fillStyle = `rgba(${color},1)`;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size, 0, Math.PI*2);
+      ctx.fill();
+    }
+    requestAnimationFrame(pollenFrame);
+  }
+  requestAnimationFrame(pollenFrame);
+})();
+
+/* =====================================================
+   H3) FOREST GLOW — follows mouse cursor
+   ===================================================== */
+(function forestGlowEffect(){
+  if(reduceMotion) return;
+  const glow = document.getElementById('forestGlow');
+  let mx = -999, my = -999, visible = false;
+  addEventListener('mousemove', e => {
+    mx = e.clientX; my = e.clientY;
+    glow.style.left = mx + 'px';
+    glow.style.top = my + 'px';
+    if(!visible){ glow.style.opacity = '1'; visible = true; }
+  });
+  addEventListener('mouseleave', () => { glow.style.opacity = '0'; visible = false; });
+})();
+
+/* =====================================================
+   H4) SHOOTING STARS — only in night mode 🌠
+   ===================================================== */
+(function shootingStars(){
+  if(reduceMotion) return;
+  const sky = document.getElementById('skyfx');
+  function shootStar(){
+    if(currentTheme() !== 'night') return;
+    const star = document.createElement('i');
+    star.className = 'shooting-star';
+    const startX = 10 + Math.random()*70;
+    const startY = 5 + Math.random()*30;
+    const angle = 20 + Math.random()*30;
+    star.style.cssText = `left:${startX}%;top:${startY}%;transform:rotate(${angle}deg)`;
+    star.style.animation = `shoot ${.6 + Math.random()*.4}s ease-out forwards`;
+    sky.appendChild(star);
+    setTimeout(() => star.remove(), 1200);
+  }
+  setInterval(() => { if(Math.random() < .3) shootStar(); }, 4000);
+})();
+
+/* =====================================================
+   H5) INTERACTIVE FIREFLY CATCH — click to burst a firefly
+   ===================================================== */
+(function fireflyCatch(){
+  const cv = document.getElementById('fireflies');
+  cv.style.pointerEvents = 'auto';
+  cv.style.cursor = 'default';
+  cv.addEventListener('click', e => {
+    // find nearest firefly
+    let minD = Infinity, nearest = null;
+    for(const f of flies){
+      const d = Math.hypot(f.x - e.clientX, f.y - e.clientY);
+      if(d < minD){ minD = d; nearest = f; }
+    }
+    if(nearest && minD < 60){
+      // burst effect: the firefly flashes brightly and scatters
+      burstFrom({getBoundingClientRect:()=>({left:nearest.x-10,top:nearest.y-10,width:20,height:20})}, ['✨','💚','🌟','⭐']);
+      toast('✨ You caught a spark of the forest!');
+      // reset the firefly to a new position
+      nearest.x = Math.random()*innerWidth;
+      nearest.y = Math.random()*innerHeight;
+      nearest.offset = performance.now();
+    }
+  });
+})();
+
+/* =====================================================
+   H6) 3D TILT on ABOUT CARD — mouse-follow perspective
+   ===================================================== */
+(function aboutTilt(){
+  const card = document.querySelector('.about-card');
+  if(!card || reduceMotion) return;
+  card.addEventListener('mousemove', e => {
+    const r = card.getBoundingClientRect();
+    const x = (e.clientX - r.left)/r.width - .5;
+    const y = (e.clientY - r.top)/r.height - .5;
+    card.style.transform = `perspective(800px) rotateX(${-y*8}deg) rotateY(${x*8}deg) translateZ(6px)`;
+  });
+  card.addEventListener('mouseleave', () => {
+    card.style.transform = '';
+  });
+})();
+
+/* =====================================================
+   H7) PARALLAX DEPTH for gallery section title
+   ===================================================== */
+(function sectionParallax(){
+  if(reduceMotion) return;
+  const sections = document.querySelectorAll('.section-title');
+  addEventListener('scroll', () => {
+    sections.forEach(s => {
+      const r = s.getBoundingClientRect();
+      const visible = r.top < innerHeight && r.bottom > 0;
+      if(visible){
+        const pct = (r.top / innerHeight - .5) * 20;
+        s.style.transform = `translateZ(20px) translateY(${pct.toFixed(1)}px)`;
+      }
+    });
+  }, { passive:true });
 })();
 </script>
 </body>
