@@ -609,8 +609,15 @@ body::after{
 .vine-left, .vine-right{position:fixed; top:0; bottom:0; width:80px; z-index:1; pointer-events:none; opacity:.4}
 .vine-left{left:0}
 .vine-right{right:0; transform:scaleX(-1)}
-:root[data-theme="day"] .vine-left, :root[data-theme="day"] .vine-right{opacity:.25}
+:root[data-theme="day"] .vine-left, :root[data-theme="day"] .vine-right{opacity:.28}
 :root[data-theme="night"] .vine-left, :root[data-theme="night"] .vine-right{opacity:.2}
+/* top canopy framing overlay */
+.top-canopy{position:fixed; top:0; left:0; right:0; height:180px; z-index:1; pointer-events:none; overflow:hidden}
+.top-canopy svg{position:absolute; top:0; left:0; width:100%; height:100%}
+:root[data-theme="day"] .top-canopy svg path[fill="#18482b"]{fill:#2d7d42}
+:root[data-theme="day"] .top-canopy svg path[fill="#2d7845"]{fill:#48a356}
+:root[data-theme="night"] .top-canopy svg path[fill="#18482b"]{fill:#081810}
+:root[data-theme="night"] .top-canopy svg path[fill="#2d7845"]{fill:#0c2217}
 /* forest floor flowers (in hero area) */
 .forest-flowers{position:fixed; bottom:0; left:0; right:0; height:140px; z-index:1; pointer-events:none; overflow:hidden}
 .forest-flowers svg{position:absolute; bottom:0; width:100%; height:100%}
@@ -694,6 +701,26 @@ body::after{
   </svg>
 </div>
 
+<!-- top forest canopy framing -->
+<div class="top-canopy" aria-hidden="true">
+  <svg viewBox="0 0 1600 220" width="100%" height="220" preserveAspectRatio="none">
+    <path d="M0 0 Q220 50 480 20 L540 0 Z" fill="#18482b" opacity=".7"/>
+    <path d="M0 0 Q180 85 360 45 L420 0 Z" fill="#2d7845" opacity=".55"/>
+    <path d="M80 0 Q95 70 85 130" stroke="#256b3c" stroke-width="2.2" fill="none"/>
+    <ellipse cx="85" cy="132" rx="14" ry="7" fill="#389d52" transform="rotate(30 85 132)" opacity=".85"/>
+    <ellipse cx="88" cy="90" rx="12" ry="6" fill="#2d7a42" transform="rotate(-25 88 90)" opacity=".85"/>
+    <path d="M190 0 Q215 90 200 160" stroke="#1f5a32" stroke-width="2.4" fill="none"/>
+    <ellipse cx="200" cy="162" rx="16" ry="8" fill="#4ade80" transform="rotate(25 200 162)" opacity=".8"/>
+    <ellipse cx="206" cy="110" rx="13" ry="7" fill="#329048" transform="rotate(-35 206 110)" opacity=".85"/>
+    <path d="M1600 0 Q1380 50 1120 20 L1060 0 Z" fill="#18482b" opacity=".7"/>
+    <path d="M1600 0 Q1420 85 1240 45 L1180 0 Z" fill="#2d7845" opacity=".55"/>
+    <path d="M1520 0 Q1505 70 1515 130" stroke="#256b3c" stroke-width="2.2" fill="none"/>
+    <ellipse cx="1515" cy="132" rx="14" ry="7" fill="#389d52" transform="rotate(-30 1515 132)" opacity=".85"/>
+    <path d="M1410 0 Q1385 90 1400 160" stroke="#1f5a32" stroke-width="2.4" fill="none"/>
+    <ellipse cx="1400" cy="162" rx="16" ry="8" fill="#4ade80" transform="rotate(-25 1400 162)" opacity=".8"/>
+  </svg>
+</div>
+
 <nav>
   <a class="logo" href="#top" aria-label="Pixel Poetry home"><svg class="plogo" viewBox="0 0 100 84" role="img" aria-label="Pixel Poetry logo: a navy camera with wildflowers growing from its top and a bee flying around">
       <defs>
@@ -757,6 +784,7 @@ body::after{
       </g>
     </svg><b>Pixel Poetry</b></a>
   <button class="themebtn" id="themeBtn" type="button" aria-label="Switch look: default, night or day" title="Switch theme (T)"><span class="ti">🌿</span><span class="tl">Theme</span></button>
+  <button class="themebtn" id="soundBtn" type="button" aria-label="Toggle Forest Ambience sound (Breeze, Birds, Crickets)" title="Forest Ambience (M)"><span class="ti">🍃</span><span class="tl">Ambience</span></button>
   <label class="search" for="searchBox"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg><input id="searchBox" type="search" placeholder="Search photos or photographers" autocomplete="off" autocomplete="off" aria-label="Search photos"><kbd>/</kbd></label>
   <div class="links"><a href="#gallery">Gallery</a><a href="#about">About</a><a id="feedbackLink" href="#" target="_blank" rel="noopener" hidden>💌 Feedback</a></div>
 </nav>
@@ -2516,6 +2544,202 @@ if(calm){ cc.remove(); } else { requestAnimationFrame(critterLoop); }
       }
     });
   }, { passive:true });
+})();
+
+/* =====================================================
+   H8) FOREST AMBIENCE (REAL-TIME NATURE SYNTHESIZER) 🍃
+   Zero external audio files. 100% synthesized through Web Audio API.
+   - Soothing forest canopy breeze with gentle harmonic swell
+   - Sweet woodland songbird chirps in Day/Forest mode
+   - Gentle night crickets in Night mode
+   ===================================================== */
+(function forestSoundscape(){
+  let actx = null, isPlaying = false;
+  let masterGain = null, breezeFilter = null;
+  let birdInterval = null, cricketInterval = null;
+
+  function initAudio(){
+    if(actx) return;
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    actx = new AudioCtx();
+
+    masterGain = actx.createGain();
+    masterGain.gain.setValueAtTime(0.001, actx.currentTime);
+    masterGain.connect(actx.destination);
+
+    // Pink noise buffer for soft, deep wind rustling through dense trees
+    const bufferSize = actx.sampleRate * 2;
+    const noiseBuffer = actx.createBuffer(1, bufferSize, actx.sampleRate);
+    const output = noiseBuffer.getChannelData(0);
+    let b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
+    for (let i = 0; i < bufferSize; i++) {
+      const white = Math.random() * 2 - 1;
+      b0 = 0.99886 * b0 + white * 0.0555179;
+      b1 = 0.99332 * b1 + white * 0.0750759;
+      b2 = 0.96900 * b2 + white * 0.1538520;
+      b3 = 0.86650 * b3 + white * 0.3104856;
+      b4 = 0.55000 * b4 + white * 0.5329522;
+      b5 = -0.7616 * b5 - white * 0.0168980;
+      output[i] = (b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362) * 0.045;
+      b6 = white * 0.115926;
+    }
+
+    const noiseSource = actx.createBufferSource();
+    noiseSource.buffer = noiseBuffer;
+    noiseSource.loop = true;
+
+    // Filter shaping for warm tree canopy air
+    breezeFilter = actx.createBiquadFilter();
+    breezeFilter.type = 'lowpass';
+    breezeFilter.frequency.setValueAtTime(360, actx.currentTime);
+    breezeFilter.Q.setValueAtTime(1.4, actx.currentTime);
+
+    // Slow breath LFO for organic wind swells
+    const lfo = actx.createOscillator();
+    lfo.frequency.setValueAtTime(0.1, actx.currentTime);
+    const lfoGain = actx.createGain();
+    lfoGain.gain.setValueAtTime(160, actx.currentTime);
+    lfo.connect(lfoGain);
+    lfoGain.connect(breezeFilter.frequency);
+    lfo.start();
+
+    noiseSource.connect(breezeFilter);
+    breezeFilter.connect(masterGain);
+    noiseSource.start();
+  }
+
+  // Sweet songbird chirp synthesizer for day & forest modes
+  function playBirdChirp(){
+    if(!actx || !isPlaying || currentTheme() === 'night') return;
+    try{
+      const now = actx.currentTime;
+      const osc = actx.createOscillator();
+      const gain = actx.createGain();
+      const baseFreq = 1900 + Math.random() * 1100;
+
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(baseFreq, now);
+      osc.frequency.exponentialRampToValueAtTime(baseFreq + 700 + Math.random() * 350, now + 0.05);
+      osc.frequency.exponentialRampToValueAtTime(baseFreq - 150, now + 0.13);
+
+      gain.gain.setValueAtTime(0.001, now);
+      gain.gain.linearRampToValueAtTime(0.065, now + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+
+      osc.connect(gain);
+      gain.connect(masterGain);
+      osc.start(now);
+      osc.stop(now + 0.16);
+
+      // occasional double twitter
+      if(Math.random() < 0.6){
+        setTimeout(() => {
+          if(!isPlaying || currentTheme() === 'night' || !actx) return;
+          const now2 = actx.currentTime;
+          const osc2 = actx.createOscillator();
+          const gain2 = actx.createGain();
+          osc2.type = 'sine';
+          osc2.frequency.setValueAtTime(baseFreq + 250, now2);
+          osc2.frequency.exponentialRampToValueAtTime(baseFreq + 850, now2 + 0.045);
+          osc2.frequency.exponentialRampToValueAtTime(baseFreq + 50, now2 + 0.11);
+          gain2.gain.setValueAtTime(0.001, now2);
+          gain2.gain.linearRampToValueAtTime(0.055, now2 + 0.015);
+          gain2.gain.exponentialRampToValueAtTime(0.001, now2 + 0.13);
+          osc2.connect(gain2);
+          gain2.connect(masterGain);
+          osc2.start(now2);
+          osc2.stop(now2 + 0.14);
+        }, 120);
+      }
+    }catch(e){}
+  }
+
+  // Soft night cricket pulse for night mode
+  function playCricket(){
+    if(!actx || !isPlaying || currentTheme() !== 'night') return;
+    try{
+      const now = actx.currentTime;
+      for(let i = 0; i < 3; i++){
+        const t = now + i * 0.045;
+        const osc = actx.createOscillator();
+        const gain = actx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(4500 + (Math.random() - .5) * 180, t);
+        gain.gain.setValueAtTime(0.001, t);
+        gain.gain.linearRampToValueAtTime(0.03, t + 0.008);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.035);
+        osc.connect(gain);
+        gain.connect(masterGain);
+        osc.start(t);
+        osc.stop(t + 0.04);
+      }
+    }catch(e){}
+  }
+
+  function toggleSound(){
+    if(!actx) initAudio();
+    if(actx.state === 'suspended') actx.resume();
+
+    isPlaying = !isPlaying;
+    const btn = document.getElementById('soundBtn');
+    if(isPlaying){
+      masterGain.gain.cancelScheduledValues(actx.currentTime);
+      masterGain.gain.setValueAtTime(masterGain.gain.value, actx.currentTime);
+      masterGain.gain.linearRampToValueAtTime(0.32, actx.currentTime + 1.2);
+      if(btn) {
+        btn.querySelector('.ti').textContent = '🔊';
+        btn.querySelector('.tl').textContent = 'Ambience On';
+        btn.classList.add('on');
+      }
+      toast('🍃 Forest ambience active — listen to the breeze 🌲');
+      clearInterval(birdInterval);
+      clearInterval(cricketInterval);
+      birdInterval = setInterval(() => { if(Math.random() < 0.65) playBirdChirp(); }, 4200);
+      cricketInterval = setInterval(() => { if(Math.random() < 0.8) playCricket(); }, 1750);
+    } else {
+      masterGain.gain.cancelScheduledValues(actx.currentTime);
+      masterGain.gain.setValueAtTime(masterGain.gain.value, actx.currentTime);
+      masterGain.gain.linearRampToValueAtTime(0.001, actx.currentTime + 0.8);
+      clearInterval(birdInterval);
+      clearInterval(cricketInterval);
+      if(btn) {
+        btn.querySelector('.ti').textContent = '🍃';
+        btn.querySelector('.tl').textContent = 'Ambience';
+        btn.classList.remove('on');
+      }
+      toast('🍃 Forest ambience muted');
+    }
+  }
+
+  const soundBtn = document.getElementById('soundBtn');
+  if(soundBtn) soundBtn.addEventListener('click', toggleSound);
+  addEventListener('keydown', e => {
+    if((e.key === 'm' || e.key === 'M') && !e.metaKey && !e.ctrlKey && !e.altKey && !/INPUT|TEXTAREA/.test((document.activeElement||{}).tagName||'')) {
+      toggleSound();
+    }
+  });
+})();
+
+/* =====================================================
+   H9) INTERACTIVE BUTTERFLY TOUCH & DISCOVERY SPARKLE 🦋✨
+   ===================================================== */
+(function butterflyTouch(){
+  if(reduceMotion) return;
+  let touches = 0;
+  addEventListener('click', e => {
+    if(e.target.closest('button, a, input, .card, #lightbox, #dlPanel, #fsView')) return;
+    for(const b of butterflies){
+      const d = Math.hypot(b.x - e.clientX, b.y - e.clientY);
+      if(d < 45){
+        burstFrom({getBoundingClientRect:()=>({left:b.x-10,top:b.y-10,width:20,height:20})}, ['🌸','✨','🦋','🍃']);
+        touches++;
+        toast(`🦋 You startled a gentle butterfly! (${touches} forest moments)`);
+        b.turn = (Math.random() - .5) * 1.5;
+        b.heading += (Math.random() - .5) * 2;
+        break;
+      }
+    }
+  });
 })();
 </script>
 </body>
