@@ -641,6 +641,8 @@ body::after{
 /* forest floor mushrooms (drawn in SVG via JS) */
 .forest-mushrooms{position:fixed; bottom:0; left:0; right:0; height:80px; z-index:1; pointer-events:none}
 
+.lb-flora{display:none !important}   /* no decorations around the photo viewer */
+
 @media (prefers-reduced-motion:reduce){
   *{animation:none !important; transition:none !important}
   .card{opacity:1; transform:none; filter:none}
@@ -2656,285 +2658,333 @@ if(calm){ cc.remove(); } else { requestAnimationFrame(critterLoop); }
 })();
 
 /* =====================================================
-   H8) SOOTHING NATURE AMBIENCE (3-MODE SYNTHESIZER) 🍃
-   Zero external audio files. 100% synthesized through Web Audio API.
-   - Default (Forest): Deep warm canopy wind + soothing pentatonic forest wind chimes
-   - Day: Sunlit morning breeze + gentle, soft distant woodland songbird chirps
-   - Night: Peaceful nocturnal air + hypnotic rhythmic crickets + distant soft owl
+   H8) AMBIENT SOUNDSCAPES 🍃  (one for each theme)
+   Everything is synthesized live with the Web Audio API, so there are no audio files to load.
+   - Forest (default): soft canopy wind, a little stream, a slow warm pad, a wooden flute and wind chimes
+   - Day: gentle breeze, a trickling brook, songbirds + a dove, kalimba melody and glassy petals falling
+   - Night: soft flowing air, rustling leaves, crickets, a far owl, tree frogs and a music-box lullaby
+   Each scene has its own volume "bus", so changing the theme cross-fades smoothly from one scene to the next.
    ===================================================== */
 (function forestSoundscape(){
-  let actx = null, isPlaying = false;
-  let masterGain = null, breezeFilter = null;
-  let modeInterval1 = null, modeInterval2 = null;
+  let ctx = null, master = null, comp = null, reverb = null, noiseBuf = null;
+  let playing = false, scene = 'default', timers = [];
+  const SCENES = ['default','day','night'];
+  const bus = {}, wetBus = {}, beds = {};
+  const rnd  = (a, b) => a + Math.random() * (b - a);
+  const pick = a => a[Math.floor(Math.random() * a.length)];
+  const hz   = m => 440 * Math.pow(2, (m - 69) / 12);
 
-  function initAudio(){
-    if(actx) return;
-    const AudioCtx = window.AudioContext || window.webkitAudioContext;
-    actx = new AudioCtx();
-
-    masterGain = actx.createGain();
-    masterGain.gain.setValueAtTime(0.001, actx.currentTime);
-    masterGain.connect(actx.destination);
-
-    // Brownian / Integrated noise: velvety-smooth, warm, organic airflow with ZERO hiss
-    const bufferSize = actx.sampleRate * 2;
-    const noiseBuffer = actx.createBuffer(1, bufferSize, actx.sampleRate);
-    const output = noiseBuffer.getChannelData(0);
-    let last = 0;
-    for (let i = 0; i < bufferSize; i++) {
-      const white = (Math.random() * 2 - 1) * 0.025;
-      last = (last + white) * 0.985;
-      output[i] = last * 0.09;
+  /* ---------- building blocks ---------- */
+  function makeNoise(sec){                                  // soft "pink" noise, different in each ear
+    const n = Math.floor(ctx.sampleRate * sec), b = ctx.createBuffer(2, n, ctx.sampleRate);
+    for(let c = 0; c < 2; c++){
+      const d = b.getChannelData(c); let b0=0,b1=0,b2=0,b3=0,b4=0,b5=0,b6=0;
+      for(let i = 0; i < n; i++){
+        const w = Math.random() * 2 - 1;
+        b0=.99886*b0+w*.0555179; b1=.99332*b1+w*.0750759; b2=.969*b2+w*.153852;
+        b3=.8665*b3+w*.3104856;  b4=.55*b4+w*.5329522;    b5=-.7616*b5-w*.016898;
+        d[i]=(b0+b1+b2+b3+b4+b5+b6+w*.5362)*.11; b6=w*.115926;
+      }
+      const f = 2400;                                        // fade the loop seam so it never clicks
+      for(let i = 0; i < f; i++){ const k = i / f; d[i] *= k; d[n-1-i] *= k; }
     }
-
-    const noiseSource = actx.createBufferSource();
-    noiseSource.buffer = noiseBuffer;
-    noiseSource.loop = true;
-
-    // Filter shaping for deep canopy air
-    breezeFilter = actx.createBiquadFilter();
-    breezeFilter.type = 'lowpass';
-    const th = currentTheme();
-    const initialFreq = th === 'night' ? 180 : th === 'day' ? 290 : 230;
-    breezeFilter.frequency.setValueAtTime(initialFreq, actx.currentTime);
-    breezeFilter.Q.setValueAtTime(1.1, actx.currentTime);
-
-    // Very slow organic breathing swell (14 seconds period)
-    const lfo = actx.createOscillator();
-    lfo.frequency.setValueAtTime(0.07, actx.currentTime);
-    const lfoGain = actx.createGain();
-    lfoGain.gain.setValueAtTime(75, actx.currentTime);
-    lfo.connect(lfoGain);
-    lfoGain.connect(breezeFilter.frequency);
-    lfo.start();
-
-    noiseSource.connect(breezeFilter);
-    breezeFilter.connect(masterGain);
-    noiseSource.start();
+    return b;
   }
-
-  // SOUND 1 (Default / Forest): Soothing Pentatonic Forest Chimes
-  const CHIME_FREQS = [329.63, 392.00, 440.00, 493.88, 587.33]; // E4, G4, A4, B4, D5
-  function playForestChime(){
-    if(!actx || (!isPlaying && !arguments[0])) return;
-    try{
-      const now = actx.currentTime;
-      const freq = CHIME_FREQS[Math.floor(Math.random() * CHIME_FREQS.length)];
-      const osc = actx.createOscillator();
-      const osc2 = actx.createOscillator();
-      const gain = actx.createGain();
-
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(freq, now);
-      osc2.type = 'sine';
-      osc2.frequency.setValueAtTime(freq * 2.76, now); // soft bell overtone
-
-      gain.gain.setValueAtTime(0.001, now);
-      gain.gain.linearRampToValueAtTime(0.045, now + 0.04);
-      gain.gain.exponentialRampToValueAtTime(0.0005, now + 3.2);
-
-      osc.connect(gain);
-      osc2.connect(gain);
-      gain.connect(masterGain);
-      osc.start(now);
-      osc2.start(now);
-      osc.stop(now + 3.3);
-      osc2.stop(now + 3.3);
-    }catch(e){}
-  }
-  window.playForestChime = () => playForestChime(true);
-
-  // SOUND 2 (Day): Sweet, delicate woodland songbird
-  function playDayBird(){
-    if(!actx || (!isPlaying && !arguments[0])) return;
-    try{
-      const now = actx.currentTime;
-      const osc = actx.createOscillator();
-      const gain = actx.createGain();
-      const baseFreq = 1800 + Math.random() * 800;
-
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(baseFreq, now);
-      osc.frequency.exponentialRampToValueAtTime(baseFreq + 550, now + 0.04);
-      osc.frequency.exponentialRampToValueAtTime(baseFreq - 100, now + 0.12);
-
-      gain.gain.setValueAtTime(0.001, now);
-      gain.gain.linearRampToValueAtTime(0.028, now + 0.015);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.14);
-
-      osc.connect(gain);
-      gain.connect(masterGain);
-      osc.start(now);
-      osc.stop(now + 0.15);
-
-      if(Math.random() < 0.65){
-        setTimeout(() => {
-          if(!isPlaying && !arguments[0]) return;
-          const now2 = actx.currentTime;
-          const osc2 = actx.createOscillator();
-          const gain2 = actx.createGain();
-          osc2.type = 'sine';
-          osc2.frequency.setValueAtTime(baseFreq + 220, now2);
-          osc2.frequency.exponentialRampToValueAtTime(baseFreq + 750, now2 + 0.04);
-          osc2.frequency.exponentialRampToValueAtTime(baseFreq, now2 + 0.11);
-          gain2.gain.setValueAtTime(0.001, now2);
-          gain2.gain.linearRampToValueAtTime(0.024, now2 + 0.015);
-          gain2.gain.exponentialRampToValueAtTime(0.001, now2 + 0.13);
-          osc2.connect(gain2);
-          gain2.connect(masterGain);
-          osc2.start(now2);
-          osc2.stop(now2 + 0.14);
-        }, 110);
+  function makeReverb(sec, decay){                          // a small airy "room" made of fading noise
+    const n = Math.floor(ctx.sampleRate * sec), ir = ctx.createBuffer(2, n, ctx.sampleRate);
+    for(let c = 0; c < 2; c++){
+      const d = ir.getChannelData(c); let y = 0;
+      for(let i = 0; i < n; i++){
+        y = y * .62 + (Math.random() * 2 - 1) * .38;
+        d[i] = y * Math.pow(1 - i / n, decay);
       }
-    }catch(e){}
+    }
+    return ir;
   }
-  window.playForestChirp = () => playDayBird(true);
+  function noiseSrc(){
+    const s = ctx.createBufferSource(); s.buffer = noiseBuf; s.loop = true;
+    s.start(0, Math.random() * 4); return s;
+  }
+  // a voice output: gain -> pan -> scene bus, plus a send to the shared reverb
+  function out(s, pan, wet){
+    const g = ctx.createGain(), p = ctx.createStereoPanner();
+    p.pan.value = pan || 0; g.connect(p); p.connect(bus[s]);
+    if(wet){ const w = ctx.createGain(); w.gain.value = wet; p.connect(w); w.connect(wetBus[s]); }
+    return g;
+  }
+  function osc(type, f, t, dur, dest){
+    const o = ctx.createOscillator(); o.type = type; o.frequency.setValueAtTime(f, t);
+    o.connect(dest); o.start(t); o.stop(t + dur + .06); return o;
+  }
+  function env(g, t, a, peak, dur){
+    g.gain.setValueAtTime(.0001, t);
+    g.gain.linearRampToValueAtTime(peak, t + a);
+    g.gain.exponentialRampToValueAtTime(.0001, t + dur);
+  }
+  function partialGain(a, dest){ const p = ctx.createGain(); p.gain.value = a; p.connect(dest); return p; }
 
-  // SOUND 3 (Night): Gentle rhythmic field crickets & soft distant owl
-  function playNightCricket(){
-    if(!actx || (!isPlaying && !arguments[0])) return;
-    try{
-      const now = actx.currentTime;
-      for(let i = 0; i < 3; i++){
-        const t = now + i * 0.04;
-        const osc = actx.createOscillator();
-        const gain = actx.createGain();
-        osc.type = 'triangle';
-        osc.frequency.setValueAtTime(4200 + (Math.random() - .5) * 120, t);
-        gain.gain.setValueAtTime(0.001, t);
-        gain.gain.linearRampToValueAtTime(0.018, t + 0.007);
-        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.032);
-        osc.connect(gain);
-        gain.connect(masterGain);
-        osc.start(t);
-        osc.stop(t + 0.035);
+  /* ---------- instruments ---------- */
+  const BELL = [[1,1],[2.76,.28],[5.4,.1]];                 // wind-chime / music-box
+  const GLASS = [[1,1],[3,.12],[4.2,.05]];                  // pure glassy drops
+  function bell(s, m, vol, o){
+    o = o || {}; const t = ctx.currentTime + (o.delay || 0), dur = o.dur || 3.4;
+    const g = out(s, o.pan, o.wet == null ? .55 : o.wet); env(g, t, .004, vol, dur);
+    for(const [r, a] of (o.parts || BELL)) osc('sine', hz(m) * r, t, dur, partialGain(a, g));
+  }
+  function pluck(s, m, vol, o){                              // kalimba: a warm tine + a tiny "tick"
+    o = o || {}; const t = ctx.currentTime + (o.delay || 0), dur = 1.9;
+    const g = out(s, o.pan, .4); env(g, t, .004, vol, dur);
+    osc('sine', hz(m), t, dur, g);
+    const tick = ctx.createGain(); env(tick, t, .002, .35, .12); tick.connect(g);
+    osc('sine', hz(m) * 5.4, t, .15, tick);
+  }
+  function chirp(s, t, f0, f1, dur, vol, pan, wet){          // one bird "note": a quick pitch sweep
+    const g = out(s, pan, wet), o = ctx.createOscillator();
+    o.type = 'sine'; o.frequency.setValueAtTime(f0, t); o.frequency.exponentialRampToValueAtTime(f1, t + dur);
+    g.gain.setValueAtTime(.0001, t); g.gain.linearRampToValueAtTime(vol, t + dur * .28);
+    g.gain.exponentialRampToValueAtTime(.0001, t + dur);
+    o.connect(g); o.start(t); o.stop(t + dur + .03);
+  }
+  function flute(s, m, t, dur, vol, pan){
+    const f = hz(m), g = out(s, pan, .6);
+    g.gain.setValueAtTime(.0001, t); g.gain.linearRampToValueAtTime(vol, t + .1);
+    g.gain.setValueAtTime(vol * .85, Math.max(t + .12, t + dur - .25)); g.gain.linearRampToValueAtTime(.0001, t + dur);
+    const o1 = osc('sine', f, t, dur, g), o2 = osc('sine', f * 2, t, dur, partialGain(.09, g));
+    const lfo = ctx.createOscillator(), lg = ctx.createGain();    // gentle vibrato
+    lfo.frequency.value = 5; lg.gain.setValueAtTime(0, t); lg.gain.linearRampToValueAtTime(f * .006, t + .5);
+    lfo.connect(lg); lg.connect(o1.frequency); lg.connect(o2.frequency); lfo.start(t); lfo.stop(t + dur + .06);
+    const ns = ctx.createBufferSource(); ns.buffer = noiseBuf; ns.loop = true;     // a breath of air
+    const bp = ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = f * 2; bp.Q.value = 5;
+    const bg = ctx.createGain(); bg.gain.value = .5; ns.connect(bp); bp.connect(bg); bg.connect(g);
+    ns.start(t, Math.random() * 4); ns.stop(t + dur + .06);
+  }
+  function padChord(s, notes, vol, dur){                     // slow, warm cloud of sound
+    const t = ctx.currentTime;
+    for(const m of notes){
+      const g = out(s, rnd(-.5, .5), .5), lp = ctx.createBiquadFilter();
+      lp.type = 'lowpass'; lp.frequency.value = 760; lp.connect(g);
+      g.gain.setValueAtTime(.0001, t); g.gain.linearRampToValueAtTime(vol, t + 6);
+      g.gain.setValueAtTime(vol, t + dur - 7); g.gain.linearRampToValueAtTime(.0001, t + dur);
+      for(const d of [-6, 6]){ const o = osc('triangle', hz(m), t, dur, lp); o.detune.value = d; }
+    }
+  }
+
+  /* ---------- continuous beds (always running, only the current scene is audible) ---------- */
+  // A different kind of air for each scene (each has its own filters, speed and character):
+  //  forest = deep, warm, slow canopy breath      day = light, bright, sunny leaf-breeze
+  //  night  = cool, hollow, whispery air with a faint tone, like wind across a bottle
+  function slow(param, rate, depth){ const l = ctx.createOscillator(), lg = ctx.createGain(); l.frequency.value = rate; lg.gain.value = depth; l.connect(lg); lg.connect(param); l.start(); }
+  function windBed(s){
+    const o = out(s, 0, .14), src = noiseSrc(), g = ctx.createGain();
+    if(s === 'default'){
+      const lp = ctx.createBiquadFilter(), lp2 = ctx.createBiquadFilter();
+      lp.type = 'lowpass'; lp.frequency.value = 210; lp.Q.value = .25; lp2.type = 'lowpass'; lp2.frequency.value = 260; lp2.Q.value = .2;
+      g.gain.value = .15; src.connect(lp); lp.connect(lp2); lp2.connect(g); g.connect(o);
+      slow(g.gain, .035, .05); slow(lp.frequency, .05, 40);                    // very slow, deep swell
+    } else if(s === 'day'){
+      const bp = ctx.createBiquadFilter(), lp = ctx.createBiquadFilter();
+      bp.type = 'bandpass'; bp.frequency.value = 1150; bp.Q.value = .5; lp.type = 'lowpass'; lp.frequency.value = 2300; lp.Q.value = .2;
+      g.gain.value = .034; src.connect(bp); bp.connect(lp); lp.connect(g); g.connect(o);
+      slow(g.gain, .11, .018); slow(bp.frequency, .09, 350);                   // quicker, lighter, brighter puffs
+    } else {
+      const bp = ctx.createBiquadFilter();
+      bp.type = 'bandpass'; bp.frequency.value = 420; bp.Q.value = 1.6; g.gain.value = .036;
+      src.connect(bp); bp.connect(g); g.connect(o);
+      slow(g.gain, .028, .014); slow(bp.frequency, .04, 90);
+      for(const [fr, v, r] of [[196, .0032, .045], [294, .0020, .062]]){       // a faint, hollow "bottle" tone that breathes in and out
+        const t = ctx.createOscillator(), tg = ctx.createGain();
+        t.type = 'sine'; t.frequency.value = fr; tg.gain.value = v; slow(tg.gain, r, v * .85);
+        t.connect(tg); tg.connect(o); t.start();
       }
-    }catch(e){}
+    }
+  }
+  function rustleBed(s){                                             // leaves, in little gusts: a different sound in every scene
+    const src = noiseSrc(), g = ctx.createGain(); g.gain.value = .0001;
+    const cfg = { default:[600, 1300, .5], day:[3800, 6800, .8], night:[1600, 3000, .4] }[s];
+    const hp = ctx.createBiquadFilter(), bp = ctx.createBiquadFilter();
+    hp.type = 'highpass'; hp.frequency.value = cfg[0]; bp.type = 'bandpass'; bp.frequency.value = cfg[1]; bp.Q.value = cfg[2];
+    src.connect(hp); hp.connect(bp); bp.connect(g); g.connect(out(s, 0, .1));
+    beds[s].rustle = g;
+  }
+  function streamBed(s, vol){                                        // a soft far-away brook
+    const g = ctx.createGain(); g.gain.value = vol; g.connect(out(s, .15, .1));
+    for(const [f, q, r] of [[900,1.6,7.3],[1500,2.2,11.1],[2300,2.6,5.7]]){
+      const src = noiseSrc(), bp = ctx.createBiquadFilter(), sg = ctx.createGain(), m = ctx.createGain();
+      bp.type = 'bandpass'; bp.frequency.value = f; bp.Q.value = q; sg.gain.value = .6;
+      src.connect(bp); bp.connect(sg); sg.connect(m); m.connect(g);
+      const l = ctx.createOscillator(), lg = ctx.createGain(); l.frequency.value = r; lg.gain.value = .35;
+      m.gain.value = .65; l.connect(lg); lg.connect(m.gain); l.start();
+    }
   }
 
-  function playOwl(){
-    if(!actx || !isPlaying || currentTheme() !== 'night') return;
-    try{
-      const now = actx.currentTime;
-      // "hoo"
-      const osc1 = actx.createOscillator();
-      const gain1 = actx.createGain();
-      osc1.type = 'sine';
-      osc1.frequency.setValueAtTime(210, now);
-      osc1.frequency.linearRampToValueAtTime(195, now + 0.25);
-      gain1.gain.setValueAtTime(0.001, now);
-      gain1.gain.linearRampToValueAtTime(0.022, now + 0.08);
-      gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
-      osc1.connect(gain1);
-      gain1.connect(masterGain);
-      osc1.start(now);
-      osc1.stop(now + 0.35);
-
-      // "... hooooo"
-      setTimeout(() => {
-        if(!isPlaying || currentTheme() !== 'night' || !actx) return;
-        const now2 = actx.currentTime;
-        const osc2 = actx.createOscillator();
-        const gain2 = actx.createGain();
-        osc2.type = 'sine';
-        osc2.frequency.setValueAtTime(195, now2);
-        osc2.frequency.linearRampToValueAtTime(175, now2 + 0.45);
-        gain2.gain.setValueAtTime(0.001, now2);
-        gain2.gain.linearRampToValueAtTime(0.02, now2 + 0.1);
-        gain2.gain.exponentialRampToValueAtTime(0.001, now2 + 0.55);
-        osc2.connect(gain2);
-        gain2.connect(masterGain);
-        osc2.start(now2);
-        osc2.stop(now2 + 0.6);
-      }, 420);
-    }catch(e){}
+  function init(){
+    if(ctx) return;
+    ctx = new (window.AudioContext || window.webkitAudioContext)();
+    noiseBuf = makeNoise(6);
+    master = ctx.createGain(); master.gain.value = .0001;
+    comp = ctx.createDynamicsCompressor();
+    comp.threshold.value = -20; comp.knee.value = 24; comp.ratio.value = 3.2; comp.attack.value = .02; comp.release.value = .35;
+    const an = ctx.createAnalyser(); an.fftSize = 2048; window.ppAmbienceAnalyser = an;
+    master.connect(comp); comp.connect(an); comp.connect(ctx.destination);
+    reverb = ctx.createConvolver(); reverb.buffer = makeReverb(3.4, 2.6);
+    const rg = ctx.createGain(); rg.gain.value = .9; reverb.connect(rg); rg.connect(master);
+    for(const s of SCENES){
+      bus[s] = ctx.createGain(); bus[s].gain.value = .0001; bus[s].connect(master);
+      wetBus[s] = ctx.createGain(); wetBus[s].gain.value = .0001; wetBus[s].connect(reverb);
+      beds[s] = {};
+    }
+    windBed('default');   rustleBed('default'); streamBed('default', .020);
+    windBed('day');   rustleBed('day');     streamBed('day', .028);
+    windBed('night');  rustleBed('night');
   }
 
-  // Soft mushroom spore burst pop
-  window.playForestPop = () => {
-    if(!actx) initAudio();
-    if(actx.state === 'suspended') actx.resume();
-    try{
-      const now = actx.currentTime;
-      const osc = actx.createOscillator();
-      const gain = actx.createGain();
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(450, now);
-      osc.frequency.exponentialRampToValueAtTime(140, now + 0.12);
-      gain.gain.setValueAtTime(0.001, now);
-      gain.gain.linearRampToValueAtTime(0.05, now + 0.015);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.14);
-      osc.connect(gain);
-      gain.connect(masterGain);
-      osc.start(now);
-      osc.stop(now + 0.15);
-    }catch(e){}
+  /* ---------- scene events ---------- */
+  const C_PENT   = [60,62,64,67,69,72,74,76,79,81,84];       // C major pentatonic (forest + day)
+  const A_MINOR  = [57,60,62,64,67,69,72,74,76,79,81];       // A minor pentatonic (night lullaby)
+  const CHORDS   = [[48,55,59,64],[45,52,60,64],[41,53,57,64],[43,50,55,62]];
+  let chordIx = 0, cricketAmp = 1;
+
+  function walk(scale, start, steps){                          // a gentle wandering tune
+    const out_ = []; let i = start;
+    for(let k = 0; k < steps; k++){ out_.push(scale[i]); i = Math.max(0, Math.min(scale.length - 1, i + pick([-2,-1,-1,1,1,2]))); }
+    return out_;
+  }
+  const E = {
+    gust(s, vol){ const g = beds[s].rustle.gain, t = ctx.currentTime, d = ({default:rnd(2.4,3.6), day:rnd(.7,1.2), night:rnd(2.8,4.5)})[s];
+      g.cancelScheduledValues(t); g.setValueAtTime(Math.max(g.value, .0001), t);
+      g.linearRampToValueAtTime(vol * rnd(.5, 1), t + d * .4); g.linearRampToValueAtTime(.0001, t + d * 1.6); },
+    chime(){ bell('default', pick([76,79,81,84,86]), .016, { pan: rnd(-.6,.6), dur: 4 }); },
+    flutePhrase(){
+      let t = ctx.currentTime + .1; const pan = rnd(-.5,.5);
+      for(const m of walk([67,69,72,74,76,79], Math.floor(rnd(1,5)), Math.floor(rnd(3,6)))){
+        const d = pick([.5,.7,.9,1.3]); flute('default', m, t, d, .028, pan); t += d + .12;
+      }
+    },
+    padNext(){ padChord('default', CHORDS[chordIx++ % CHORDS.length], .0055, 22); },
+
+    tweet(){ const t = ctx.currentTime + .05, f = rnd(3200,4700), pan = rnd(-.8,.8), n = Math.floor(rnd(2,5));
+      for(let i = 0; i < n; i++) chirp('day', t + i * .13, f, f * rnd(1.12,1.4), .08, .02, pan, .35); },
+    warble(){ const t = ctx.currentTime + .05, fc = rnd(2800,3700), pan = rnd(-.8,.8), n = Math.floor(rnd(10,17));
+      for(let i = 0; i < n; i++){ const f = fc * (1 + .22 * Math.sin(i * 1.4)); const arch = Math.sin(Math.PI * (i + .5) / n);
+        chirp('day', t + i * .058, f, f * (i % 2 ? .86 : 1.18), .045, .014 * (.35 + arch), pan, .3); } },
+    robin(){ const t = ctx.currentTime + .05, f = rnd(3000,3700), pan = rnd(-.7,.7);
+      for(let i = 0; i < 5; i++) chirp('day', t + i * .17, f * Math.pow(.9, i) * 1.15, f * Math.pow(.9, i) * .92, .13, .019, pan, .45); },
+    dove(){ const t = ctx.currentTime + .05, pan = rnd(-.9,.9), f = rnd(380,440);
+      [[0,.55,1],[.7,.7,1.07],[1.5,.5,1],[2.15,.5,1]].forEach(([dt,d,r],i) => {
+        const g = out('day', pan, .55), lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 900; lp.connect(g);
+        const tt = t + dt; g.gain.setValueAtTime(.0001, tt); g.gain.linearRampToValueAtTime(i === 1 ? .026 : .018, tt + .12);
+        g.gain.exponentialRampToValueAtTime(.0001, tt + d);
+        const o = osc('sine', f * r, tt, d, lp); o.frequency.exponentialRampToValueAtTime(f * r * 1.04, tt + d * .5); }); },
+    birds(){ pick([E.tweet, E.tweet, E.warble, E.robin])(); if(Math.random() < .35) setTimeout(() => playing && scene === 'day' && pick([E.tweet, E.robin])(), rnd(700,1800)); },
+    kalimba(){ let d = 0; for(const m of walk(C_PENT, Math.floor(rnd(3,8)), Math.floor(rnd(4,7)))){ pluck('day', m, .03, { delay: d, pan: rnd(-.2,.2) }); d += pick([.42,.55,.7]); } },
+    petal(){ bell('day', pick([84,86,88,91,93]), .0085, { pan: rnd(-.8,.8), dur: 2.2, parts: GLASS, wet: .8 }); },
+
+    cricket(i){ const f = [4300, 4650, 5050][i], pan = [-.7, .2, .8][i], g = out('night', pan, .18), t0 = ctx.currentTime;
+      for(let k = 0; k < 3; k++){ const t = t0 + .02 + k * .052, pg = ctx.createGain();
+        pg.gain.setValueAtTime(.0001, t); pg.gain.linearRampToValueAtTime(.0062 * cricketAmp, t + .012); pg.gain.exponentialRampToValueAtTime(.0001, t + .04);
+        pg.connect(g); osc('sine', f, t, .045, pg); } },
+    owl(){ const t = ctx.currentTime + .05, pan = rnd(-.9,.9);
+      [[0,.22,.012,285],[.42,.55,.022,262],[1.2,.8,.02,250]].forEach(([dt,d,v,f]) => {
+        const g = out('night', pan, .75), lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 700; lp.connect(g);
+        const tt = t + dt; g.gain.setValueAtTime(.0001, tt); g.gain.linearRampToValueAtTime(v, tt + d * .3); g.gain.exponentialRampToValueAtTime(.0001, tt + d);
+        const o = osc('sine', f, tt, d, lp); o.frequency.linearRampToValueAtTime(f * .93, tt + d); osc('sine', f * 2, tt, d, partialGain(.1, lp)); }); },
+    frog(){ const pan = rnd(-.9,.9), t0 = ctx.currentTime + .05, n = Math.floor(rnd(2,4));
+      for(let i = 0; i < n; i++){ const t = t0 + i * .16, g = out('night', pan, .35), lp = ctx.createBiquadFilter();
+        lp.type = 'lowpass'; lp.frequency.value = 1600; lp.connect(g);
+        g.gain.setValueAtTime(.0001, t); g.gain.linearRampToValueAtTime(.011, t + .015); g.gain.exponentialRampToValueAtTime(.0001, t + .09);
+        const o = osc('sine', 540, t, .1, lp); o.frequency.exponentialRampToValueAtTime(920, t + .07); } },
+    lullaby(){ let d = 0; for(const m of walk(A_MINOR, Math.floor(rnd(2,8)), Math.floor(rnd(3,6)))){
+        bell('night', m + 12, .014, { delay: d, pan: rnd(-.3,.3), dur: 3.6 }); d += pick([.75,.95,1.2]); } },
+    sparkle(){ bell('night', pick([91,93,96,98]), .005, { pan: rnd(-.9,.9), dur: 2, parts: GLASS, wet: .9 }); }
   };
 
-  function updateModeSound(theme){
-    clearInterval(modeInterval1);
-    clearInterval(modeInterval2);
-    if(!isPlaying) return;
-
-    if(breezeFilter && actx){
-      const targetFreq = theme === 'night' ? 180 : theme === 'day' ? 290 : 230;
-      breezeFilter.frequency.cancelScheduledValues(actx.currentTime);
-      breezeFilter.frequency.setValueAtTime(breezeFilter.frequency.value, actx.currentTime);
-      breezeFilter.frequency.linearRampToValueAtTime(targetFreq, actx.currentTime + 1.2);
-    }
-
-    const btn = document.getElementById('soundBtn');
-    if(theme === 'night'){
-      if(btn){ btn.querySelector('.ti').textContent = '🌙'; btn.querySelector('.tl').textContent = 'Night Air'; }
-      modeInterval1 = setInterval(() => { if(Math.random() < 0.85) playNightCricket(); }, 2000);
-      modeInterval2 = setInterval(() => { if(Math.random() < 0.45) playOwl(); }, 18000);
-    } else if(theme === 'day'){
-      if(btn){ btn.querySelector('.ti').textContent = '☀️'; btn.querySelector('.tl').textContent = 'Day Birds'; }
-      modeInterval1 = setInterval(() => { if(Math.random() < 0.65) playDayBird(); }, 6500);
+  /* ---------- scene scheduler ---------- */
+  function clearTimers(){ timers.forEach(clearTimeout); timers = []; }
+  function loop(s, fn, a, b, first){
+    const tick = () => { if(!playing || scene !== s) return; try{ fn(); }catch(e){} timers.push(setTimeout(tick, rnd(a, b))); };
+    timers.push(setTimeout(tick, first == null ? rnd(400, 1500) : first));
+  }
+  function startScene(s){
+    clearTimers();
+    if(s === 'night'){
+      for(let i = 0; i < 3; i++){ const run = () => { if(!playing || scene !== 'night') return; try{ E.cricket(i); }catch(e){}
+          timers.push(setTimeout(run, rnd(950, 1650))); }; timers.push(setTimeout(run, rnd(100, 1100))); }
+      const swell = () => { cricketAmp = .6 + .4 * Math.sin(Date.now() / 7000); timers.push(setTimeout(swell, 1000)); }; swell();
+      loop('night', () => E.gust('night', .012), 9000, 18000);
+      loop('night', E.lullaby, 9000, 16000, 2500);
+      loop('night', E.owl, 22000, 40000, 9000);
+      loop('night', E.frog, 12000, 26000, 5000);
+      loop('night', E.sparkle, 3000, 7000);
+    } else if(s === 'day'){
+      loop('day', () => E.gust('day', .010), 3000, 6500);
+      loop('day', E.birds, 3200, 7500, 800);
+      loop('day', E.dove, 24000, 42000, 12000);
+      loop('day', E.kalimba, 11000, 19000, 3500);
+      loop('day', E.petal, 2200, 5200);
     } else {
-      if(btn){ btn.querySelector('.ti').textContent = '🍃'; btn.querySelector('.tl').textContent = 'Forest Chimes'; }
-      modeInterval1 = setInterval(() => { if(Math.random() < 0.75) playForestChime(); }, 8500);
+      loop('default', () => E.gust('default', .016), 7000, 14000);
+      E.padNext(); loop('default', E.padNext, 15000, 15000, 15000);
+      loop('default', E.chime, 6000, 11000, 1800);
+      loop('default', E.flutePhrase, 15000, 27000, 4500);
     }
   }
-  window.updateAmbienceTheme = updateModeSound;
-
-  function toggleSound(){
-    if(!actx) initAudio();
-    if(actx.state === 'suspended') actx.resume();
-
-    isPlaying = !isPlaying;
-    const btn = document.getElementById('soundBtn');
-    const th = currentTheme();
-    if(isPlaying){
-      masterGain.gain.cancelScheduledValues(actx.currentTime);
-      masterGain.gain.setValueAtTime(masterGain.gain.value, actx.currentTime);
-      masterGain.gain.linearRampToValueAtTime(0.20, actx.currentTime + 1.2);
-      if(btn) btn.classList.add('on');
-      updateModeSound(th);
-      const modeNames = { default:'Forest Chimes', day:'Day Songbirds', night:'Night Crickets & Owl' };
-      toast(`🍃 Soothing Ambience: ${modeNames[th] || 'Forest sounds'}`);
-    } else {
-      masterGain.gain.cancelScheduledValues(actx.currentTime);
-      masterGain.gain.setValueAtTime(masterGain.gain.value, actx.currentTime);
-      masterGain.gain.linearRampToValueAtTime(0.001, actx.currentTime + 0.8);
-      clearInterval(modeInterval1);
-      clearInterval(modeInterval2);
-      if(btn) {
-        btn.querySelector('.ti').textContent = '🍃';
-        btn.querySelector('.tl').textContent = 'Ambience';
-        btn.classList.remove('on');
-      }
-      toast('🍃 Ambience muted');
+  const LABEL = { default:['🍃','Forest Song'], day:['☀️','Day Garden'], night:['🌙','Night Forest'] };
+  const TOAST = {
+    default:'🍃 Forest: soft wind, a gentle stream, a wooden flute and wind chimes',
+    day:'☀️ Day: birds chirping, a soft breeze and petals falling',
+    night:'🌙 Night: a soft breeze, crickets, a far owl and a music-box lullaby'
+  };
+  function setLabel(){
+    const btn = document.getElementById('soundBtn'); if(!btn) return;
+    const l = playing ? LABEL[scene] : ['🍃','Ambience'];
+    btn.querySelector('.ti').textContent = l[0]; btn.querySelector('.tl').textContent = l[1];
+    btn.classList.toggle('on', playing);
+  }
+  function crossfade(to){
+    const t = ctx.currentTime;
+    for(const s of SCENES){
+      const v = (playing && s === to) ? 1 : .0001, d = s === to ? 2.6 : 1.8;
+      for(const n of [bus[s], wetBus[s]]){ n.gain.cancelScheduledValues(t); n.gain.setValueAtTime(Math.max(n.gain.value, .0001), t); n.gain.linearRampToValueAtTime(v, t + d); }
     }
   }
+  function setScene(theme){
+    scene = SCENES.includes(theme) ? theme : 'default';
+    if(!ctx || !playing){ setLabel(); return; }
+    crossfade(scene); startScene(scene); setLabel();
+    toast(TOAST[scene]);
+  }
+  window.updateAmbienceTheme = setScene;
 
-  const soundBtn = document.getElementById('soundBtn');
-  if(soundBtn) soundBtn.addEventListener('click', toggleSound);
+  function toggle(){
+    init();
+    if(ctx.state === 'suspended') ctx.resume();
+    playing = !playing; scene = currentTheme();
+    const t = ctx.currentTime;
+    master.gain.cancelScheduledValues(t); master.gain.setValueAtTime(Math.max(master.gain.value, .0001), t);
+    if(playing){
+      master.gain.linearRampToValueAtTime(.9, t + 1.5);
+      crossfade(scene); startScene(scene); toast(TOAST[scene]);
+    } else {
+      master.gain.linearRampToValueAtTime(.0001, t + 1);
+      clearTimers(); toast('🍃 Ambience muted');
+    }
+    setLabel();
+  }
+  const btn = document.getElementById('soundBtn');
+  if(btn){ btn.addEventListener('click', toggle);
+    btn.setAttribute('aria-label', 'Toggle ambient sound: forest, day birds or night breeze, matching the theme'); }
   addEventListener('keydown', e => {
-    if((e.key === 'm' || e.key === 'M') && !e.metaKey && !e.ctrlKey && !e.altKey && !/INPUT|TEXTAREA/.test((document.activeElement||{}).tagName||'')) {
-      toggleSound();
-    }
+    if((e.key === 'm' || e.key === 'M') && !e.metaKey && !e.ctrlKey && !e.altKey && !/INPUT|TEXTAREA/.test((document.activeElement||{}).tagName||'')) toggle();
   });
+  document.addEventListener('visibilitychange', () => {           // quiet when the tab is hidden
+    if(!ctx || !playing) return;
+    if(document.hidden) ctx.suspend(); else ctx.resume();
+  });
+
+  /* the little interactive sounds used by the butterflies / mushrooms (they sound only while Ambience is on) */
+  window.playForestChirp = () => { if(playing) try{ const t = ctx.currentTime + .02, f = rnd(3300,4500); for(let i = 0; i < 3; i++) chirp(scene, t + i * .12, f, f * 1.25, .08, .02, rnd(-.5,.5), .35); }catch(e){} };
+  window.playForestChime = () => { if(playing) try{ bell(scene, pick([76,79,81,84]), .02, { dur: 3.4 }); }catch(e){} };
+  window.playForestPop   = () => { if(playing) try{ pluck(scene, pick([67,69,72]), .03); }catch(e){} };
 })();
 
 /* =====================================================
